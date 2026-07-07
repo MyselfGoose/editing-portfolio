@@ -1,0 +1,2 @@
+# Place real cinematic footage here (H.265 / WebM, 1080p max, ~5-8MB per clip).
+# Referenced by src/data/projects.ts as /videos/placeholder-01.mp4 etc.
