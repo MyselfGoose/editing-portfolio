@@ -107,7 +107,17 @@
   }
 }
 
-/* ---- Film grain (compositor-only) ---- */
+/* ---- Mux hero background (controls hidden) ---- */
+.mux-hero-bg {
+  --controls: none;
+}
+
+.mux-hero-bg::part(bottom),
+.mux-hero-bg::part(center),
+.mux-hero-bg::part(top) {
+  display: none;
+}
+
 .film-grain {
   position: fixed;
   inset: 0;

@@ -1,8 +1,30 @@
+import type { VideoAspectRatio } from "@/lib/mux";
+import { MUX_DEMO_VIDEO } from "@/lib/constants";
+
 export type ProjectCategory =
   | "Wedding Film"
   | "Documentary"
   | "Brand Story"
   | "Music Video";
+
+export interface ProjectCaptionTrack {
+  src: string;
+  srcLang: string;
+  label: string;
+  default?: boolean;
+}
+
+export interface ProjectVideo {
+  playbackId: string;
+  aspectRatio: VideoAspectRatio;
+  duration: string;
+  posterTime?: number;
+  previewRange?: {
+    start: number;
+    end: number;
+  };
+  captions?: ReadonlyArray<ProjectCaptionTrack>;
+}
 
 export interface Project {
   id: string;
@@ -12,11 +34,7 @@ export interface Project {
   year: number;
   location: string;
   description: string;
-  video: {
-    src: string;
-    poster: string;
-    duration: string;
-  };
+  video: ProjectVideo;
   credits: {
     role: string;
     client: string;
@@ -34,9 +52,11 @@ export const projects: ReadonlyArray<Project> = [
     description:
       "A story of two people. Captured through emotion, silence and movement.",
     video: {
-      src: "/videos/placeholder-01.mp4",
-      poster: "/images/poster-01.svg",
+      playbackId: MUX_DEMO_VIDEO.playbackId,
+      aspectRatio: "16/9",
       duration: "03:42",
+      posterTime: 12,
+      previewRange: { start: 8, end: 12 },
     },
     credits: {
       role: "Editor / Colorist",
@@ -53,9 +73,11 @@ export const projects: ReadonlyArray<Project> = [
     description:
       "A slow-burn portrait of a craft that refuses to be rushed. Cut for silence, weight, and breath.",
     video: {
-      src: "/videos/placeholder-02.mp4",
-      poster: "/images/poster-02.svg",
+      playbackId: MUX_DEMO_VIDEO.playbackId,
+      aspectRatio: "16/9",
       duration: "07:18",
+      posterTime: 24,
+      previewRange: { start: 20, end: 24 },
     },
     credits: {
       role: "Director / Editor",
@@ -72,9 +94,11 @@ export const projects: ReadonlyArray<Project> = [
     description:
       "A brand film about movement. Cadence, cut, and color aligned to a single pulse.",
     video: {
-      src: "/videos/placeholder-03.mp4",
-      poster: "/images/poster-03.svg",
+      playbackId: MUX_DEMO_VIDEO.playbackId,
+      aspectRatio: "16/9",
       duration: "01:56",
+      posterTime: 6,
+      previewRange: { start: 2, end: 6 },
     },
     credits: {
       role: "Editor",

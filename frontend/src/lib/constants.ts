@@ -44,3 +44,12 @@ export const LOADER_LINES = [
 export const SESSION_KEYS = {
   loaderPlayed: "gp:loader-played",
 } as const;
+
+/** Shared demo asset — used site-wide until each project has its own playback ID. */
+export const MUX_DEMO_VIDEO = {
+  playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
+  title: "Demo Reel",
+} as const;
+
+/** @deprecated Use MUX_DEMO_VIDEO */
+export const MUX_PLACEHOLDER = MUX_DEMO_VIDEO;

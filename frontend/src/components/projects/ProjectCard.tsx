@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { useCallback } from "react";
 
 import type { Project } from "@/data/projects";
 import { EASE } from "@/lib/constants";
@@ -13,10 +14,18 @@ interface ProjectCardProps {
   onOpen: (project: Project) => void;
 }
 
+function prefetchProjectModal(): void {
+  void import("@/components/projects/ProjectModal");
+}
+
 export function ProjectCard({
   project,
   onOpen,
 }: ProjectCardProps): React.ReactElement {
+  const handlePrefetch = useCallback((): void => {
+    prefetchProjectModal();
+  }, []);
+
   return (
     <motion.article
       className="grid grid-cols-1 gap-8 py-16 sm:py-24 md:grid-cols-12 md:gap-10"
@@ -24,6 +33,8 @@ export function ProjectCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-15% 0px" }}
       transition={{ duration: 1, ease: EASE.expoOut }}
+      onMouseEnter={handlePrefetch}
+      onFocus={handlePrefetch}
     >
       <div className="md:col-span-5 md:sticky md:top-24 md:self-start">
         <div className="flex items-baseline gap-4">
@@ -62,9 +73,11 @@ export function ProjectCard({
 
       <div className="md:col-span-7">
         <VideoPreview
-          src={project.video.src}
-          poster={project.video.poster}
+          playbackId={project.video.playbackId}
+          aspectRatio={project.video.aspectRatio}
           duration={project.video.duration}
+          posterTime={project.video.posterTime}
+          previewRange={project.video.previewRange}
           ariaLabel={project.title}
           onOpen={() => onOpen(project)}
         />

@@ -1,48 +1,61 @@
 "use client";
 
+import MuxPlayer from "@mux/mux-player-react";
+
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { MUX_DEMO_VIDEO } from "@/lib/constants";
+import { MUX_IMAGE_DEFAULTS, MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
 
 /**
- * Phase 1 hero backdrop. Renders an animated cinematic gradient as a
- * stand-in for the real footage. Once a real hero loop is available at
- * `/videos/hero.mp4`, replace the inner render with a native `<video>` and
- * keep the gradient as poster/fallback.
+ * Cinematic hero background using the shared Mux placeholder asset.
+ * Falls back to a static poster on small screens and when reduced motion
+ * is preferred — no autoplay in those cases.
  */
 export function HeroBackdrop(): React.ReactElement {
   const isSmall = useMediaQuery("(max-width: 640px)");
   const reducedMotion = usePrefersReducedMotion();
   const still = isSmall || reducedMotion;
 
+  const { playbackId, title } = MUX_DEMO_VIDEO;
+  const poster = posterUrl(playbackId, {
+    time: 0,
+    width: MUX_IMAGE_DEFAULTS.posterWidth,
+  });
+
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(120% 80% at 30% 40%, rgba(255,255,255,0.06) 0%, rgba(0,0,0,0) 55%), radial-gradient(90% 60% at 80% 70%, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0) 60%), linear-gradient(180deg, #0a0a0a 0%, #050505 100%)",
-        }}
-      />
-      {!still && (
-        <>
-          <div
-            className="absolute inset-[-20%] opacity-70"
-            style={{
-              background:
-                "conic-gradient(from 210deg at 50% 50%, rgba(255,255,255,0.02), rgba(255,255,255,0.09), rgba(255,255,255,0.02), rgba(0,0,0,0), rgba(255,255,255,0.02))",
-              filter: "blur(60px)",
-              animation: "hero-drift 22s linear infinite",
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-40"
-            style={{
-              background:
-                "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%)",
-              animation: "hero-sweep 9s ease-in-out infinite",
-            }}
-          />
-        </>
+      {still ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${poster})` }}
+        />
+      ) : (
+        <MuxPlayer
+          playbackId={playbackId}
+          streamType={MUX_PLAYER_PRESETS.ambient.streamType}
+          maxResolution={MUX_PLAYER_PRESETS.ambient.maxResolution}
+          capRenditionToPlayerSize={
+            MUX_PLAYER_PRESETS.ambient.capRenditionToPlayerSize
+          }
+          muted
+          autoPlay
+          loop
+          playsInline
+          nohotkeys
+          preload="auto"
+          poster={poster}
+          metadata={{ video_title: title }}
+          className="mux-hero-bg pointer-events-none absolute inset-0 h-full w-full"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            aspectRatio: "16/9",
+            "--controls": "none",
+            "--media-object-fit": "cover",
+          }}
+        />
       )}
       <div
         className="absolute inset-0"
@@ -51,16 +64,6 @@ export function HeroBackdrop(): React.ReactElement {
             "linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 70%, rgba(10,10,10,0.85) 100%)",
         }}
       />
-      <style>{`
-        @keyframes hero-drift {
-          0% { transform: rotate(0deg) scale(1.05); }
-          100% { transform: rotate(360deg) scale(1.05); }
-        }
-        @keyframes hero-sweep {
-          0%, 100% { transform: translateX(-30%); opacity: 0.15; }
-          50% { transform: translateX(30%); opacity: 0.55; }
-        }
-      `}</style>
     </div>
   );
 }

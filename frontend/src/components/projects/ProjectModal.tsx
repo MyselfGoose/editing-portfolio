@@ -1,11 +1,13 @@
 "use client";
 
+import MuxPlayer from "@mux/mux-player-react";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
-import { modalTransition } from "@/lib/animations";
 import type { Project } from "@/data/projects";
+import { modalTransition } from "@/lib/animations";
+import { isRealPlaybackId, MUX_IMAGE_DEFAULTS, MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
 
 interface ProjectModalProps {
   project: Project | null;
@@ -40,7 +42,7 @@ export function ProjectModal({
       }
       if (event.key === "Tab" && dialogRef.current) {
         const focusables = dialogRef.current.querySelectorAll<HTMLElement>(
-          'button, [href], video, [tabindex]:not([tabindex="-1"])',
+          'button, [href], video, mux-player, [tabindex]:not([tabindex="-1"])',
         );
         if (focusables.length === 0) return;
         const first = focusables[0];
@@ -62,6 +64,9 @@ export function ProjectModal({
       previousFocusRef.current?.focus?.();
     };
   }, [project, handleClose]);
+
+  const hasPlayback =
+    project !== null && isRealPlaybackId(project.video.playbackId);
 
   return (
     <AnimatePresence>
@@ -110,17 +115,56 @@ export function ProjectModal({
               </button>
             </div>
 
-            <div className="relative aspect-video w-full overflow-hidden bg-black">
-              <video
-                className="h-full w-full object-cover"
-                src={project.video.src}
-                poster={project.video.poster}
-                controls
-                controlsList="nodownload"
-                preload="metadata"
-                playsInline
-                aria-label={`${project.title} — full video`}
-              />
+            <div
+              className="relative w-full overflow-hidden bg-black"
+              style={{ aspectRatio: project.video.aspectRatio }}
+            >
+              {hasPlayback ? (
+                <MuxPlayer
+                  playbackId={project.video.playbackId}
+                  streamType={MUX_PLAYER_PRESETS.cinematic.streamType}
+                  maxResolution={MUX_PLAYER_PRESETS.cinematic.maxResolution}
+                  capRenditionToPlayerSize={
+                    MUX_PLAYER_PRESETS.cinematic.capRenditionToPlayerSize
+                  }
+                  poster={posterUrl(project.video.playbackId, {
+                    time: project.video.posterTime,
+                    width: MUX_IMAGE_DEFAULTS.posterWidth,
+                  })}
+                  accentColor="#f5f5f5"
+                  primaryColor="#f5f5f5"
+                  secondaryColor="#0a0a0a"
+                  preload="metadata"
+                  metadata={{
+                    video_id: project.id,
+                    video_title: project.title,
+                    video_series: project.category,
+                  }}
+                  style={{
+                    aspectRatio: project.video.aspectRatio,
+                    height: "auto",
+                    width: "100%",
+                  }}
+                  aria-label={`${project.title} — full video`}
+                >
+                  {project.video.captions?.map((track) => (
+                    <track
+                      key={track.srcLang}
+                      kind="subtitles"
+                      src={track.src}
+                      srcLang={track.srcLang}
+                      label={track.label}
+                      default={track.default}
+                    />
+                  ))}
+                </MuxPlayer>
+              ) : (
+                <div className="flex h-full min-h-[240px] items-center justify-center">
+                  <p className="text-eyebrow text-[color:var(--color-muted)]">
+                    Video coming soon
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
