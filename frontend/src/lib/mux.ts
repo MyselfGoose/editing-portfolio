@@ -91,17 +91,23 @@ export function streamUrl(playbackId: string): string {
 
 /** Mux Player quality presets — ABR picks the best ladder rung per context. */
 export const MUX_PLAYER_PRESETS = {
-  /** Fullscreen modal: up to 4K, capped to player size to avoid wasted bandwidth. */
+  /** Fullscreen modal on desktop: up to 4K. */
   cinematic: {
-    maxResolution: "2160p",
+    maxResolution: "2160p" as const,
     capRenditionToPlayerSize: true,
-    streamType: "on-demand",
+    streamType: "on-demand" as const,
+  },
+  /** Fullscreen modal on mobile/tablet: 1080p cap. */
+  cinematicMobile: {
+    maxResolution: "1080p" as const,
+    capRenditionToPlayerSize: true,
+    streamType: "on-demand" as const,
   },
   /** Hero background loop: 1080p max, muted autoplay. */
   ambient: {
-    maxResolution: "1080p",
+    maxResolution: "1080p" as const,
     capRenditionToPlayerSize: true,
-    streamType: "on-demand",
+    streamType: "on-demand" as const,
   },
 } as const;
 

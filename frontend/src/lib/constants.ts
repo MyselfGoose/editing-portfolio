@@ -10,12 +10,7 @@ export const CONTACT = {
   ctaLabel: "START A PROJECT",
 } as const;
 
-export const BREAKPOINTS = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-} as const;
+export { BREAKPOINTS } from "@/lib/breakpoints";
 
 export const DURATION = {
   fast: 0.4,

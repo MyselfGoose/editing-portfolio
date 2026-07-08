@@ -3,12 +3,20 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useRef } from "react";
+import { motion } from "motion/react";
+import { forwardRef, useCallback, useEffect, useRef, useState } from "react";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+import { Container } from "@/components/layout/Container";
+import { MediaFrame } from "@/components/layout/MediaFrame";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
-import { MUX_IMAGE_DEFAULTS, posterUrl } from "@/lib/mux";
+import { posterUrl } from "@/lib/mux";
 import { formatIndex } from "@/lib/utils";
 
 interface Frame {
@@ -50,19 +58,45 @@ const FRAMES: ReadonlyArray<Frame> = [
 const PLAYBACK_ID = MUX_DEMO_VIDEO.playbackId;
 
 export function Process(): React.ReactElement {
-  const rootRef = useRef<HTMLElement | null>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const { isDesktop, finePointer, isHydrated } = useBreakpoint();
+  const enableScrub =
+    isHydrated && isDesktop && finePointer && !reducedMotion;
+
+  return (
+    <section
+      id="process"
+      className="relative w-full bg-[color:var(--color-background)]"
+      aria-labelledby="process-heading"
+    >
+      <h2 id="process-heading" className="sr-only">
+        Our process
+      </h2>
+
+      {enableScrub ? (
+        <ProcessDesktopScrub frames={FRAMES} />
+      ) : (
+        <ProcessMobileStory frames={FRAMES} />
+      )}
+    </section>
+  );
+}
+
+interface ProcessFramesProps {
+  frames: ReadonlyArray<Frame>;
+}
+
+function ProcessDesktopScrub({ frames }: ProcessFramesProps): React.ReactElement {
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const visualsRef = useRef<Array<HTMLDivElement | null>>([]);
   const textsRef = useRef<Array<HTMLDivElement | null>>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
-
-  const reducedMotion = usePrefersReducedMotion();
-  const isDesktop = useMediaQuery("(min-width: 1024px)");
-  const enableScrub = isDesktop && !reducedMotion;
+  const { tier } = useBreakpoint();
+  const posterWidth = posterWidthForTier(tier);
 
   useGSAP(
     () => {
-      if (!enableScrub) return;
       const root = rootRef.current;
       const track = trackRef.current;
       const visuals = visualsRef.current.filter(
@@ -87,7 +121,7 @@ export function Process(): React.ReactElement {
         scrollTrigger: {
           trigger: root,
           start: "top top",
-          end: () => `+=${window.innerHeight * (FRAMES.length + 0.5)}`,
+          end: () => `+=${window.innerHeight * (frames.length + 0.5)}`,
           scrub: 1,
           pin: track,
           pinSpacing: true,
@@ -96,7 +130,7 @@ export function Process(): React.ReactElement {
         },
       });
 
-      for (let i = 0; i < FRAMES.length - 1; i += 1) {
+      for (let i = 0; i < frames.length - 1; i += 1) {
         const position = i + 1;
         tl.to(visuals[i], { opacity: 0, duration: 1, ease: "power2.inOut" }, position)
           .to(
@@ -119,7 +153,7 @@ export function Process(): React.ReactElement {
       if (progressBar) {
         tl.to(
           progressBar,
-          { scaleX: 1, ease: "none", duration: FRAMES.length - 1 },
+          { scaleX: 1, ease: "none", duration: frames.length - 1 },
           0,
         );
       }
@@ -130,136 +164,272 @@ export function Process(): React.ReactElement {
         ScrollTrigger.refresh();
       };
     },
-    { dependencies: [enableScrub], scope: rootRef },
+    { dependencies: [frames.length], scope: rootRef },
   );
 
   return (
-    <section
-      ref={rootRef}
-      id="process"
-      className="relative w-full bg-[color:var(--color-background)]"
-      aria-labelledby="process-heading"
-    >
-      <h2 id="process-heading" className="sr-only">
-        Our process
-      </h2>
-
-      {enableScrub ? (
-        <div
-          ref={trackRef}
-          className="relative flex h-[100svh] w-full flex-col overflow-hidden"
-        >
-          <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-6 pt-8 sm:px-10">
-            <span className="text-eyebrow text-[color:var(--color-muted)]">
-              The Process / Timeline
-            </span>
-            <span className="text-eyebrow text-[color:var(--color-muted)]">
-              {FRAMES.length} frames
-            </span>
-          </div>
-
-          <div className="grid flex-1 grid-cols-1 items-center gap-8 px-6 pb-20 pt-20 md:grid-cols-2 md:gap-16 sm:px-10">
-            <div className="relative aspect-[4/3] w-full overflow-hidden border border-[color:var(--color-divider)] bg-[color:var(--color-elevated)]">
-              {FRAMES.map((frame, i) => (
-                <div
-                  key={`visual-${frame.index}`}
-                  ref={(el: HTMLDivElement | null) => {
-                    visualsRef.current[i] = el;
-                  }}
-                  className="absolute inset-0 opacity-0"
-                  style={{ opacity: i === 0 ? 1 : 0 }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={posterUrl(PLAYBACK_ID, {
-                      time: frame.posterTime,
-                      width: MUX_IMAGE_DEFAULTS.posterWidth,
-                    })}
-                    alt=""
-                    className="h-full w-full object-cover"
-                    style={{ filter: frame.filter }}
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
-                    <span className="text-eyebrow text-[color:var(--color-muted)]">
-                      {frame.label}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="relative min-h-[280px] md:min-h-[320px]">
-              {FRAMES.map((frame, i) => (
-                <div
-                  key={`text-${frame.index}`}
-                  ref={(el: HTMLDivElement | null) => {
-                    textsRef.current[i] = el;
-                  }}
-                  className="absolute inset-0 flex flex-col justify-center gap-6"
-                  style={{ opacity: i === 0 ? 1 : 0 }}
-                >
-                  <FrameCopy frame={frame} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="absolute inset-x-6 bottom-8 z-20 sm:inset-x-10">
-            <div className="h-px w-full bg-[color:var(--color-divider)]">
-              <div
-                ref={progressRef}
-                className="h-px w-full bg-[color:var(--color-foreground)]"
-                style={{ transformOrigin: "left center" }}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-24 px-6 py-24 sm:px-10 sm:py-32">
+    <div ref={rootRef}>
+      <div
+        ref={trackRef}
+        className="relative flex h-[100svh] w-full flex-col overflow-hidden"
+      >
+        <div className="absolute inset-x-0 top-0 z-20 flex items-center justify-between px-[var(--section-px)] pt-8">
           <span className="text-eyebrow text-[color:var(--color-muted)]">
             The Process / Timeline
           </span>
-          {FRAMES.map((frame) => (
-            <div key={frame.index} className="flex flex-col gap-8">
-              <div className="relative aspect-[16/10] w-full overflow-hidden border border-[color:var(--color-divider)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={posterUrl(PLAYBACK_ID, {
-                    time: frame.posterTime,
-                    width: MUX_IMAGE_DEFAULTS.posterWidth,
-                  })}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  style={{ filter: frame.filter }}
-                />
-              </div>
-              <FrameCopy frame={frame} stacked />
-            </div>
-          ))}
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            {frames.length} frames
+          </span>
         </div>
-      )}
-    </section>
+
+        <Container className="grid flex-1 grid-cols-1 items-center gap-8 pb-20 pt-20 md:grid-cols-2 md:gap-16">
+          <MediaFrame aspectRatio="4/3" className="border border-[color:var(--color-divider)]">
+            {frames.map((frame, i) => (
+              <div
+                key={`visual-${frame.index}`}
+                ref={(el: HTMLDivElement | null) => {
+                  visualsRef.current[i] = el;
+                }}
+                className="absolute inset-0"
+                style={{ opacity: i === 0 ? 1 : 0 }}
+              >
+                <FrameImage frame={frame} posterWidth={posterWidth} />
+              </div>
+            ))}
+          </MediaFrame>
+
+          <div className="relative min-h-[280px] md:min-h-[320px]">
+            {frames.map((frame, i) => (
+              <div
+                key={`text-${frame.index}`}
+                ref={(el: HTMLDivElement | null) => {
+                  textsRef.current[i] = el;
+                }}
+                className="absolute inset-0 flex flex-col justify-center gap-6"
+                style={{ opacity: i === 0 ? 1 : 0 }}
+              >
+                <FrameCopy frame={frame} total={frames.length} />
+              </div>
+            ))}
+          </div>
+        </Container>
+
+        <div className="absolute inset-x-[var(--section-px)] bottom-8 z-20">
+          <div className="h-px w-full bg-[color:var(--color-divider)]">
+            <div
+              ref={progressRef}
+              className="h-px w-full bg-[color:var(--color-foreground)]"
+              style={{ transformOrigin: "left center" }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProcessMobileStory({ frames }: ProcessFramesProps): React.ReactElement {
+  const { tier } = useBreakpoint();
+  const posterWidth = posterWidthForTier(tier);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const stepRefs = useRef<Array<HTMLElement | null>>([]);
+
+  const updateActiveIndex = useCallback((): void => {
+    const viewportMid = window.innerHeight * 0.42;
+    let closest = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    stepRefs.current.forEach((el, index) => {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const mid = rect.top + rect.height / 2;
+      const distance = Math.abs(mid - viewportMid);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closest = index;
+      }
+    });
+
+    setActiveIndex(closest);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = (): void => {
+      updateActiveIndex();
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [updateActiveIndex]);
+
+  const progress = frames.length > 1 ? activeIndex / (frames.length - 1) : 0;
+
+  return (
+    <div className="relative">
+      <Container className="pb-8 pt-[var(--section-py)]">
+        <div className="flex items-center justify-between">
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            The Process / Timeline
+          </span>
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            {formatIndex(activeIndex + 1, 2)} / {formatIndex(frames.length, 2)}
+          </span>
+        </div>
+      </Container>
+
+      {/* Sticky visual — crossfades as user scrolls through steps */}
+      <div className="sticky top-[4.5rem] z-10 px-[var(--section-px)]">
+        <MediaFrame
+          aspectRatio="4/3"
+          className="border border-[color:var(--color-divider)] shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
+        >
+          {frames.map((frame, i) => (
+            <motion.div
+              key={`mobile-visual-${frame.index}`}
+              className="absolute inset-0"
+              animate={{ opacity: i === activeIndex ? 1 : 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <FrameImage frame={frame} posterWidth={posterWidth} />
+            </motion.div>
+          ))}
+        </MediaFrame>
+
+        <div className="mt-4 h-px w-full bg-[color:var(--color-divider)]">
+          <motion.div
+            className="h-px bg-[color:var(--color-foreground)]"
+            style={{ transformOrigin: "left center" }}
+            animate={{ scaleX: progress }}
+            transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+          />
+        </div>
+      </div>
+
+      {/* Scroll steps — each step drives the sticky visual */}
+      <Container className="flex flex-col">
+        {frames.map((frame, i) => (
+          <MobileProcessStep
+            key={frame.index}
+            frame={frame}
+            index={i}
+            total={frames.length}
+            isActive={i === activeIndex}
+            ref={(el: HTMLElement | null) => {
+              stepRefs.current[i] = el;
+            }}
+          />
+        ))}
+      </Container>
+    </div>
+  );
+}
+
+interface MobileProcessStepProps {
+  frame: Frame;
+  index: number;
+  total: number;
+  isActive: boolean;
+}
+
+const MobileProcessStep = forwardRef<HTMLElement, MobileProcessStepProps>(
+  function MobileProcessStep(
+    { frame, index, total, isActive },
+    ref,
+  ): React.ReactElement {
+    return (
+      <article
+        ref={ref}
+        className="flex min-h-[55svh] flex-col justify-center gap-5 py-10"
+        aria-current={isActive ? "step" : undefined}
+      >
+        <div className="flex items-center gap-3">
+          <span
+            className={`h-1.5 w-1.5 rounded-full transition-colors duration-300 ${
+              isActive
+                ? "bg-[color:var(--color-foreground)]"
+                : "bg-[color:var(--color-divider)]"
+            }`}
+            aria-hidden="true"
+          />
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            {frame.label}
+          </span>
+        </div>
+        <h3
+          className={`font-display text-headline transition-opacity duration-300 ${
+            isActive ? "opacity-100" : "opacity-40"
+          }`}
+        >
+          {frame.title}
+        </h3>
+        <p
+          className={`max-w-md text-body-lg transition-opacity duration-300 ${
+            isActive
+              ? "text-[color:var(--color-muted)] opacity-100"
+              : "text-[color:var(--color-dim)] opacity-60"
+          }`}
+        >
+          {frame.copy}
+        </p>
+        <p className="font-mono text-xs text-[color:var(--color-dim)]">
+          {formatIndex(index + 1, 2)} / {formatIndex(total, 2)}
+        </p>
+      </article>
+    );
+  },
+);
+
+interface FrameImageProps {
+  frame: Frame;
+  posterWidth: number;
+}
+
+function FrameImage({ frame, posterWidth }: FrameImageProps): React.ReactElement {
+  return (
+    <>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={posterUrl(PLAYBACK_ID, {
+          time: frame.posterTime,
+          width: posterWidth,
+        })}
+        alt=""
+        className="h-full w-full object-cover"
+        loading="lazy"
+        decoding="async"
+        sizes={MUX_IMAGE_SIZES}
+        style={{ filter: frame.filter }}
+      />
+      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
+        <span className="text-eyebrow text-[color:var(--color-muted)]">
+          {frame.label}
+        </span>
+      </div>
+    </>
   );
 }
 
 interface FrameCopyProps {
   frame: Frame;
-  stacked?: boolean;
+  total: number;
 }
 
-function FrameCopy({ frame, stacked = false }: FrameCopyProps): React.ReactElement {
+function FrameCopy({ frame, total }: FrameCopyProps): React.ReactElement {
   return (
-    <div className={stacked ? "flex flex-col gap-6" : "flex flex-col gap-6"}>
+    <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
         <span className="text-eyebrow text-[color:var(--color-muted)]">
           {frame.label}
         </span>
         <p className="font-mono text-xs text-[color:var(--color-dim)]">
-          {formatIndex(frame.index, 2)} / {formatIndex(FRAMES.length, 2)}
+          {formatIndex(frame.index, 2)} / {formatIndex(total, 2)}
         </p>
       </div>
       <h3 className="font-display text-headline">{frame.title}</h3>
-      <p className="max-w-md text-base text-[color:var(--color-muted)] leading-relaxed">
+      <p className="max-w-md text-body-lg text-[color:var(--color-muted)]">
         {frame.copy}
       </p>
     </div>

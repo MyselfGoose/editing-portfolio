@@ -1,9 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import CinematicLoader from "@/components/experience/CinematicLoader";
 import { BRAND, SESSION_KEYS } from "@/lib/constants";
 import { mockMatchMediaForQuery } from "@/test-utils/mocks";
+import { renderWithProviders } from "@/test-utils/render";
 
 describe("CinematicLoader", () => {
   beforeEach(() => {
@@ -21,7 +22,7 @@ describe("CinematicLoader", () => {
       "(max-width: 767px)": false,
     });
 
-    render(<CinematicLoader />);
+    renderWithProviders(<CinematicLoader />);
 
     expect(screen.getByText("WELCOME TO")).toBeInTheDocument();
     expect(screen.getByText(BRAND.name.toUpperCase())).toBeInTheDocument();
@@ -30,7 +31,7 @@ describe("CinematicLoader", () => {
   it("skips loader when session flag is set", () => {
     sessionStorage.setItem(SESSION_KEYS.loaderPlayed, "1");
 
-    const { container } = render(<CinematicLoader />);
+    const { container } = renderWithProviders(<CinematicLoader />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -41,7 +42,7 @@ describe("CinematicLoader", () => {
     });
 
     const onFinish = vi.fn();
-    render(<CinematicLoader onFinish={onFinish} />);
+    renderWithProviders(<CinematicLoader onFinish={onFinish} />);
 
     vi.advanceTimersByTime(500);
 

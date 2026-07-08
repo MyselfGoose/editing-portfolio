@@ -3,29 +3,27 @@
 import MuxVideo from "@mux/mux-video-react";
 import { useEffect } from "react";
 
-import { useIsClient } from "@/hooks/useIsClient";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
-import { MUX_IMAGE_DEFAULTS, MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
+import { MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
 
 import { useHeroMedia } from "./HeroMediaContext";
 import { HeroPlayerBoundary } from "./HeroPlayerBoundary";
 
-/**
- * Cinematic hero background using MuxVideo (lightweight HLS, no player chrome).
- */
 export function HeroBackdrop(): React.ReactElement {
-  const isSmall = useMediaQuery("(max-width: 640px)");
+  const { tier, isDesktop, finePointer, isHydrated } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
-  const mounted = useIsClient();
-  const still = isSmall || reducedMotion;
+  const showVideo =
+    isHydrated && isDesktop && finePointer && !reducedMotion;
 
   const { isMuted, registerVideo, videoRef } = useHeroMedia();
   const { playbackId, title } = MUX_DEMO_VIDEO;
+  const posterWidth = posterWidthForTier(tier);
   const poster = posterUrl(playbackId, {
     time: 0,
-    width: MUX_IMAGE_DEFAULTS.posterWidth,
+    width: posterWidth,
   });
 
   useEffect(() => {
@@ -37,12 +35,13 @@ export function HeroBackdrop(): React.ReactElement {
 
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      {still || !mounted ? (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${poster})` }}
-        />
-      ) : (
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${poster})` }}
+        role="img"
+        aria-hidden="true"
+      />
+      {showVideo ? (
         <HeroPlayerBoundary playbackId={playbackId}>
           <MuxVideo
             ref={(el: HTMLVideoElement | null) => registerVideo(el)}
@@ -53,7 +52,7 @@ export function HeroBackdrop(): React.ReactElement {
             autoPlay
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={poster}
             disablePictureInPicture
             disableRemotePlayback
@@ -66,7 +65,7 @@ export function HeroBackdrop(): React.ReactElement {
             }}
           />
         </HeroPlayerBoundary>
-      )}
+      ) : null}
       <div
         className="absolute inset-0"
         style={{
@@ -74,6 +73,8 @@ export function HeroBackdrop(): React.ReactElement {
             "linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 70%, rgba(10,10,10,0.85) 100%)",
         }}
       />
+      {/* sizes hint for poster — used if converted to img later */}
+      <span className="sr-only" data-image-sizes={MUX_IMAGE_SIZES} />
     </div>
   );
 }

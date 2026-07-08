@@ -15,6 +15,7 @@ Welcome to the Goose Productions portfolio documentation. This guide covers ever
 
 - [Architecture](architecture.md) — System overview, data flow, and technology choices
 - [Experience](experience.md) — Cinematic loader, custom cursor, smooth scroll, and transitions
+- [Responsive Design](responsive.md) — Breakpoint tiers, layout primitives, animation and video policy
 - [Accessibility](accessibility.md) — Reduced motion, keyboard navigation, and focus management
 
 ### Content & Media

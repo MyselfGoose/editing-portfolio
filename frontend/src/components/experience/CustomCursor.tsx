@@ -2,7 +2,8 @@
 
 import { useEffect, useRef } from "react";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useExperience } from "@/components/providers/ExperienceProvider";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { lerp } from "@/lib/utils";
 
@@ -20,8 +21,9 @@ function labelFor(state: CursorState): string {
 }
 
 export function CustomCursor(): React.ReactElement | null {
-  const finePointer = useMediaQuery("(pointer: fine)");
+  const { finePointer, isHydrated } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
+  const { scrollLocked } = useExperience();
   const { state } = useCursor();
 
   const ringRef = useRef<HTMLDivElement | null>(null);
@@ -30,8 +32,9 @@ export function CustomCursor(): React.ReactElement | null {
   const rafRef = useRef<number | null>(null);
   const targetRef = useRef({ x: -100, y: -100 });
   const currentRef = useRef({ x: -100, y: -100 });
+  const pausedRef = useRef<boolean>(false);
 
-  const enabled = finePointer && !reducedMotion;
+  const enabled = isHydrated && finePointer && !reducedMotion;
 
   useEffect(() => {
     if (!enabled) {
@@ -45,50 +48,45 @@ export function CustomCursor(): React.ReactElement | null {
       targetRef.current = { x: event.clientX, y: event.clientY };
     };
 
-    const handlePointerDown = (): void => {
-      const ring = ringRef.current;
-      if (!ring) return;
-      ring.style.transform = ring.style.transform + " scale(0.85)";
-    };
-
-    const handlePointerUp = (): void => {
-      // Re-sync via next raf tick; transform is rewritten every frame anyway.
+    const handleVisibility = (): void => {
+      pausedRef.current = document.hidden || scrollLocked;
     };
 
     const loop = (): void => {
-      const target = targetRef.current;
-      const current = currentRef.current;
-      current.x = lerp(current.x, target.x, 0.18);
-      current.y = lerp(current.y, target.y, 0.18);
+      if (!pausedRef.current) {
+        const target = targetRef.current;
+        const current = currentRef.current;
+        current.x = lerp(current.x, target.x, 0.18);
+        current.y = lerp(current.y, target.y, 0.18);
 
-      const ring = ringRef.current;
-      const dot = dotRef.current;
-      const label = labelRef.current;
-      if (ring) {
-        ring.style.transform = `translate3d(${current.x}px, ${current.y}px, 0) translate(-50%, -50%)`;
-      }
-      if (dot) {
-        dot.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) translate(-50%, -50%)`;
-      }
-      if (label) {
-        label.style.transform = `translate3d(${current.x}px, ${current.y}px, 0) translate(-50%, -50%)`;
+        const ring = ringRef.current;
+        const dot = dotRef.current;
+        const label = labelRef.current;
+        if (ring) {
+          ring.style.transform = `translate3d(${current.x}px, ${current.y}px, 0) translate(-50%, -50%)`;
+        }
+        if (dot) {
+          dot.style.transform = `translate3d(${target.x}px, ${target.y}px, 0) translate(-50%, -50%)`;
+        }
+        if (label) {
+          label.style.transform = `translate3d(${current.x}px, ${current.y}px, 0) translate(-50%, -50%)`;
+        }
       }
       rafRef.current = requestAnimationFrame(loop);
     };
 
+    pausedRef.current = document.hidden || scrollLocked;
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
-    window.addEventListener("pointerup", handlePointerUp, { passive: true });
+    document.addEventListener("visibilitychange", handleVisibility);
     rafRef.current = requestAnimationFrame(loop);
 
     return () => {
       document.documentElement.classList.remove("cursor-hidden");
       window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerdown", handlePointerDown);
-      window.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("visibilitychange", handleVisibility);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     };
-  }, [enabled]);
+  }, [enabled, scrollLocked]);
 
   if (!enabled) return null;
 

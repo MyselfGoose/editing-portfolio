@@ -1,27 +1,25 @@
-import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { waitFor } from "@testing-library/react";
 
 import { CustomCursor } from "@/components/experience/CustomCursor";
-import { CursorProvider } from "@/components/experience/CursorContext";
+import { renderWithProviders } from "@/test-utils/render";
 import { mockMatchMediaForQuery } from "@/test-utils/mocks";
 
 function renderCursor() {
-  return render(
-    <CursorProvider>
-      <CustomCursor />
-    </CursorProvider>,
-  );
+  return renderWithProviders(<CustomCursor />);
 }
 
 describe("CustomCursor", () => {
-  it("renders cursor elements on fine pointer without reduced motion", () => {
+  it("renders cursor elements on fine pointer without reduced motion", async () => {
     mockMatchMediaForQuery({
       "(pointer: fine)": true,
       "(prefers-reduced-motion: reduce)": false,
     });
 
     const { container } = renderCursor();
-    expect(container.querySelector(".cursor-ring")).toBeTruthy();
+    await waitFor(() => {
+      expect(container.querySelector(".cursor-ring")).toBeTruthy();
+    });
     expect(container.querySelector(".cursor-dot")).toBeTruthy();
   });
 

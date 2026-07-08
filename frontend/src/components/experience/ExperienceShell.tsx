@@ -1,6 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { MotionConfig } from "motion/react";
+
+import { BreakpointProvider } from "@/components/providers/BreakpointProvider";
+import { ExperienceProvider } from "@/components/providers/ExperienceProvider";
+import { SiteNav } from "@/components/navigation/SiteNav";
+import { EASE } from "@/lib/constants";
 
 import { CursorProvider } from "./CursorContext";
 import { CustomCursor } from "./CustomCursor";
@@ -15,27 +21,27 @@ interface ExperienceShellProps {
   children: React.ReactNode;
 }
 
-/**
- * Single client boundary that mounts the four experience systems in the
- * correct order:
- *   1. SmoothScroll - installs Lenis + GSAP ticker bridge (RAF)
- *   2. CursorProvider - state store for CustomCursor consumers
- *   3. CustomCursor - listens to CursorContext, renders the ring + dot + label
- *   4. CinematicLoader - overlay, one-shot per session
- *   5. TransitionManager - AnimatePresence for route changes
- * Everything below stays server-rendered by default.
- */
 export function ExperienceShell({
   children,
 }: ExperienceShellProps): React.ReactElement {
   return (
-    <SmoothScroll>
-      <CursorProvider>
-        <CustomCursor />
-        <CinematicLoader />
-        <div className="film-grain" aria-hidden="true" />
-        <TransitionManager>{children}</TransitionManager>
-      </CursorProvider>
-    </SmoothScroll>
+    <BreakpointProvider>
+      <ExperienceProvider>
+        <MotionConfig
+          reducedMotion="user"
+          transition={{ duration: 0.6, ease: EASE.cinematic }}
+        >
+          <SmoothScroll>
+            <CursorProvider>
+              <SiteNav />
+              <CustomCursor />
+              <CinematicLoader />
+              <div className="film-grain" aria-hidden="true" />
+              <TransitionManager>{children}</TransitionManager>
+            </CursorProvider>
+          </SmoothScroll>
+        </MotionConfig>
+      </ExperienceProvider>
+    </BreakpointProvider>
   );
 }

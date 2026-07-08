@@ -1,12 +1,13 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { Contact } from "@/components/sections/Contact";
 import { CONTACT } from "@/lib/constants";
+import { renderWithProviders } from "@/test-utils/render";
 
 describe("Contact", () => {
   it("renders contact heading and CTA", () => {
-    render(<Contact />);
+    renderWithProviders(<Contact />);
 
     expect(
       screen.getByRole("heading", { name: /Ready to tell/i }),
@@ -15,7 +16,7 @@ describe("Contact", () => {
   });
 
   it("renders mailto links with correct email", () => {
-    render(<Contact />);
+    renderWithProviders(<Contact />);
 
     const links = screen.getAllByRole("link");
     const mailtoLinks = links.filter(
@@ -25,13 +26,13 @@ describe("Contact", () => {
   });
 
   it("renders credits section", () => {
-    render(<Contact />);
+    renderWithProviders(<Contact />);
     expect(screen.getByText("Credits")).toBeInTheDocument();
     expect(screen.getByText("Director")).toBeInTheDocument();
   });
 
   it("renders footer with brand name", () => {
-    render(<Contact />);
+    renderWithProviders(<Contact />);
     expect(screen.getByText(/All rights reserved/i)).toBeInTheDocument();
   });
 });

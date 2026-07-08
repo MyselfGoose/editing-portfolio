@@ -3,6 +3,9 @@
 import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 
+import { Container } from "@/components/layout/Container";
+import { Section } from "@/components/layout/Section";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { projects, type Project } from "@/data/projects";
 
@@ -23,38 +26,32 @@ export function FeaturedWork(): React.ReactElement {
   }, []);
 
   return (
-    <section
-      id="work"
-      className="relative w-full border-t border-[color:var(--color-divider)] px-6 py-24 sm:px-10 sm:py-32"
-      aria-labelledby="work-heading"
-    >
-      <header className="flex items-baseline justify-between">
-        <span className="text-eyebrow text-[color:var(--color-muted)]">
-          02 / Selected Work
-        </span>
-        <span className="text-eyebrow text-[color:var(--color-muted)] hidden sm:inline">
-          {projects.length} chapters
-        </span>
-      </header>
+    <Section id="work" labelledBy="work-heading" borderTop>
+      <Container>
+        <SectionHeader
+          label="02 / Selected Work"
+          aside={`${projects.length} chapters`}
+        />
 
-      <h2
-        id="work-heading"
-        className="font-display mt-12 text-headline max-w-3xl"
-      >
-        Each project is a chapter.
-      </h2>
+        <h2
+          id="work-heading"
+          className="font-display mt-10 text-headline max-w-3xl sm:mt-12"
+        >
+          Each project is a chapter.
+        </h2>
 
-      <div className="mt-8 divide-y divide-[color:var(--color-divider)]">
-        {projects.map((project) => (
-          <ProjectCard
-            key={project.id}
-            project={project}
-            onOpen={handleOpen}
-          />
-        ))}
-      </div>
+        <div className="mt-8 divide-y divide-[color:var(--color-divider)]">
+          {projects.map((project) => (
+            <ProjectCard
+              key={project.id}
+              project={project}
+              onOpen={handleOpen}
+            />
+          ))}
+        </div>
 
-      <ProjectModal project={activeProject} onClose={handleClose} />
-    </section>
+        <ProjectModal project={activeProject} onClose={handleClose} />
+      </Container>
+    </Section>
   );
 }

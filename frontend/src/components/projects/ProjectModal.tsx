@@ -5,9 +5,16 @@ import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
 import { useCallback, useEffect, useRef } from "react";
 
+import { useExperience } from "@/components/providers/ExperienceProvider";
 import type { Project } from "@/data/projects";
-import { modalTransition } from "@/lib/animations";
-import { isRealPlaybackId, MUX_IMAGE_DEFAULTS, MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { posterWidthForTier } from "@/lib/breakpoints";
+import { modalMotion } from "@/lib/motion-presets";
+import {
+  isRealPlaybackId,
+  MUX_PLAYER_PRESETS,
+  posterUrl,
+} from "@/lib/mux";
 
 interface ProjectModalProps {
   project: Project | null;
@@ -21,14 +28,25 @@ export function ProjectModal({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
+  const { tier, isDesktop } = useBreakpoint();
+  const { setScrollLocked } = useExperience();
+  const { overlay, panel } = modalMotion(tier);
+
+  const playerPreset = isDesktop
+    ? MUX_PLAYER_PRESETS.cinematic
+    : MUX_PLAYER_PRESETS.cinematicMobile;
 
   const handleClose = useCallback((): void => {
     onClose();
   }, [onClose]);
 
   useEffect(() => {
-    if (!project) return;
+    if (!project) {
+      setScrollLocked(false);
+      return;
+    }
 
+    setScrollLocked(true);
     previousFocusRef.current = document.activeElement as HTMLElement | null;
     closeBtnRef.current?.focus();
 
@@ -61,15 +79,16 @@ export function ProjectModal({
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
+      setScrollLocked(false);
       previousFocusRef.current?.focus?.();
     };
-  }, [project, handleClose]);
+  }, [project, handleClose, setScrollLocked]);
 
   const hasPlayback =
     project !== null && isRealPlaybackId(project.video.playbackId);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait" initial={false}>
       {project ? (
         <motion.div
           key={project.id}
@@ -77,7 +96,7 @@ export function ProjectModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={modalTransition}
+          transition={overlay}
           onClick={handleClose}
           role="dialog"
           aria-modal="true"
@@ -85,11 +104,12 @@ export function ProjectModal({
         >
           <motion.div
             ref={dialogRef}
-            className="relative mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-6 px-6 py-16 sm:px-10"
-            initial={{ y: 24, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 24, opacity: 0 }}
-            transition={modalTransition}
+            className="relative mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-6 px-[var(--section-px)] py-16"
+            variants={panel}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={overlay}
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-6">
@@ -108,7 +128,7 @@ export function ProjectModal({
                 ref={closeBtnRef}
                 type="button"
                 onClick={handleClose}
-                className="flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors hover:bg-[color:var(--color-elevated)]"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors hover:bg-[color:var(--color-elevated)]"
                 aria-label="Close project"
               >
                 <X size={18} strokeWidth={1.5} />
@@ -122,14 +142,14 @@ export function ProjectModal({
               {hasPlayback ? (
                 <MuxPlayer
                   playbackId={project.video.playbackId}
-                  streamType={MUX_PLAYER_PRESETS.cinematic.streamType}
-                  maxResolution={MUX_PLAYER_PRESETS.cinematic.maxResolution}
+                  streamType={playerPreset.streamType}
+                  maxResolution={playerPreset.maxResolution}
                   capRenditionToPlayerSize={
-                    MUX_PLAYER_PRESETS.cinematic.capRenditionToPlayerSize
+                    playerPreset.capRenditionToPlayerSize
                   }
                   poster={posterUrl(project.video.playbackId, {
                     time: project.video.posterTime,
-                    width: MUX_IMAGE_DEFAULTS.posterWidth,
+                    width: posterWidthForTier(tier),
                   })}
                   accentColor="#f5f5f5"
                   primaryColor="#f5f5f5"
@@ -168,7 +188,7 @@ export function ProjectModal({
             </div>
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <p className="md:col-span-2 max-w-xl text-base leading-relaxed text-[color:var(--color-muted)]">
+              <p className="md:col-span-2 max-w-xl text-body-lg text-[color:var(--color-muted)]">
                 {project.description}
               </p>
               <dl className="flex flex-col gap-2 text-xs font-mono text-[color:var(--color-muted)]">

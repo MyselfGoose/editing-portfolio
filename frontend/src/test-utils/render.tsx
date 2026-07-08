@@ -1,6 +1,8 @@
 import { render, type RenderOptions } from "@testing-library/react";
 import type { ReactElement } from "react";
 
+import { BreakpointProvider } from "@/components/providers/BreakpointProvider";
+import { ExperienceProvider } from "@/components/providers/ExperienceProvider";
 import { CursorProvider } from "@/components/experience/CursorContext";
 
 interface WrapperProps {
@@ -8,7 +10,13 @@ interface WrapperProps {
 }
 
 function AllProviders({ children }: WrapperProps): React.ReactElement {
-  return <CursorProvider>{children}</CursorProvider>;
+  return (
+    <BreakpointProvider>
+      <ExperienceProvider>
+        <CursorProvider>{children}</CursorProvider>
+      </ExperienceProvider>
+    </BreakpointProvider>
+  );
 }
 
 export function renderWithProviders(

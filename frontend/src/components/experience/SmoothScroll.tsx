@@ -3,8 +3,10 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
+import { useExperience } from "@/components/providers/ExperienceProvider";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 
 if (typeof window !== "undefined") {
@@ -17,10 +19,19 @@ interface SmoothScrollProps {
 
 export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
+  const { isDesktop, finePointer } = useBreakpoint();
+  const { scrollLocked } = useExperience();
+  const lenisRef = useRef<Lenis | null>(null);
+
+  const enableLenis =
+    isDesktop && finePointer && !reducedMotion;
 
   useEffect(() => {
-    if (reducedMotion) return;
-    if (typeof window === "undefined") return;
+    if (!enableLenis) {
+      const onScroll = (): void => ScrollTrigger.update();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      return () => window.removeEventListener("scroll", onScroll);
+    }
 
     const lenis = new Lenis({
       duration: 1.15,
@@ -31,10 +42,11 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
       lerp: 0.1,
     });
 
+    lenisRef.current = lenis;
+
     lenis.on("scroll", ScrollTrigger.update);
 
     const raf = (time: number): void => {
-      // gsap.ticker passes seconds; Lenis expects milliseconds.
       lenis.raf(time * 1000);
     };
 
@@ -44,8 +56,19 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
     return () => {
       gsap.ticker.remove(raf);
       lenis.destroy();
+      lenisRef.current = null;
     };
-  }, [reducedMotion]);
+  }, [enableLenis]);
+
+  useEffect(() => {
+    const lenis = lenisRef.current;
+    if (!lenis) return;
+    if (scrollLocked) {
+      lenis.stop();
+    } else {
+      lenis.start();
+    }
+  }, [scrollLocked]);
 
   return <>{children}</>;
 }

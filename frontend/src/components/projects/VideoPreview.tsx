@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { MUX_IMAGE_SIZES, previewWidthForTier, posterWidthForTier } from "@/lib/breakpoints";
 import type { VideoAspectRatio } from "@/lib/mux";
 import {
   animatedPreviewUrl,
   isRealPlaybackId,
-  MUX_IMAGE_DEFAULTS,
   posterUrl,
 } from "@/lib/mux";
 import { cn } from "@/lib/utils";
@@ -39,12 +39,19 @@ export function VideoPreview({
   const [previewLoaded, setPreviewLoaded] = useState<boolean>(false);
   const [shouldLoadPreview, setShouldLoadPreview] = useState<boolean>(false);
 
-  const finePointer = useMediaQuery("(pointer: fine)");
+  const { tier, finePointer, isDesktop } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
   const hasPlayback = isRealPlaybackId(playbackId);
   const canAnimate =
-    hasPlayback && finePointer && !reducedMotion && shouldLoadPreview;
+    hasPlayback &&
+    finePointer &&
+    isDesktop &&
+    !reducedMotion &&
+    shouldLoadPreview;
   const { setState, reset } = useCursor();
+
+  const posterWidth = posterWidthForTier(tier);
+  const previewWidth = previewWidthForTier(tier);
 
   useEffect(() => {
     if (!hasPlayback || reducedMotion) return;
@@ -97,7 +104,7 @@ export function VideoPreview({
   const posterSrc = hasPlayback
     ? posterUrl(playbackId, {
         time: posterTime,
-        width: MUX_IMAGE_DEFAULTS.posterWidth,
+        width: posterWidth,
       })
     : undefined;
   const animatedSrc =
@@ -105,7 +112,7 @@ export function VideoPreview({
       ? animatedPreviewUrl(playbackId, {
           start: previewRange?.start,
           end: previewRange?.end,
-          width: MUX_IMAGE_DEFAULTS.previewWidth,
+          width: previewWidth,
         })
       : undefined;
 
@@ -132,7 +139,6 @@ export function VideoPreview({
     >
       {hasPlayback && posterSrc ? (
         <>
-          {/* Raw img required: next/image does not handle Mux animated.webp previews. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={posterSrc}
@@ -140,6 +146,7 @@ export function VideoPreview({
             aria-hidden="true"
             loading="lazy"
             decoding="async"
+            sizes={MUX_IMAGE_SIZES}
             className={cn(
               "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
               hovered && previewLoaded ? "opacity-0" : "opacity-100",
@@ -149,16 +156,17 @@ export function VideoPreview({
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-              src={animatedSrc}
-              alt=""
-              aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              onLoad={() => setPreviewLoaded(true)}
-              className={cn(
-                "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-                hovered && previewLoaded ? "opacity-100" : "opacity-0",
-              )}
+                src={animatedSrc}
+                alt=""
+                aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                sizes={MUX_IMAGE_SIZES}
+                onLoad={() => setPreviewLoaded(true)}
+                className={cn(
+                  "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
+                  hovered && previewLoaded ? "opacity-100" : "opacity-0",
+                )}
               />
             </>
           ) : null}

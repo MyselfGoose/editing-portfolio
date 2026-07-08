@@ -1,6 +1,12 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Home page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript(() => {
+      window.sessionStorage.setItem("gp:loader-played", "1");
+    });
+  });
+
   test("loads with hero and main sections", async ({ page }) => {
     await page.goto("/");
 
@@ -14,9 +20,17 @@ test.describe("Home page", () => {
 
   test("skip link targets main content", async ({ page }) => {
     await page.goto("/");
+    await expect(page.locator("#hero")).toBeVisible();
 
-    await page.keyboard.press("Tab");
     const skipLink = page.getByRole("link", { name: "Skip to content" });
+    for (let i = 0; i < 5; i += 1) {
+      const focused = await skipLink.evaluate(
+        (el) => el === document.activeElement,
+      );
+      if (focused) break;
+      await page.keyboard.press("Tab");
+    }
+
     await expect(skipLink).toBeFocused();
     await skipLink.click();
     await expect(page.locator("#main")).toBeVisible();

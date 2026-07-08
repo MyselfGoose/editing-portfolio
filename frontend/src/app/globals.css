@@ -16,6 +16,18 @@
   --ease-cinematic: cubic-bezier(0.83, 0, 0.17, 1);
   --ease-expo-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.65, 0, 0.35, 1);
+
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 390px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-2xl: 1920px;
+
+  --section-px: clamp(1.25rem, 4vw, 2.5rem);
+  --section-py: clamp(3.5rem, 10vw, 8rem);
+  --container-max: 90rem;
+  --gap-section: clamp(2rem, 5vw, 4rem);
 }
 
 @layer base {
@@ -67,22 +79,49 @@
   }
 
   .text-massive {
-    font-size: clamp(3.5rem, 10vw, 12rem);
+    font-size: clamp(2.25rem, 9vw, 12rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
   }
 
   .text-headline {
-    font-size: clamp(2.5rem, 6vw, 6rem);
-    line-height: 1;
+    font-size: clamp(1.875rem, 5.5vw, 6rem);
+    line-height: 1.05;
     letter-spacing: -0.025em;
   }
 
+  .text-title {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
   .text-eyebrow {
-    font-size: 0.6875rem;
-    letter-spacing: 0.25em;
+    font-size: clamp(0.625rem, 0.6rem + 0.15vw, 0.6875rem);
+    letter-spacing: clamp(0.15em, 0.2em, 0.25em);
     text-transform: uppercase;
     font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  .text-body-lg {
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+    line-height: 1.65;
+  }
+
+  .text-cta {
+    font-size: clamp(1.75rem, 1.2rem + 2.5vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  .text-chapter {
+    font-size: clamp(2rem, 1.5rem + 2vw, 3.75rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .text-balance {
+    text-wrap: balance;
   }
 
   .word-mask {
@@ -128,6 +167,13 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.9 0 0 0 0 0.9 0 0 0 1 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 240px 240px;
   animation: grain-shift 1.6s steps(6) infinite;
+}
+
+@media (max-width: 767px) {
+  .film-grain {
+    animation: none;
+    opacity: 0.03;
+  }
 }
 
 @keyframes grain-shift {

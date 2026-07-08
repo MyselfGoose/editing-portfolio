@@ -106,8 +106,9 @@ describe("streamUrl", () => {
 });
 
 describe("MUX_PLAYER_PRESETS", () => {
-  it("defines cinematic and ambient presets", () => {
+  it("defines cinematic, cinematicMobile, and ambient presets", () => {
     expect(MUX_PLAYER_PRESETS.cinematic.maxResolution).toBe("2160p");
+    expect(MUX_PLAYER_PRESETS.cinematicMobile.maxResolution).toBe("1080p");
     expect(MUX_PLAYER_PRESETS.ambient.maxResolution).toBe("1080p");
     expect(MUX_PLAYER_PRESETS.cinematic.streamType).toBe("on-demand");
   });

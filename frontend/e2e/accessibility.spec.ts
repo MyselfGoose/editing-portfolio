@@ -25,8 +25,14 @@ test.describe("Accessibility", () => {
   test("tab order reaches modal close button", async ({ page }) => {
     await page.goto("/#work");
 
-    const projectButton = page.getByRole("button", { name: /Open \[/i }).first();
-    await projectButton.scrollIntoViewIfNeeded();
+    await expect(
+      page.getByRole("heading", { name: /Each project is a chapter/i }),
+    ).toBeVisible({ timeout: 15_000 });
+
+    const projectButton = page.getByRole("button", {
+      name: "Open [THE WEDDING FILM]",
+    });
+    await expect(projectButton).toBeVisible();
     await projectButton.focus();
     await page.keyboard.press("Enter");
 

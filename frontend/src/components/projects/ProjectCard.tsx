@@ -3,8 +3,9 @@
 import { motion } from "motion/react";
 import { useCallback } from "react";
 
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import type { Project } from "@/data/projects";
-import { EASE } from "@/lib/constants";
+import { sectionReveal } from "@/lib/motion-presets";
 import { formatIndex } from "@/lib/utils";
 
 import { VideoPreview } from "./VideoPreview";
@@ -22,22 +23,25 @@ export function ProjectCard({
   project,
   onOpen,
 }: ProjectCardProps): React.ReactElement {
+  const { tier } = useBreakpoint();
+  const reveal = sectionReveal(tier);
+
   const handlePrefetch = useCallback((): void => {
     prefetchProjectModal();
   }, []);
 
   return (
     <motion.article
-      className="grid grid-cols-1 gap-8 py-16 sm:py-24 md:grid-cols-12 md:gap-10"
-      initial={{ opacity: 0, y: 40 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-15% 0px" }}
-      transition={{ duration: 1, ease: EASE.expoOut }}
+      className="grid grid-cols-1 gap-8 py-12 sm:py-20 md:grid-cols-12 md:gap-10 md:py-24"
+      variants={reveal}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-10% 0px" }}
       onMouseEnter={handlePrefetch}
       onFocus={handlePrefetch}
     >
-      <div className="md:col-span-5 md:sticky md:top-24 md:self-start">
-        <div className="flex items-baseline gap-4">
+      <div className="order-2 md:order-1 md:col-span-5 md:sticky md:top-24 md:self-start">
+        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <span className="font-mono text-xs text-[color:var(--color-dim)]">
             {formatIndex(project.index)}
           </span>
@@ -45,11 +49,11 @@ export function ProjectCard({
             {project.category} / {project.year}
           </span>
         </div>
-        <h3 className="font-display mt-4 text-headline">{project.title}</h3>
-        <p className="mt-6 max-w-md text-base leading-relaxed text-[color:var(--color-muted)]">
+        <h3 className="font-display mt-4 text-title">{project.title}</h3>
+        <p className="mt-4 max-w-md text-body-lg text-[color:var(--color-muted)] sm:mt-6">
           {project.description}
         </p>
-        <dl className="mt-8 flex flex-col gap-2 text-xs font-mono text-[color:var(--color-muted)]">
+        <dl className="mt-6 flex flex-col gap-2 text-xs font-mono text-[color:var(--color-muted)] sm:mt-8">
           <div className="flex justify-between border-t border-[color:var(--color-divider)] pt-2">
             <dt>Location</dt>
             <dd className="text-[color:var(--color-foreground)]">
@@ -71,7 +75,7 @@ export function ProjectCard({
         </dl>
       </div>
 
-      <div className="md:col-span-7">
+      <div className="order-1 md:order-2 md:col-span-7">
         <VideoPreview
           playbackId={project.video.playbackId}
           aspectRatio={project.video.aspectRatio}

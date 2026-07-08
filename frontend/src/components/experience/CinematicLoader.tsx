@@ -4,7 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { useCallback, useRef, useState } from "react";
 
-import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import {
   BRAND,
@@ -30,7 +30,7 @@ export default function CinematicLoader({
   onFinish,
 }: CinematicLoaderProps): React.ReactElement | null {
   const reducedMotion = usePrefersReducedMotion();
-  const isMobile = useMediaQuery("(max-width: 767px)");
+  const { isMobile } = useBreakpoint();
 
   // Lazy initializer reads sessionStorage during first client render.
   // Safe because this module is only mounted via next/dynamic(..., { ssr: false }).
