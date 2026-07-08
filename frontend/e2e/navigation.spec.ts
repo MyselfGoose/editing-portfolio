@@ -24,8 +24,9 @@ test.describe("Section navigation", () => {
   test("work section lists all projects", async ({ page }) => {
     await page.goto("/#work");
 
-    await expect(page.getByText("[THE WEDDING FILM]")).toBeVisible();
-    await expect(page.getByText("[UNSEEN HOURS]")).toBeVisible();
-    await expect(page.getByText("[ATLAS IN MOTION]")).toBeVisible();
+    await expect(page.getByText("Carezza Leanne")).toBeVisible();
+    await expect(page.getByText("Meghan and Edward")).toBeVisible();
+    await expect(page.getByText("Elvira")).toBeVisible();
+    await expect(page.getByText("Dominguez Quince")).toBeVisible();
   });
 });

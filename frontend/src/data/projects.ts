@@ -1,8 +1,8 @@
 import type { VideoAspectRatio } from "@/lib/mux";
-import { MUX_DEMO_VIDEO } from "@/lib/constants";
 
 export type ProjectCategory =
   | "Wedding Film"
+  | "Celebration Film"
   | "Documentary"
   | "Brand Story"
   | "Music Video";
@@ -43,37 +43,37 @@ export interface Project {
 
 export const projects: ReadonlyArray<Project> = [
   {
-    id: "the-wedding-film",
+    id: "carezza-leanne",
     index: 1,
-    title: "[THE WEDDING FILM]",
+    title: "Carezza Leanne",
     category: "Wedding Film",
     year: 2026,
-    location: "[LOCATION]",
+    location: "Southern California",
     description:
-      "A story of two people. Captured through emotion, silence and movement.",
+      "An intimate wedding film built around quiet glances, handwritten vows, and the kind of silence that only happens when two people are fully present.",
     video: {
-      playbackId: MUX_DEMO_VIDEO.playbackId,
+      playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
       aspectRatio: "16/9",
-      duration: "03:42",
-      posterTime: 12,
-      previewRange: { start: 8, end: 12 },
+      duration: "04:12",
+      posterTime: 8,
+      previewRange: { start: 4, end: 8 },
     },
     credits: {
-      role: "Editor / Colorist",
-      client: "[CLIENT NAME]",
+      role: "Director / Editor",
+      client: "Carezza & Leanne",
     },
   },
   {
-    id: "unseen-hours",
+    id: "meghan-and-edward",
     index: 2,
-    title: "[UNSEEN HOURS]",
-    category: "Documentary",
+    title: "Meghan and Edward",
+    category: "Wedding Film",
     year: 2025,
-    location: "[LOCATION]",
+    location: "California",
     description:
-      "A slow-burn portrait of a craft that refuses to be rushed. Cut for silence, weight, and breath.",
+      "A classic celebration captured with restraint — golden-hour portraits, candid reception energy, and a final dance that holds the whole story together.",
     video: {
-      playbackId: MUX_DEMO_VIDEO.playbackId,
+      playbackId: "01pLE9oSaFRESO6zzy7lXGcR01di3hz1BTbLM1ye4eRWk",
       aspectRatio: "16/9",
       duration: "07:18",
       posterTime: 24,
@@ -81,28 +81,49 @@ export const projects: ReadonlyArray<Project> = [
     },
     credits: {
       role: "Director / Editor",
-      client: "[CLIENT NAME]",
+      client: "Meghan & Edward",
     },
   },
   {
-    id: "atlas-in-motion",
+    id: "elvira",
     index: 3,
-    title: "[ATLAS IN MOTION]",
-    category: "Brand Story",
+    title: "Elvira",
+    category: "Wedding Film",
     year: 2025,
-    location: "[LOCATION]",
+    location: "California",
     description:
-      "A brand film about movement. Cadence, cut, and color aligned to a single pulse.",
+      "A portrait of a wedding day told through texture and tempo — lace, candlelight, and the unhurried rhythm of a film that breathes.",
     video: {
-      playbackId: MUX_DEMO_VIDEO.playbackId,
+      playbackId: "mYoZjovjdBNNfNbPLGnCzCAQrXLw2ItEbBc8T9m746M",
       aspectRatio: "16/9",
-      duration: "01:56",
-      posterTime: 6,
-      previewRange: { start: 2, end: 6 },
+      duration: "05:30",
+      posterTime: 12,
+      previewRange: { start: 8, end: 12 },
     },
     credits: {
-      role: "Editor",
-      client: "[CLIENT NAME]",
+      role: "Editor / Colorist",
+      client: "Elvira",
+    },
+  },
+  {
+    id: "dominguez-quince",
+    index: 4,
+    title: "Dominguez Quince",
+    category: "Celebration Film",
+    year: 2025,
+    location: "Southern California",
+    description:
+      "A quinceañera film that honors tradition and family — from the first look to the last song, cut to feel like a memory you can return to.",
+    video: {
+      playbackId: "Hmxee1qD3tQMRNomZAsR9FOX026EC00YzMOqglcjGZVUI",
+      aspectRatio: "16/9",
+      duration: "06:45",
+      posterTime: 16,
+      previewRange: { start: 12, end: 16 },
+    },
+    credits: {
+      role: "Director / Editor",
+      client: "Dominguez Family",
     },
   },
 ] as const;

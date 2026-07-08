@@ -14,11 +14,11 @@ function renderToggle() {
 }
 
 describe("HeroAudioToggle", () => {
-  it("renders muted by default", () => {
+  it("renders muted by default as round icon button", () => {
     renderToggle();
     const button = screen.getByRole("button", { name: "Unmute hero video" });
     expect(button).toHaveAttribute("aria-pressed", "false");
-    expect(screen.getByText("Sound Off")).toBeInTheDocument();
+    expect(button.className).toContain("rounded-full");
   });
 
   it("toggles to unmuted on click", async () => {
@@ -31,6 +31,5 @@ describe("HeroAudioToggle", () => {
     expect(
       screen.getByRole("button", { name: "Mute hero video" }),
     ).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByText("Sound On")).toBeInTheDocument();
   });
 });

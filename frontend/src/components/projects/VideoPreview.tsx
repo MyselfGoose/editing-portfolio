@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { usePageVisibility } from "@/hooks/usePageVisibility";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { MUX_IMAGE_SIZES, previewWidthForTier, posterWidthForTier } from "@/lib/breakpoints";
 import type { VideoAspectRatio } from "@/lib/mux";
@@ -41,6 +42,8 @@ export function VideoPreview({
 
   const { tier, finePointer, isDesktop } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
+  const isPageVisible = usePageVisibility();
+  const showAnimatedPreview = hovered && isPageVisible;
   const hasPlayback = isRealPlaybackId(playbackId);
   const canAnimate =
     hasPlayback &&
@@ -149,7 +152,7 @@ export function VideoPreview({
             sizes={MUX_IMAGE_SIZES}
             className={cn(
               "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-              hovered && previewLoaded ? "opacity-0" : "opacity-100",
+              hovered && previewLoaded && isPageVisible ? "opacity-0" : "opacity-100",
             )}
           />
           {animatedSrc ? (
@@ -165,7 +168,7 @@ export function VideoPreview({
                 onLoad={() => setPreviewLoaded(true)}
                 className={cn(
                   "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
-                  hovered && previewLoaded ? "opacity-100" : "opacity-0",
+                  hovered && previewLoaded && isPageVisible ? "opacity-100" : "opacity-0",
                 )}
               />
             </>
@@ -190,7 +193,7 @@ export function VideoPreview({
       <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-4 text-xs font-mono text-[color:var(--color-foreground)]/80 sm:p-6">
         <span aria-hidden="true">
           {hasPlayback
-            ? hovered && previewLoaded
+            ? showAnimatedPreview && previewLoaded
               ? "PLAYING"
               : "PREVIEW"
             : "COMING SOON"}

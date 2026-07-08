@@ -12,11 +12,11 @@ import { BRAND, CONTACT, EASE } from "@/lib/constants";
 import { sectionReveal } from "@/lib/motion-presets";
 
 const CREDITS: ReadonlyArray<{ role: string; name: string }> = [
-  { role: "Director", name: "[NAME]" },
-  { role: "Editor", name: "[NAME]" },
-  { role: "Colorist", name: "[NAME]" },
-  { role: "Sound", name: "[NAME]" },
-  { role: "Score", name: "[NAME]" },
+  { role: "Director", name: "Goose Productions" },
+  { role: "Editor", name: "Goose Productions" },
+  { role: "Colorist", name: "Goose Productions" },
+  { role: "Sound Design", name: "Goose Productions" },
+  { role: "Score", name: "Licensed / Original" },
 ];
 
 export function Contact(): React.ReactElement {

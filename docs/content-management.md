@@ -21,7 +21,7 @@ export const BRAND = {
 } as const;
 
 export const CONTACT = {
-  email: "hello@studio.com",
+  email: "info@gooseproductions.com",
   ctaLabel: "START A PROJECT",
 } as const;
 ```

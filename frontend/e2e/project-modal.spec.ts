@@ -9,7 +9,9 @@ test.describe("Project modal", () => {
 
   async function openFirstProject(page: Page) {
     await page.goto("/#work");
-    const projectButton = page.getByRole("button", { name: /Open \[/i }).first();
+    const projectButton = page.getByRole("button", {
+      name: "Open Carezza Leanne",
+    });
     await expect(projectButton).toBeVisible({ timeout: 15_000 });
     await projectButton.scrollIntoViewIfNeeded();
     await projectButton.click();

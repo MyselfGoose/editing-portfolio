@@ -1,12 +1,12 @@
 export const BRAND = {
   name: "Goose Productions",
   short: "Goose",
-  tagline: "[STUDIO TAGLINE]",
-  handle: "@studio",
+  tagline: "We don't edit videos. We create memories.",
+  handle: "@gooseproductions",
 } as const;
 
 export const CONTACT = {
-  email: "hello@studio.com",
+  email: "info@gooseproductions.com",
   ctaLabel: "START A PROJECT",
 } as const;
 
@@ -40,10 +40,10 @@ export const SESSION_KEYS = {
   loaderPlayed: "gp:loader-played",
 } as const;
 
-/** Shared demo asset — used site-wide until each project has its own playback ID. */
+/** Hero background reel — Carezza Leanne wedding film. */
 export const MUX_DEMO_VIDEO = {
   playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
-  title: "Demo Reel",
+  title: "Carezza Leanne",
 } as const;
 
 /** @deprecated Use MUX_DEMO_VIDEO */

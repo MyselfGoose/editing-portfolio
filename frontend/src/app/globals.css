@@ -139,6 +139,12 @@
 
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .word-mask > span {
+    transform: none !important;
+  }
+}
+
 @media (pointer: fine) {
   html.cursor-hidden,
   html.cursor-hidden * {

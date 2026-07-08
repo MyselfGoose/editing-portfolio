@@ -30,7 +30,7 @@ test.describe("Accessibility", () => {
     ).toBeVisible({ timeout: 15_000 });
 
     const projectButton = page.getByRole("button", {
-      name: "Open [THE WEDDING FILM]",
+      name: "Open Carezza Leanne",
     });
     await expect(projectButton).toBeVisible();
     await projectButton.focus();

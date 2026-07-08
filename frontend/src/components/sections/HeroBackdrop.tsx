@@ -4,10 +4,12 @@ import MuxVideo from "@mux/mux-video-react";
 import { useEffect } from "react";
 
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { usePageVisibility } from "@/hooks/usePageVisibility";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
+import { pauseVideo, playVideo } from "@/lib/video-lifecycle";
 
 import { useHeroMedia } from "./HeroMediaContext";
 import { HeroPlayerBoundary } from "./HeroPlayerBoundary";
@@ -15,6 +17,7 @@ import { HeroPlayerBoundary } from "./HeroPlayerBoundary";
 export function HeroBackdrop(): React.ReactElement {
   const { tier, isDesktop, finePointer, isHydrated } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
+  const isPageVisible = usePageVisibility();
   const showVideo =
     isHydrated && isDesktop && finePointer && !reducedMotion;
 
@@ -32,6 +35,16 @@ export function HeroBackdrop(): React.ReactElement {
       video.muted = isMuted;
     }
   }, [isMuted, videoRef]);
+
+  useEffect(() => {
+    if (!showVideo) return;
+    const video = videoRef.current;
+    if (!isPageVisible) {
+      pauseVideo(video);
+      return;
+    }
+    playVideo(video);
+  }, [isPageVisible, showVideo, videoRef]);
 
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
@@ -73,7 +86,6 @@ export function HeroBackdrop(): React.ReactElement {
             "linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0) 30%, rgba(10,10,10,0) 70%, rgba(10,10,10,0.85) 100%)",
         }}
       />
-      {/* sizes hint for poster — used if converted to img later */}
       <span className="sr-only" data-image-sizes={MUX_IMAGE_SIZES} />
     </div>
   );

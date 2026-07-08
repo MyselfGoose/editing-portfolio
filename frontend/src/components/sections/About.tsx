@@ -113,7 +113,7 @@ export function About(): React.ReactElement {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              Est. 2019 &mdash; [CITY] &mdash; Worldwide &mdash; Remote-first
+              Est. 2019 &mdash; Southern California &mdash; Worldwide &mdash; Remote-first
             </motion.p>
           </Stack>
         </div>

@@ -8,6 +8,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useExperience } from "@/components/providers/ExperienceProvider";
 import type { Project } from "@/data/projects";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { usePageVisibility } from "@/hooks/usePageVisibility";
 import { posterWidthForTier } from "@/lib/breakpoints";
 import { modalMotion } from "@/lib/motion-presets";
 import {
@@ -15,6 +16,7 @@ import {
   MUX_PLAYER_PRESETS,
   posterUrl,
 } from "@/lib/mux";
+import { pauseMuxPlayer, playMuxPlayer } from "@/lib/video-lifecycle";
 
 interface ProjectModalProps {
   project: Project | null;
@@ -29,6 +31,7 @@ export function ProjectModal({
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const { tier, isDesktop } = useBreakpoint();
+  const isPageVisible = usePageVisibility();
   const { setScrollLocked } = useExperience();
   const { overlay, panel } = modalMotion(tier);
 
@@ -83,6 +86,17 @@ export function ProjectModal({
       previousFocusRef.current?.focus?.();
     };
   }, [project, handleClose, setScrollLocked]);
+
+  useEffect(() => {
+    if (!project || !dialogRef.current) return;
+    const player = dialogRef.current.querySelector("mux-player");
+    if (!player) return;
+    if (!isPageVisible) {
+      pauseMuxPlayer(player as HTMLElement);
+    } else {
+      playMuxPlayer(player as HTMLElement);
+    }
+  }, [isPageVisible, project]);
 
   const hasPlayback =
     project !== null && isRealPlaybackId(project.video.playbackId);

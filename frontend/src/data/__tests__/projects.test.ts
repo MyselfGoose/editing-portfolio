@@ -6,8 +6,8 @@ import { isRealPlaybackId, type VideoAspectRatio } from "@/lib/mux";
 const VALID_ASPECT_RATIOS: ReadonlyArray<VideoAspectRatio> = ["16/9", "9/16", "4/3"];
 
 describe("projects data contract", () => {
-  it("has at least one project", () => {
-    expect(projects.length).toBeGreaterThan(0);
+  it("has four featured projects", () => {
+    expect(projects.length).toBe(4);
   });
 
   it("has unique project IDs", () => {
