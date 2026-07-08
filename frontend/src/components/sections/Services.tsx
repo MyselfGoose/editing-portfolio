@@ -27,6 +27,16 @@ const CHAPTERS: ReadonlyArray<Chapter> = [
     title: "Color.",
     copy: "Turning footage into atmosphere. Grade for mood, not for trend. Skin lives, blacks breathe, highlights hold.",
   },
+  {
+    index: 4,
+    title: "Delivery.",
+    copy: "Formats, exports, archive. The film leaves the timeline and enters the world cleanly — ready for every screen it will live on.",
+  },
+  {
+    index: 5,
+    title: "Refinement.",
+    copy: "Client notes, revision rounds, fine cut. The edit sharpens until it feels inevitable — not just approved.",
+  },
 ];
 
 export function Services(): React.ReactElement {
@@ -49,7 +59,7 @@ export function Services(): React.ReactElement {
         id="services-heading"
         className="font-display mt-12 text-headline max-w-3xl"
       >
-        Three chapters. One craft.
+        Five chapters. One craft.
       </h2>
 
       <ol className="mt-16 divide-y divide-[color:var(--color-divider)]">

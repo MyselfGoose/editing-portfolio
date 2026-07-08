@@ -68,7 +68,7 @@
 
   .text-massive {
     font-size: clamp(3.5rem, 10vw, 12rem);
-    line-height: 0.95;
+    line-height: 1.05;
     letter-spacing: -0.03em;
   }
 
@@ -88,8 +88,8 @@
   .word-mask {
     display: inline-block;
     overflow: hidden;
-    padding-bottom: 0.15em;
-    margin-bottom: -0.15em;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
     vertical-align: bottom;
   }
 
@@ -154,16 +154,19 @@
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 200;
   border-radius: 9999px;
   pointer-events: none;
   will-change: transform;
   transform: translate3d(-100px, -100px, 0);
+  mix-blend-mode: difference;
 }
 
 .cursor-ring {
   width: 32px;
   height: 32px;
   border: 1px solid var(--color-foreground);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45);
   transition:
     width 0.35s var(--ease-smooth),
     height 0.35s var(--ease-smooth),
@@ -197,7 +200,7 @@
   top: 0;
   left: 0;
   pointer-events: none;
-  z-index: 61;
+  z-index: 201;
   font-family: var(--font-mono), monospace;
   font-size: 10px;
   letter-spacing: 0.2em;
