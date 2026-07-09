@@ -3,7 +3,8 @@
 import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
+import { useMounted } from "@/hooks/useMounted";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { EASE, HEADLINE_LINES } from "@/lib/constants";
 
@@ -15,10 +16,11 @@ const TEXT_FADE_OPACITY = 0.1;
 
 function HeroContent(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
-  const { isDesktop, finePointer, isHydrated, isMobile } = useBreakpoint();
+  const mounted = useMounted();
+  const { isDesktop, finePointer, isHydrated, isMobile } = useHydrationSafeBreakpoint();
   const { isMuted } = useHeroMedia();
   const showVideo =
-    isHydrated && isDesktop && finePointer && !reducedMotion;
+    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
 
   const textOpacity = isMuted || !showVideo ? 1 : TEXT_FADE_OPACITY;
   const textTransition = reducedMotion

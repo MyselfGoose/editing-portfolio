@@ -5,9 +5,8 @@ import { motion } from "motion/react";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useRevealMotion } from "@/hooks/useRevealMotion";
 import { EASE } from "@/lib/constants";
-import { sectionReveal } from "@/lib/motion-presets";
 import { formatIndex } from "@/lib/utils";
 
 interface Chapter {
@@ -45,8 +44,7 @@ const CHAPTERS: ReadonlyArray<Chapter> = [
 ];
 
 export function Services(): React.ReactElement {
-  const { tier } = useBreakpoint();
-  const reveal = sectionReveal(tier);
+  const revealMotion = useRevealMotion();
 
   return (
     <Section id="services" labelledBy="services-heading" borderTop>
@@ -65,8 +63,8 @@ export function Services(): React.ReactElement {
             <motion.li
               key={chapter.index}
               className="grid grid-cols-1 gap-4 py-12 sm:gap-6 sm:py-16 md:grid-cols-12 md:gap-10"
-              variants={reveal}
-              initial="hidden"
+              variants={revealMotion.variants}
+              initial={revealMotion.initial}
               whileInView="visible"
               viewport={{ once: true, margin: "-15% 0px" }}
               transition={{ duration: 1, ease: EASE.expoOut }}

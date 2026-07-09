@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 
+import { DeferredAnalytics } from "@/components/analytics/DeferredAnalytics";
 import { ExperienceShell } from "@/components/experience/ExperienceShell";
 import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
 import { BRAND, SITE } from "@/lib/constants";
@@ -95,6 +96,7 @@ export default function RootLayout({
           Skip to content
         </a>
         <ExperienceShell>{children}</ExperienceShell>
+        <DeferredAnalytics />
       </body>
     </html>
   );

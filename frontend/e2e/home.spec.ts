@@ -36,4 +36,14 @@ test.describe("Home page", () => {
     await skipLink.click();
     await expect(page.locator("#main")).toBeVisible();
   });
+
+  test("nonexistent route renders branded not found", async ({ page }) => {
+    await page.goto("/nonexistent-route");
+    await expect(
+      page.getByRole("heading", {
+        name: "This frame was left on the cutting room floor.",
+      }),
+    ).toBeVisible();
+    await expect(page.getByRole("link", { name: "Return home" })).toBeVisible();
+  });
 });

@@ -51,7 +51,7 @@ flowchart TB
 
 | Risk | Severity | Notes |
 |------|----------|-------|
-| Color contrast on `--color-dim` text | Medium | axe flags serious violations; design choice for cinematic dim aesthetic |
+| Color contrast on dim metadata text | Low | Tokens tuned; keep axe serious checks in CI to prevent regressions |
 | Hydration tier flash | Low | SSR defaults to mobile tier; brief layout shift possible on desktop. **Accepted:** HeroBackdrop renders CSS poster until hydrated video mounts. |
 | iPad with trackpad | Low | May get desktop tier behaviors at 1024px+ — intended |
 | SiteNav + modal scroll lock | Low | Both set `body.overflow`; modal uses ExperienceProvider lock for Lenis |
@@ -72,8 +72,8 @@ flowchart TB
 2. **`next/image` for static posters** — Adopt selectively for non-animated Mux thumbnails with responsive `sizes`
 3. **Container queries** — Consider `@container` for component-level typography on ultra-wide displays
 4. **Visibility resume handler** — Add `pageshow` / `visibilitychange` handler for hero video on iOS tab return
-5. **Playwright visual smoke** — Optional viewport screenshot suite if design regression monitoring is needed later
-6. **Shared `useBreakpoint` in tests** — E2E coverage for 390px, 768px, 1440px viewports
+5. **Visual maintenance** — Keep screenshot baselines updated intentionally when design changes
+6. **Shared `useBreakpoint` in tests** — Maintain E2E coverage for 390px, 768px, 1440px viewports
 
 ## Test coverage
 

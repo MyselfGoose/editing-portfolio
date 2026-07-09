@@ -38,6 +38,7 @@ These values appear in:
 - Cinematic loader brand reveal
 - Contact section CTA, email links, and social links
 - Footer copyright
+- Privacy page contact reference
 - JSON-LD structured data
 
 **Email note:** `info@gooseproductions.com` is the current production address. Migrating to `info@goose-productions.com` requires DNS/MX changes — do not change without configuring mail routing.
@@ -99,6 +100,8 @@ captions: [
 
 Alternatively, upload text tracks in the Mux dashboard and use the Mux-hosted URL.
 
+Current placeholder/stub tracks are stored for all four projects so caption files can be replaced in-place.
+
 ### Adding a New Project
 
 1. Upload the video to Mux (see [Video Ingest](video-ingest.md))
@@ -138,6 +141,12 @@ Defined in `constants.ts` (`LOADER_LINES`). Edit for brand voice.
 | Logo | `public/brand/logo.svg` | Programmatic icon in `icon.tsx` / `apple-icon.tsx` |
 | About photo | `public/about.jpg` | Mux still via `ABOUT_STILL` |
 | OG image | Generated at `/opengraph-image` | Mux poster composited with brand text |
+
+Replace `public/brand/logo.svg` with the final approved studio mark when available.
+
+## Contact form configuration
+
+The form endpoint is configured with `NEXT_PUBLIC_FORMSPREE_ENDPOINT`. See [Deployment](deployment.md) for env setup. If unset, the UI falls back to direct email.
 
 ## Project categories
 

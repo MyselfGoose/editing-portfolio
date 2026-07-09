@@ -38,6 +38,19 @@ export const SOCIAL: SocialLinks = {
   instagram: "https://instagram.com/gooseproductions",
 } as const;
 
+export const FORM = {
+  endpoint:
+    process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ??
+    "https://api.formspree.io/f/demo",
+  honeypotFieldName: "company",
+} as const;
+
+export const ANALYTICS = {
+  enabled:
+    (process.env.NEXT_PUBLIC_ANALYTICS_ENABLED ?? "true").toLowerCase() !==
+    "false",
+} as const;
+
 export { BREAKPOINTS } from "@/lib/breakpoints";
 
 export const DURATION = {

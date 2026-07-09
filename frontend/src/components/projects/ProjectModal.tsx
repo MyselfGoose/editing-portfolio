@@ -90,13 +90,38 @@ export function ProjectModal({
 
   useEffect(() => {
     if (!project || !dialogRef.current) return;
-    const player = dialogRef.current.querySelector("mux-player");
-    if (!player) return;
-    if (!isPageVisible) {
-      pauseMuxPlayer(player as HTMLElement);
-    } else {
-      playMuxPlayer(player as HTMLElement);
-    }
+
+    let cancelled = false;
+    let attempts = 0;
+
+    const syncPlayback = (): void => {
+      if (cancelled || !dialogRef.current) return;
+
+      const player = dialogRef.current.querySelector("mux-player");
+      if (!player) {
+        if (attempts < 24) {
+          attempts += 1;
+          requestAnimationFrame(syncPlayback);
+        }
+        return;
+      }
+
+      try {
+        if (!isPageVisible) {
+          pauseMuxPlayer(player as HTMLElement);
+        } else {
+          playMuxPlayer(player as HTMLElement);
+        }
+      } catch {
+        /* Mux player may not be fully initialized yet */
+      }
+    };
+
+    syncPlayback();
+
+    return () => {
+      cancelled = true;
+    };
   }, [isPageVisible, project]);
 
   const hasPlayback =

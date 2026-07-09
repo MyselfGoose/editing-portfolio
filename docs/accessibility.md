@@ -60,6 +60,16 @@ The fullscreen project modal implements a focus trap:
 - **Shift+Tab** cycles backward
 - Focus returns to the element that opened the modal on close
 - `document.body.style.overflow` is set to `hidden` while open
+- Caption `<track>` elements are rendered from `projects.ts` configuration when available
+
+### Cinematic Loader
+
+The loader blocks background interaction while visible:
+
+- Sets `aria-busy="true"` during playback
+- Applies `inert` to `#main` and skip link while active
+- Focuses the loader root and traps `Tab` navigation
+- Restores focus to skip link after dismiss
 
 Implementation in `ProjectModal.tsx`:
 
@@ -95,7 +105,8 @@ Contact section uses `mailto:` links with visible text labels. No JavaScript req
 The design uses a dark theme with CSS custom properties:
 
 - Foreground: `#f5f5f5` on background `#0a0a0a`
-- Muted text: `#a3a3a3`
+- Muted text: `#8a8a8a`
+- Dim text: `#7a7a7a`
 - High contrast ratio for body text and interactive elements
 
 ## Screen Reader Considerations

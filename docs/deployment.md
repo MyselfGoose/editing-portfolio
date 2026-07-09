@@ -8,7 +8,7 @@ How to deploy the Goose Productions portfolio to production on Vercel.
 
 ## Overview
 
-The portfolio is a static Next.js application with no backend, database, or environment variables. Deployment is a single Vercel project pointing at the `frontend/` directory.
+The portfolio is a Next.js App Router application deployed from the `frontend/` directory on Vercel. It remains database-free, but now includes optional analytics and an env-driven contact form endpoint.
 
 ## Vercel Setup
 
@@ -32,16 +32,16 @@ The portfolio is a static Next.js application with no backend, database, or envi
 
 ### 3. Environment Variables
 
-**None required.** The application uses public Mux playback IDs hardcoded in the source. No API keys, database URLs, or secrets are needed for the website to function.
+Copy `frontend/.env.example` to `.env.local` for local development.
 
-If you later add scripted Mux uploads (`scripts/ingest.ts`), you would add:
+| Variable | Required | Scope | Purpose |
+|----------|----------|-------|---------|
+| `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | Yes (for contact form) | Public | Formspree endpoint used by contact form submit |
+| `NEXT_PUBLIC_ANALYTICS_ENABLED` | Optional (`true` default) | Public | Enables/disables Vercel Analytics mount |
 
-| Variable | Purpose |
-|----------|---------|
-| `MUX_TOKEN_ID` | Mux API token ID (server-side only) |
-| `MUX_TOKEN_SECRET` | Mux API token secret (server-side only) |
-
-These are not used by the website itself.
+Notes:
+- Do not commit real keys/secrets.
+- This site still does not require DB credentials or private backend tokens.
 
 ### 4. Deploy
 
@@ -82,12 +82,15 @@ Manual QA on [goose-productions.com](https://goose-productions.com). Mark pass/f
 | Project poster previews | Work section cards show Mux poster frames | [ ] |
 | Project modal playback | Click project → fullscreen modal → Mux Player plays | [ ] |
 | Contact mailto | `START A PROJECT` and email link open mail client to `info@gooseproductions.com` | [ ] |
+| Contact form submit | Valid submission shows success status without reload | [ ] |
 | Page metadata | Title, description, OG image on share previews | [x] |
 | Favicon | Tab shows branded icon | [x] |
 | Sitemap + robots | `/sitemap.xml` and `/robots.txt` return 200 | [x] |
 | Desktop navigation | At 1024px+: top nav links jump to all sections | [ ] |
 | Deep link | `/?project=carezza-leanne` opens correct modal | [ ] |
 | 404 page | `/nonexistent` shows branded not-found | [ ] |
+| Privacy route | `/privacy` renders and is linked in contact footer | [ ] |
+| Analytics | Pageviews visible in Vercel Analytics dashboard after deploy | [ ] |
 
 ## CI/CD
 

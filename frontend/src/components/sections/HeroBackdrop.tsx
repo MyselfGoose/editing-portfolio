@@ -3,7 +3,8 @@
 import MuxVideo from "@mux/mux-video-react";
 import { useEffect } from "react";
 
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
+import { useMounted } from "@/hooks/useMounted";
 import { usePageVisibility } from "@/hooks/usePageVisibility";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
@@ -15,11 +16,12 @@ import { useHeroMedia } from "./HeroMediaContext";
 import { HeroPlayerBoundary } from "./HeroPlayerBoundary";
 
 export function HeroBackdrop(): React.ReactElement {
-  const { tier, isDesktop, finePointer, isHydrated } = useBreakpoint();
+  const mounted = useMounted();
+  const { tier, isDesktop, finePointer, isHydrated } = useHydrationSafeBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
   const isPageVisible = usePageVisibility();
   const showVideo =
-    isHydrated && isDesktop && finePointer && !reducedMotion;
+    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
 
   const { isMuted, registerVideo, videoRef } = useHeroMedia();
   const { playbackId, title } = MUX_DEMO_VIDEO;

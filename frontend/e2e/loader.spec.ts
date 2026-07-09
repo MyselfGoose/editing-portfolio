@@ -12,18 +12,19 @@ test.describe("Loader accessibility", () => {
 
     await expect(page.getByText("WELCOME TO")).toBeVisible({ timeout: 10_000 });
 
-    const mainHadFocus = await page.evaluate(() => {
-      for (let i = 0; i < 8; i += 1) {
-        const active = document.activeElement;
-        if (active?.id === "main" || active?.getAttribute("href") === "#main") {
-          return true;
-        }
-        document.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
-        );
+    let mainHadFocus = false;
+    for (let i = 0; i < 8; i += 1) {
+      await page.keyboard.press("Tab");
+      const activeTarget = await page.evaluate(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (!active) return "";
+        return active.id || active.getAttribute("href") || active.tagName;
+      });
+      if (activeTarget === "main" || activeTarget === "#main") {
+        mainHadFocus = true;
+        break;
       }
-      return false;
-    });
+    }
 
     expect(mainHadFocus).toBe(false);
   });

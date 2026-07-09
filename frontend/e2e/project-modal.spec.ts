@@ -15,13 +15,13 @@ test.describe("Project modal", () => {
     await expect(projectButton).toBeVisible({ timeout: 15_000 });
     await projectButton.scrollIntoViewIfNeeded();
     await projectButton.click();
-    await expect(page.getByRole("dialog")).toBeVisible();
-    return projectButton;
+    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
+    await expect(dialog).toBeVisible();
+    return { projectButton, dialog };
   }
 
   test("opens from featured work and closes with Escape", async ({ page }) => {
-    const projectButton = await openFirstProject(page);
-    const dialog = page.getByRole("dialog");
+    const { projectButton, dialog } = await openFirstProject(page);
 
     await expect(dialog.getByRole("button", { name: "Close project" })).toBeFocused();
 
@@ -31,17 +31,17 @@ test.describe("Project modal", () => {
   });
 
   test("closes when close button is clicked", async ({ page }) => {
-    await openFirstProject(page);
+    const { dialog } = await openFirstProject(page);
 
-    await page.getByRole("button", { name: "Close project" }).click();
-    await expect(page.getByRole("dialog")).toBeHidden();
+    await dialog.getByRole("button", { name: "Close project" }).click();
+    await expect(dialog).toBeHidden();
   });
 
   test("closes when overlay is clicked", async ({ page }) => {
-    await openFirstProject(page);
+    const { dialog } = await openFirstProject(page);
 
-    await page.getByRole("dialog").click({ position: { x: 8, y: 8 } });
-    await expect(page.getByRole("dialog")).toBeHidden();
+    await dialog.click({ position: { x: 8, y: 8 } });
+    await expect(dialog).toBeHidden();
   });
 
   test("opens second project Meghan and Edward", async ({ page }) => {
@@ -52,9 +52,10 @@ test.describe("Project modal", () => {
     await expect(projectButton).toBeVisible({ timeout: 15_000 });
     await projectButton.scrollIntoViewIfNeeded();
     await projectButton.click();
-    await expect(page.getByRole("dialog")).toBeVisible();
+    const dialog = page.getByRole("dialog", { name: "Meghan and Edward" });
+    await expect(dialog).toBeVisible();
     await expect(
-      page.getByRole("dialog").getByRole("heading", { name: "Meghan and Edward" }),
+      dialog.getByRole("heading", { name: "Meghan and Edward" }),
     ).toBeVisible();
   });
 
@@ -65,5 +66,12 @@ test.describe("Project modal", () => {
     await expect(
       dialog.getByRole("heading", { name: "Carezza Leanne" }),
     ).toBeVisible();
+  });
+
+  test("captioned project still opens successfully", async ({ page }) => {
+    await page.goto("/?project=carezza-leanne");
+    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await expect(dialog.getByRole("heading", { name: "Carezza Leanne" })).toBeVisible();
   });
 });

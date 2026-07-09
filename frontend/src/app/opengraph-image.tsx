@@ -48,7 +48,6 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
         }}
       >
         {posterDataUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={posterDataUrl}
             alt=""

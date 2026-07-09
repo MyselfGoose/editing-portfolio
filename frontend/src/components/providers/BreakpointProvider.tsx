@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   useMemo,
   useSyncExternalStore,
 } from "react";
@@ -28,7 +29,7 @@ const BreakpointContext = createContext<BreakpointContextValue | null>(null);
 
 const BREAKPOINTS_FALLBACK_WIDTH = 390;
 
-const SSR_DEFAULT: BreakpointContextValue = {
+export const SSR_BREAKPOINT_DEFAULT: BreakpointContextValue = {
   tier: "mobile",
   width: BREAKPOINTS_FALLBACK_WIDTH,
   finePointer: false,
@@ -40,7 +41,7 @@ const SSR_DEFAULT: BreakpointContextValue = {
 
 function readBreakpointState(isHydrated: boolean): BreakpointContextValue {
   if (typeof window === "undefined" || !isHydrated) {
-    return SSR_DEFAULT;
+    return SSR_BREAKPOINT_DEFAULT;
   }
 
   const width = window.innerWidth;
@@ -70,7 +71,7 @@ function snapshotsEqual(
   );
 }
 
-let clientSnapshot: BreakpointContextValue = SSR_DEFAULT;
+let clientSnapshot: BreakpointContextValue = SSR_BREAKPOINT_DEFAULT;
 const listeners = new Set<() => void>();
 let listenerCount = 0;
 let detachGlobalListeners: (() => void) | null = null;
@@ -110,7 +111,6 @@ function subscribe(onStoreChange: () => void): () => void {
 
   if (listenerCount === 0) {
     detachGlobalListeners = attachGlobalListeners();
-    refreshSnapshot();
   }
   listenerCount += 1;
 
@@ -129,7 +129,7 @@ function getClientSnapshot(): BreakpointContextValue {
 }
 
 function getServerSnapshot(): BreakpointContextValue {
-  return SSR_DEFAULT;
+  return SSR_BREAKPOINT_DEFAULT;
 }
 
 interface BreakpointProviderProps {
@@ -146,6 +146,10 @@ export function BreakpointProvider({
   );
 
   const value = useMemo(() => state, [state]);
+
+  useEffect(() => {
+    refreshSnapshot();
+  }, []);
 
   return (
     <BreakpointContext.Provider value={value}>

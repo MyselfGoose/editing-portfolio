@@ -3,22 +3,21 @@
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 
+import { ContactForm } from "@/components/contact/ContactForm";
+import { useCursor } from "@/components/experience/CursorContext";
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
-import { useCursor } from "@/components/experience/CursorContext";
 import { CREDITS } from "@/data/credits";
+import { useRevealMotion } from "@/hooks/useRevealMotion";
 import { BRAND, CONTACT, EASE, SOCIAL } from "@/lib/constants";
-import { sectionReveal } from "@/lib/motion-presets";
 
 const SOCIAL_ENTRIES = (
   Object.entries(SOCIAL) as Array<[keyof typeof SOCIAL, string | undefined]>
 ).filter((entry): entry is [keyof typeof SOCIAL, string] => Boolean(entry[1]));
 
 export function Contact(): React.ReactElement {
-  const { tier } = useBreakpoint();
-  const reveal = sectionReveal(tier);
+  const revealMotion = useRevealMotion();
   const { setState, reset } = useCursor();
 
   return (
@@ -29,8 +28,8 @@ export function Contact(): React.ReactElement {
         <motion.h2
           id="contact-heading"
           className="font-display mt-12 text-massive max-w-4xl text-balance sm:mt-20"
-          variants={reveal}
-          initial="hidden"
+          variants={revealMotion.variants}
+          initial={revealMotion.initial}
           whileInView="visible"
           viewport={{ once: true, margin: "-15% 0px" }}
           transition={{ duration: 1.1, ease: EASE.expoOut }}
@@ -40,28 +39,20 @@ export function Contact(): React.ReactElement {
 
         <motion.div
           className="mt-16 flex flex-col gap-10 md:flex-row md:items-end md:justify-between"
-          variants={reveal}
-          initial="hidden"
+          variants={revealMotion.variants}
+          initial={revealMotion.initial}
           whileInView="visible"
           viewport={{ once: true, margin: "-15% 0px" }}
           transition={{ duration: 1, ease: EASE.expoOut, delay: 0.1 }}
         >
-          <a
-            href={`mailto:${CONTACT.email}`}
-            className="group flex max-w-full flex-wrap items-center gap-3 border-b border-[color:var(--color-foreground)] pb-3 font-display text-cta sm:gap-4"
-            onMouseEnter={() => setState({ kind: "open" })}
-            onMouseLeave={reset}
-            onFocus={() => setState({ kind: "open" })}
-            onBlur={reset}
-            data-cursor="open"
-          >
+          <div className="group flex max-w-full flex-wrap items-center gap-3 border-b border-[color:var(--color-foreground)] pb-3 font-display text-cta sm:gap-4">
             <span className="text-balance">{CONTACT.ctaLabel}</span>
             <ArrowUpRight
               size={32}
               strokeWidth={1.25}
               className="shrink-0 transition-transform duration-500 group-hover:translate-x-2 group-hover:-translate-y-2"
             />
-          </a>
+          </div>
 
           <a
             href={`mailto:${CONTACT.email}`}
@@ -75,12 +66,13 @@ export function Contact(): React.ReactElement {
             {CONTACT.email}
           </a>
         </motion.div>
+        <ContactForm />
 
         {SOCIAL_ENTRIES.length > 0 ? (
           <motion.ul
             className="mt-10 flex flex-wrap gap-6 font-mono text-xs text-[color:var(--color-muted)]"
-            variants={reveal}
-            initial="hidden"
+            variants={revealMotion.variants}
+            initial={revealMotion.initial}
             whileInView="visible"
             viewport={{ once: true, margin: "-15% 0px" }}
           >
@@ -91,6 +83,7 @@ export function Contact(): React.ReactElement {
                   className="text-eyebrow transition-colors hover:text-[color:var(--color-foreground)]"
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={`Visit Goose Productions on ${network}`}
                 >
                   {network === "instagram" ? BRAND.handle : network}
                 </a>
@@ -122,9 +115,18 @@ export function Contact(): React.ReactElement {
 
         <footer className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-[color:var(--color-divider)] pt-8 font-mono text-xs text-[color:var(--color-muted)] sm:flex-row sm:items-center">
           <span>&copy; {new Date().getFullYear()} {BRAND.name}</span>
-          <span className="max-w-full text-balance uppercase tracking-[0.25em]">
-            {BRAND.name} / All rights reserved
-          </span>
+          <div className="flex max-w-full flex-wrap items-center gap-3">
+            <span className="text-balance uppercase tracking-[0.25em]">
+              {BRAND.name} / All rights reserved
+            </span>
+            <span aria-hidden="true">/</span>
+            <a
+              href="/privacy"
+              className="text-eyebrow transition-colors hover:text-[color:var(--color-foreground)]"
+            >
+              Privacy
+            </a>
+          </div>
         </footer>
       </Container>
     </Section>

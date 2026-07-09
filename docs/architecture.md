@@ -6,7 +6,7 @@ This document describes the system design, data flow, and technology choices beh
 
 ## Overview
 
-The portfolio is a single-page application (SPA) built with Next.js App Router. It has no backend, database, or authentication. All content is static TypeScript data, and video is delivered through Mux's public CDN using playback IDs.
+The portfolio is a single-page experience built with Next.js App Router plus supporting static routes (`/privacy`, metadata routes). It has no custom backend or database. Content is static TypeScript data, and video is delivered through Mux's public CDN using playback IDs.
 
 ```mermaid
 flowchart TB
@@ -121,18 +121,19 @@ Placeholder playback IDs (e.g. `[PLAYBACK_ID_01]`) are detected by `isRealPlayba
 
 ## Routing
 
-The app has a single route:
+The app has two primary routes:
 
 | Route | File | Description |
 |-------|------|-------------|
 | `/` | `src/app/page.tsx` | Home page with all sections |
+| `/privacy` | `src/app/privacy/page.tsx` | Data collection and analytics disclosure |
 
 No API routes, dynamic routes, or middleware exist.
 
 ## Key Design Decisions
 
 1. **No backend** — Static site with Mux CDN for video. No server-side data fetching.
-2. **No environment variables** — Public Mux playback IDs are hardcoded. No secrets needed for the website.
+2. **Minimal environment surface** — Public runtime config is limited to contact endpoint and analytics toggle.
 3. **Single client boundary** — `ExperienceShell` mounts all interactive systems in one place, keeping the rest server-rendered.
 4. **Session-based loader** — The cinematic intro plays once per browser tab via `sessionStorage`.
 5. **Progressive video loading** — Hover previews load only when cards enter the viewport (IntersectionObserver) and only on fine-pointer devices without reduced motion.

@@ -3,9 +3,8 @@
 import { motion } from "motion/react";
 import { useCallback } from "react";
 
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useRevealMotion } from "@/hooks/useRevealMotion";
 import type { Project } from "@/data/projects";
-import { sectionReveal } from "@/lib/motion-presets";
 import { formatIndex } from "@/lib/utils";
 
 import { VideoPreview } from "./VideoPreview";
@@ -23,8 +22,7 @@ export function ProjectCard({
   project,
   onOpen,
 }: ProjectCardProps): React.ReactElement {
-  const { tier } = useBreakpoint();
-  const reveal = sectionReveal(tier);
+  const revealMotion = useRevealMotion();
 
   const handlePrefetch = useCallback((): void => {
     prefetchProjectModal();
@@ -33,8 +31,8 @@ export function ProjectCard({
   return (
     <motion.article
       className="grid grid-cols-1 gap-8 py-12 sm:py-20 md:grid-cols-12 md:gap-10 md:py-24"
-      variants={reveal}
-      initial="hidden"
+      variants={revealMotion.variants}
+      initial={revealMotion.initial}
       whileInView="visible"
       viewport={{ once: true, margin: "-10% 0px" }}
       onMouseEnter={handlePrefetch}

@@ -12,7 +12,8 @@ if (typeof window !== "undefined") {
 
 import { Container } from "@/components/layout/Container";
 import { MediaFrame } from "@/components/layout/MediaFrame";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
+import { useMounted } from "@/hooks/useMounted";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
@@ -72,9 +73,10 @@ const PHASES = FRAMES.map((f) => f.phase);
 
 export function Process(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
-  const { isDesktop, finePointer, isHydrated } = useBreakpoint();
+  const mounted = useMounted();
+  const { isDesktop, finePointer, isHydrated } = useHydrationSafeBreakpoint();
   const enableScrub =
-    isHydrated && isDesktop && finePointer && !reducedMotion;
+    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
 
   return (
     <section
@@ -140,7 +142,7 @@ function ProcessDesktopScrub({
   const textsRef = useRef<Array<HTMLDivElement | null>>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { tier } = useBreakpoint();
+  const { tier } = useHydrationSafeBreakpoint();
   const posterWidth = posterWidthForTier(tier);
 
   useGSAP(
@@ -311,7 +313,7 @@ function ProcessDesktopScrub({
 function ProcessMobileStory({
   frames,
 }: ProcessFramesProps): React.ReactElement {
-  const { tier } = useBreakpoint();
+  const { tier } = useHydrationSafeBreakpoint();
   const posterWidth = posterWidthForTier(tier);
   const [activeIndex, setActiveIndex] = useState(0);
   const stepRefs = useRef<Array<HTMLElement | null>>([]);
@@ -473,7 +475,7 @@ const MobileProcessStep = forwardRef<HTMLElement, MobileProcessStepProps>(
             "max-w-md text-body-lg transition-opacity duration-300",
             isActive
               ? "text-[color:var(--color-muted)] opacity-100"
-              : "text-[color:var(--color-dim)] opacity-60",
+              : "text-[color:var(--color-dim)] opacity-100",
           )}
         >
           {frame.copy}

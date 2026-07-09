@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { usePageVisibility } from "@/hooks/usePageVisibility";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { MUX_IMAGE_SIZES, previewWidthForTier, posterWidthForTier } from "@/lib/breakpoints";
@@ -41,7 +41,7 @@ export function VideoPreview({
   const [shouldLoadPreview, setShouldLoadPreview] = useState<boolean>(false);
   const [mediaError, setMediaError] = useState<boolean>(false);
 
-  const { tier, finePointer, isDesktop } = useBreakpoint();
+  const { tier, finePointer, isDesktop } = useHydrationSafeBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
   const isPageVisible = usePageVisibility();
   const showAnimatedPreview = hovered && isPageVisible;

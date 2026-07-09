@@ -7,18 +7,18 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Stack } from "@/components/layout/Stack";
 import { MediaFrame } from "@/components/layout/MediaFrame";
-import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
+import { useRevealMotion } from "@/hooks/useRevealMotion";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { ABOUT_STILL, EASE } from "@/lib/constants";
-import { sectionReveal } from "@/lib/motion-presets";
 import { posterUrl } from "@/lib/mux";
 
 const PULL_QUOTE =
   "Every frame is chosen for the emotion it holds, not the effect it lands.";
 
 export function About(): React.ReactElement {
-  const { tier } = useBreakpoint();
-  const reveal = sectionReveal(tier);
+  const { tier } = useHydrationSafeBreakpoint();
+  const revealMotion = useRevealMotion();
   const posterWidth = posterWidthForTier(tier);
   const still = posterUrl(ABOUT_STILL.playbackId, {
     time: ABOUT_STILL.time,
@@ -44,8 +44,8 @@ export function About(): React.ReactElement {
         <div className="relative mt-12 grid grid-cols-1 gap-10 md:mt-16 md:grid-cols-12 md:gap-16">
           <motion.div
             className="md:col-span-4 md:sticky md:top-24 md:self-start"
-            variants={reveal}
-            initial="hidden"
+            variants={revealMotion.variants}
+            initial={revealMotion.initial}
             whileInView="visible"
             viewport={{ once: true, margin: "-15% 0px" }}
           >
@@ -70,8 +70,8 @@ export function About(): React.ReactElement {
             <motion.h2
               id="about-heading"
               className="font-display text-headline max-w-3xl"
-              variants={reveal}
-              initial="hidden"
+              variants={revealMotion.variants}
+              initial={revealMotion.initial}
               whileInView="visible"
               viewport={{ once: true, margin: "-20% 0px" }}
             >
@@ -80,8 +80,8 @@ export function About(): React.ReactElement {
 
             <motion.blockquote
               className="border-l border-[color:var(--color-foreground)] pl-5 font-display text-chapter leading-snug text-[color:var(--color-foreground)] sm:pl-6 sm:text-cta"
-              variants={reveal}
-              initial="hidden"
+              variants={revealMotion.variants}
+              initial={revealMotion.initial}
               whileInView="visible"
               viewport={{ once: true, margin: "-15% 0px" }}
             >
@@ -90,8 +90,8 @@ export function About(): React.ReactElement {
 
             <motion.div
               className="flex flex-col gap-6 text-body-lg text-[color:var(--color-muted)]"
-              variants={reveal}
-              initial="hidden"
+              variants={revealMotion.variants}
+              initial={revealMotion.initial}
               whileInView="visible"
               viewport={{ once: true, margin: "-15% 0px" }}
             >
@@ -108,8 +108,8 @@ export function About(): React.ReactElement {
 
             <motion.p
               className="border-t border-[color:var(--color-divider)] pt-6 font-mono text-xs tracking-[0.2em] text-[color:var(--color-dim)] uppercase text-balance"
-              variants={reveal}
-              initial="hidden"
+              variants={revealMotion.variants}
+              initial={revealMotion.initial}
               whileInView="visible"
               viewport={{ once: true }}
             >

@@ -19,4 +19,13 @@ describe("getProjectById", () => {
     expect(isValidProjectId(projects[0].id)).toBe(true);
     expect(isValidProjectId("fake")).toBe(false);
   });
+
+  it("keeps caption path convention for configured tracks", () => {
+    const allTracks = projects.flatMap((project) => project.video.captions ?? []);
+    expect(allTracks.length).toBeGreaterThan(0);
+    for (const track of allTracks) {
+      expect(track.src.startsWith("/captions/")).toBe(true);
+      expect(track.src.endsWith(".vtt")).toBe(true);
+    }
+  });
 });

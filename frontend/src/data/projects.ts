@@ -86,6 +86,13 @@ export const projects: ReadonlyArray<Project> = [
       duration: "07:18",
       posterTime: 24,
       previewRange: { start: 20, end: 24 },
+      captions: [
+        {
+          src: "/captions/meghan-and-edward.en.vtt",
+          srcLang: "en",
+          label: "English",
+        },
+      ],
     },
     credits: {
       role: "Director / Editor",
@@ -107,6 +114,13 @@ export const projects: ReadonlyArray<Project> = [
       duration: "05:30",
       posterTime: 12,
       previewRange: { start: 8, end: 12 },
+      captions: [
+        {
+          src: "/captions/elvira.en.vtt",
+          srcLang: "en",
+          label: "English",
+        },
+      ],
     },
     credits: {
       role: "Editor / Colorist",
@@ -128,6 +142,13 @@ export const projects: ReadonlyArray<Project> = [
       duration: "06:45",
       posterTime: 16,
       previewRange: { start: 12, end: 16 },
+      captions: [
+        {
+          src: "/captions/dominguez-quince.en.vtt",
+          srcLang: "en",
+          label: "English",
+        },
+      ],
     },
     credits: {
       role: "Director / Editor",

@@ -41,11 +41,11 @@ test.describe("Responsive layout", () => {
     ).toBeVisible();
   });
 
-  test("contact CTA fits at 320px", async ({ page }) => {
+  test("contact form submit button fits at 320px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
     await page.goto("/#contact");
 
-    const cta = page.getByRole("link", { name: /START A PROJECT/i });
+    const cta = page.getByRole("button", { name: "Send Message" });
     await expect(cta).toBeVisible({ timeout: 15_000 });
 
     const box = await cta.boundingBox();
