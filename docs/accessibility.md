@@ -20,7 +20,7 @@ The `usePrefersReducedMotion` hook wraps `matchMedia("(prefers-reduced-motion: r
 | Custom cursor | Visible ring + dot + label | Hidden entirely |
 | Video hover previews | Animated WebP on hover | Static poster only |
 | Section entrances | Motion fade-in on scroll | Still rendered (Motion respects OS preference) |
-| Hero ambient video | Autoplay loop | Still autoplays (video is content, not decoration) |
+| Hero ambient video | MuxVideo muted autoplay (all tiers) | Static poster only |
 
 ### Testing Reduced Motion
 

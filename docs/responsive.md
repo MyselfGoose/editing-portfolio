@@ -8,9 +8,9 @@ How the Goose Productions portfolio adapts across devices — breakpoint tiers, 
 
 | Tier | Viewport | Experience |
 |------|----------|------------|
-| **Mobile** | `< 768px` | Focused storytelling: native scroll, poster hero, stacked layouts, mobile nav |
-| **Tablet** | `768px – 1023px` | Balanced cinematic: poster hero, stacked Process, simplified motion |
-| **Desktop** | `≥ 1024px` + fine pointer | Full immersive: Lenis scroll, custom cursor, Process scrub, hover previews, hero video |
+| **Mobile** | `< 768px` | Native scroll, ambient hero video, scroll-pin Process, stacked layouts, mobile nav |
+| **Tablet** | `768px – 1023px` | Balanced cinematic: ambient hero video, scroll-pin Process, simplified motion |
+| **Desktop** | `≥ 1024px` + fine pointer | Full immersive: Lenis scroll, custom cursor, hover previews, hero video |
 
 Tier detection lives in [`frontend/src/lib/breakpoints.ts`](../frontend/src/lib/breakpoints.ts) and [`BreakpointProvider`](../frontend/src/components/providers/BreakpointProvider.tsx).
 
@@ -63,7 +63,7 @@ Configured in [`motion-presets.ts`](../frontend/src/lib/motion-presets.ts) and [
 |--------|--------|---------|
 | Lenis smooth scroll | Off | On (fine pointer only) |
 | Custom cursor | Off | On |
-| Process ScrollTrigger | Off | On (desktop + fine pointer) |
+| Process ScrollTrigger | On (all tiers; reduced-motion fallback) | On (Lenis-synced when available) |
 | Motion reveals | Shorter, smaller offset | Full cinematic |
 | Hero word mask | Fade only | Masked stagger |
 | Film grain animation | Static overlay | Animated |
@@ -74,7 +74,7 @@ Configured in [`motion-presets.ts`](../frontend/src/lib/motion-presets.ts) and [
 
 | Surface | Mobile / Tablet | Desktop |
 |---------|-----------------|---------|
-| Hero | Poster only | MuxVideo HLS (muted autoplay) |
+| Hero | MuxVideo HLS (muted autoplay, 720p cap on mobile) | MuxVideo HLS (muted autoplay, 1080p cap) |
 | Project previews | Poster only | Poster + animated WebP on hover |
 | Modal player | 1080p max preset | 2160p cinematic preset |
 

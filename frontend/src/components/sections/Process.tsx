@@ -13,8 +13,7 @@ if (typeof window !== "undefined") {
 import { Container } from "@/components/layout/Container";
 import { MediaFrame } from "@/components/layout/MediaFrame";
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
-import { useMounted } from "@/hooks/useMounted";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { posterUrl } from "@/lib/mux";
@@ -71,12 +70,16 @@ const FRAMES: ReadonlyArray<ProcessFrame> = [
 
 const PHASES = FRAMES.map((f) => f.phase);
 
+let scrollTriggerMobileConfigured = false;
+
+function configureScrollTriggerForMobile(): void {
+  if (scrollTriggerMobileConfigured || typeof window === "undefined") return;
+  ScrollTrigger.config({ ignoreMobileResize: true });
+  scrollTriggerMobileConfigured = true;
+}
+
 export function Process(): React.ReactElement {
-  const reducedMotion = usePrefersReducedMotion();
-  const mounted = useMounted();
-  const { isDesktop, finePointer, isHydrated } = useHydrationSafeBreakpoint();
-  const enableScrub =
-    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
+  const { canUseScrollScrub } = useCinematicCapabilities();
 
   return (
     <section
@@ -88,10 +91,10 @@ export function Process(): React.ReactElement {
         Our process
       </h2>
 
-      {enableScrub ? (
-        <ProcessDesktopScrub frames={FRAMES} />
+      {canUseScrollScrub ? (
+        <ProcessScrub frames={FRAMES} />
       ) : (
-        <ProcessMobileStory frames={FRAMES} />
+        <ProcessReducedMotion frames={FRAMES} />
       )}
     </section>
   );
@@ -133,7 +136,7 @@ function PhaseRail({ frames, activeIndex }: PhaseRailProps): React.ReactElement 
   );
 }
 
-function ProcessDesktopScrub({
+function ProcessScrub({
   frames,
 }: ProcessFramesProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement | null>(null);
@@ -142,11 +145,14 @@ function ProcessDesktopScrub({
   const textsRef = useRef<Array<HTMLDivElement | null>>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { tier } = useHydrationSafeBreakpoint();
+  const { tier, isDesktop } = useHydrationSafeBreakpoint();
   const posterWidth = posterWidthForTier(tier);
+  const pinStart = isDesktop ? "top top" : "top var(--nav-offset)";
 
   useGSAP(
     () => {
+      configureScrollTriggerForMobile();
+
       const root = rootRef.current;
       const track = trackRef.current;
       const visuals = visualsRef.current.filter(
@@ -170,7 +176,7 @@ function ProcessDesktopScrub({
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: root,
-          start: "top top",
+          start: pinStart,
           end: () => `+=${window.innerHeight * (frames.length + 0.5)}`,
           scrub: 1,
           pin: track,
@@ -219,13 +225,23 @@ function ProcessDesktopScrub({
         );
       }
 
+      const refreshScrollTrigger = (): void => {
+        ScrollTrigger.refresh();
+      };
+      window.addEventListener("resize", refreshScrollTrigger, { passive: true });
+      window.addEventListener("orientationchange", refreshScrollTrigger, {
+        passive: true,
+      });
+
       return () => {
+        window.removeEventListener("resize", refreshScrollTrigger);
+        window.removeEventListener("orientationchange", refreshScrollTrigger);
         tl.scrollTrigger?.kill();
         tl.kill();
         ScrollTrigger.refresh();
       };
     },
-    { dependencies: [frames.length], scope: rootRef },
+    { dependencies: [frames.length, pinStart], scope: rootRef },
   );
 
   return (
@@ -234,12 +250,17 @@ function ProcessDesktopScrub({
         ref={trackRef}
         className="relative flex h-[100svh] w-full flex-col overflow-hidden"
       >
-        <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-4 px-[var(--section-px)] pt-8">
-          <div className="flex items-center justify-between">
+        <div
+          className={cn(
+            "absolute inset-x-0 top-0 z-20 flex flex-col gap-4 px-[var(--section-px)]",
+            isDesktop ? "pt-8" : "pt-[calc(var(--nav-offset)+0.75rem)]",
+          )}
+        >
+          <div className="flex items-center justify-between gap-3">
             <span className="text-eyebrow text-[color:var(--color-muted)]">
               02 / The Process / Post-Production
             </span>
-            <span className="text-eyebrow text-[color:var(--color-muted)]">
+            <span className="shrink-0 text-eyebrow text-[color:var(--color-muted)]">
               Stage {formatIndex(activeIndex + 1, 2)} /{" "}
               {formatIndex(frames.length, 2)}
             </span>
@@ -247,7 +268,7 @@ function ProcessDesktopScrub({
           <PhaseRail frames={frames} activeIndex={activeIndex} />
         </div>
 
-        <Container className="grid flex-1 grid-cols-1 items-center gap-8 pb-20 pt-28 md:grid-cols-2 md:gap-16 md:pt-32">
+        <Container className="grid flex-1 grid-cols-1 items-center gap-6 pb-16 pt-24 sm:gap-8 sm:pb-20 sm:pt-28 md:grid-cols-2 md:gap-16 md:pt-32">
           <MediaFrame
             aspectRatio="4/3"
             className="border border-[color:var(--color-divider)]"
@@ -266,14 +287,14 @@ function ProcessDesktopScrub({
             ))}
           </MediaFrame>
 
-          <div className="relative min-h-[300px] md:min-h-[340px]">
+          <div className="relative min-h-[240px] sm:min-h-[300px] md:min-h-[340px]">
             {frames.map((frame, i) => (
               <div
                 key={`text-${frame.index}`}
                 ref={(el: HTMLDivElement | null) => {
                   textsRef.current[i] = el;
                 }}
-                className="absolute inset-0 flex flex-col justify-center gap-6"
+                className="absolute inset-0 flex flex-col justify-center gap-4 sm:gap-6"
                 style={{ opacity: i === 0 ? 1 : 0 }}
               >
                 <FrameCopy frame={frame} total={frames.length} />
@@ -282,7 +303,7 @@ function ProcessDesktopScrub({
           </div>
         </Container>
 
-        <div className="absolute inset-x-[var(--section-px)] bottom-8 z-20">
+        <div className="absolute inset-x-[var(--section-px)] bottom-6 z-20 sm:bottom-8">
           <div className="mb-3 flex justify-between gap-2">
             {PHASES.map((phase, i) => (
               <span
@@ -310,9 +331,11 @@ function ProcessDesktopScrub({
   );
 }
 
-function ProcessMobileStory({
+type ProcessReducedMotionProps = ProcessFramesProps;
+
+function ProcessReducedMotion({
   frames,
-}: ProcessFramesProps): React.ReactElement {
+}: ProcessReducedMotionProps): React.ReactElement {
   const { tier } = useHydrationSafeBreakpoint();
   const posterWidth = posterWidthForTier(tier);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -338,12 +361,16 @@ function ProcessMobileStory({
   }, []);
 
   useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      updateActiveIndex();
+    });
     const onScroll = (): void => {
       updateActiveIndex();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
     return () => {
+      cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
@@ -366,14 +393,14 @@ function ProcessMobileStory({
         <PhaseRail frames={frames} activeIndex={activeIndex} />
       </Container>
 
-      <div className="sticky top-[4.5rem] z-10 px-[var(--section-px)]">
+      <div className="sticky top-[var(--nav-offset)] z-10 px-[var(--section-px)]">
         <MediaFrame
           aspectRatio="4/3"
           className="border border-[color:var(--color-divider)] shadow-[0_24px_80px_rgba(0,0,0,0.45)]"
         >
           {frames.map((frame, i) => (
             <motion.div
-              key={`mobile-visual-${frame.index}`}
+              key={`reduced-visual-${frame.index}`}
               className="absolute inset-0"
               animate={{ opacity: i === activeIndex ? 1 : 0 }}
               transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
@@ -411,7 +438,7 @@ function ProcessMobileStory({
 
       <Container className="flex flex-col">
         {frames.map((frame, i) => (
-          <MobileProcessStep
+          <ReducedMotionProcessStep
             key={frame.index}
             frame={frame}
             index={i}
@@ -427,66 +454,67 @@ function ProcessMobileStory({
   );
 }
 
-interface MobileProcessStepProps {
+interface ReducedMotionProcessStepProps {
   frame: ProcessFrame;
   index: number;
   total: number;
   isActive: boolean;
 }
 
-const MobileProcessStep = forwardRef<HTMLElement, MobileProcessStepProps>(
-  function MobileProcessStep(
-    { frame, index, total, isActive },
-    ref,
-  ): React.ReactElement {
-    return (
-      <article
-        ref={ref}
-        className="flex min-h-[55svh] flex-col justify-center gap-5 py-10"
-        aria-current={isActive ? "step" : undefined}
-      >
-        <div className="flex flex-wrap items-center gap-3">
-          <span
-            className={cn(
-              "h-1.5 w-1.5 rounded-full transition-colors duration-300",
-              isActive
-                ? "bg-[color:var(--color-foreground)]"
-                : "bg-[color:var(--color-divider)]",
-            )}
-            aria-hidden="true"
-          />
-          <span className="text-eyebrow text-[color:var(--color-muted)]">
-            {frame.eyebrow}
-          </span>
-          <span className="font-mono text-xs text-[color:var(--color-dim)]">
-            {frame.craft}
-          </span>
-        </div>
-        <h3
+const ReducedMotionProcessStep = forwardRef<
+  HTMLElement,
+  ReducedMotionProcessStepProps
+>(function ReducedMotionProcessStep(
+  { frame, index, total, isActive },
+  ref,
+): React.ReactElement {
+  return (
+    <article
+      ref={ref}
+      className="flex min-h-[55svh] flex-col justify-center gap-5 py-10"
+      aria-current={isActive ? "step" : undefined}
+    >
+      <div className="flex flex-wrap items-center gap-3">
+        <span
           className={cn(
-            "font-display text-headline transition-opacity duration-300",
-            isActive ? "opacity-100" : "opacity-40",
-          )}
-        >
-          {frame.title}
-        </h3>
-        <p
-          className={cn(
-            "max-w-md text-body-lg transition-opacity duration-300",
+            "h-1.5 w-1.5 rounded-full transition-colors duration-300",
             isActive
-              ? "text-[color:var(--color-muted)] opacity-100"
-              : "text-[color:var(--color-dim)] opacity-100",
+              ? "bg-[color:var(--color-foreground)]"
+              : "bg-[color:var(--color-divider)]",
           )}
-        >
-          {frame.copy}
-        </p>
-        <p className="font-mono text-xs text-[color:var(--color-dim)]">
-          Stage {formatIndex(index + 1, 2)} / {formatIndex(total, 2)}
-        </p>
-      </article>
-    );
-  },
-);
+          aria-hidden="true"
+        />
+        <span className="text-eyebrow text-[color:var(--color-muted)]">
+          {frame.eyebrow}
+        </span>
+        <span className="font-mono text-xs text-[color:var(--color-dim)]">
+          {frame.craft}
+        </span>
+      </div>
+      <h3
+        className={cn(
+          "font-display text-headline transition-opacity duration-300",
+          isActive ? "opacity-100" : "opacity-40",
+        )}
+      >
+        {frame.title}
+      </h3>
+      <p
+        className={cn(
+          "max-w-md text-body-lg transition-opacity duration-300",
+          isActive
+            ? "text-[color:var(--color-muted)] opacity-100"
+            : "text-[color:var(--color-dim)] opacity-100",
+        )}
+      >
+        {frame.copy}
+      </p>
+      <p className="font-mono text-xs text-[color:var(--color-dim)]">
+        Stage {formatIndex(index + 1, 2)} / {formatIndex(total, 2)}
+      </p>
+    </article>
+  );
+});
 
 interface FrameImageProps {
   frame: ProcessFrame;

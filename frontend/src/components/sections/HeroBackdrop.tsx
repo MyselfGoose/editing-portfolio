@@ -1,12 +1,11 @@
 "use client";
 
 import MuxVideo from "@mux/mux-video-react";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
-import { useMounted } from "@/hooks/useMounted";
 import { usePageVisibility } from "@/hooks/usePageVisibility";
-import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
@@ -16,20 +15,26 @@ import { useHeroMedia } from "./HeroMediaContext";
 import { HeroPlayerBoundary } from "./HeroPlayerBoundary";
 
 export function HeroBackdrop(): React.ReactElement {
-  const mounted = useMounted();
-  const { tier, isDesktop, finePointer, isHydrated } = useHydrationSafeBreakpoint();
-  const reducedMotion = usePrefersReducedMotion();
+  const { tier } = useHydrationSafeBreakpoint();
+  const { canPlayAmbientVideo } = useCinematicCapabilities();
   const isPageVisible = usePageVisibility();
-  const showVideo =
-    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
+  const [posterError, setPosterError] = useState(false);
 
   const { isMuted, registerVideo, videoRef } = useHeroMedia();
-  const { playbackId, title } = MUX_DEMO_VIDEO;
+  const { playbackId, title, posterTime } = MUX_DEMO_VIDEO;
   const posterWidth = posterWidthForTier(tier);
   const poster = posterUrl(playbackId, {
-    time: 0,
+    time: posterTime,
     width: posterWidth,
   });
+  const videoPreset =
+    tier === "mobile"
+      ? MUX_PLAYER_PRESETS.ambientMobile
+      : MUX_PLAYER_PRESETS.ambient;
+
+  const handlePosterError = useCallback((): void => {
+    setPosterError(true);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -39,30 +44,59 @@ export function HeroBackdrop(): React.ReactElement {
   }, [isMuted, videoRef]);
 
   useEffect(() => {
-    if (!showVideo) return;
+    if (!canPlayAmbientVideo) return;
     const video = videoRef.current;
     if (!isPageVisible) {
       pauseVideo(video);
       return;
     }
     playVideo(video);
-  }, [isPageVisible, showVideo, videoRef]);
+  }, [canPlayAmbientVideo, isPageVisible, videoRef]);
+
+  useEffect(() => {
+    if (!canPlayAmbientVideo) return;
+
+    const resumePlayback = (): void => {
+      if (!document.hidden) {
+        playVideo(videoRef.current);
+      }
+    };
+
+    window.addEventListener("pageshow", resumePlayback);
+    document.addEventListener("visibilitychange", resumePlayback);
+    return () => {
+      window.removeEventListener("pageshow", resumePlayback);
+      document.removeEventListener("visibilitychange", resumePlayback);
+    };
+  }, [canPlayAmbientVideo, videoRef]);
 
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${poster})` }}
-        role="img"
-        aria-hidden="true"
-      />
-      {showVideo ? (
-        <HeroPlayerBoundary playbackId={playbackId}>
+      {!posterError ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={poster}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          decoding="async"
+          sizes={MUX_IMAGE_SIZES}
+          onError={handlePosterError}
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[color:var(--color-elevated)]" />
+      )}
+      {canPlayAmbientVideo ? (
+        <HeroPlayerBoundary
+          playbackId={playbackId}
+          posterTime={posterTime}
+          posterWidth={posterWidth}
+        >
           <MuxVideo
             ref={(el: HTMLVideoElement | null) => registerVideo(el)}
             playbackId={playbackId}
-            streamType={MUX_PLAYER_PRESETS.ambient.streamType}
-            maxResolution={MUX_PLAYER_PRESETS.ambient.maxResolution}
+            streamType={videoPreset.streamType}
+            maxResolution={videoPreset.maxResolution}
+            capRenditionToPlayerSize={videoPreset.capRenditionToPlayerSize}
             muted={isMuted}
             autoPlay
             loop

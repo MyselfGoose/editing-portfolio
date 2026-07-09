@@ -116,9 +116,9 @@ Wraps page content in Motion's `AnimatePresence` for route change transitions. C
 
 **File:** `src/components/sections/Process.tsx`
 
-On desktop, the process section uses GSAP ScrollTrigger to scrub through three edit stages as the user scrolls. On mobile, stages are displayed statically.
+On all screen sizes, the process section uses GSAP ScrollTrigger to scrub through three edit stages as the user scrolls — the section pins in place while visuals and copy cross-fade. On mobile and tablet, native touch scroll drives the scrub (Lenis remains desktop-only). When `prefers-reduced-motion: reduce` is enabled, a simplified stepped layout is shown instead.
 
-This is the most complex scroll-driven animation in the app and depends on Lenis + GSAP being initialized by `SmoothScroll`.
+Scroll-pin uses `ignoreMobileResize` for iOS address-bar stability and `--nav-offset` to clear the fixed mobile header.
 
 ## Related Documentation
 

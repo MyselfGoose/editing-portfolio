@@ -4,8 +4,8 @@ import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
-import { useMounted } from "@/hooks/useMounted";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { EASE, HEADLINE_LINES } from "@/lib/constants";
 
 import { HeroAudioToggle } from "./HeroAudioToggle";
@@ -16,13 +16,11 @@ const TEXT_FADE_OPACITY = 0.1;
 
 function HeroContent(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
-  const mounted = useMounted();
-  const { isDesktop, finePointer, isHydrated, isMobile } = useHydrationSafeBreakpoint();
+  const { isMobile } = useHydrationSafeBreakpoint();
+  const { canPlayAmbientVideo } = useCinematicCapabilities();
   const { isMuted } = useHeroMedia();
-  const showVideo =
-    mounted && isHydrated && isDesktop && finePointer && !reducedMotion;
 
-  const textOpacity = isMuted || !showVideo ? 1 : TEXT_FADE_OPACITY;
+  const textOpacity = isMuted || !canPlayAmbientVideo ? 1 : TEXT_FADE_OPACITY;
   const textTransition = reducedMotion
     ? { duration: 0 }
     : { duration: 0.9, ease: EASE.cinematic };
@@ -41,7 +39,7 @@ function HeroContent(): React.ReactElement {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden px-[var(--section-px)] pb-8 pt-20 sm:pb-14 sm:pt-24 lg:pb-14 lg:pt-8"
+      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden px-[var(--section-px)] pb-[max(2rem,env(safe-area-inset-bottom))] pt-[max(5rem,calc(var(--nav-offset)+0.5rem))] sm:pb-14 sm:pt-24 lg:pb-14 lg:pt-8"
       aria-labelledby="hero-heading"
     >
       <HeroBackdrop />
@@ -113,8 +111,8 @@ function HeroContent(): React.ReactElement {
         </motion.div>
       </footer>
 
-      {showVideo ? (
-        <div className="absolute bottom-8 right-[var(--section-px)] z-20">
+      {canPlayAmbientVideo ? (
+        <div className="absolute bottom-8 right-[var(--section-px)] z-20 pb-[env(safe-area-inset-bottom)]">
           <HeroAudioToggle />
         </div>
       ) : null}

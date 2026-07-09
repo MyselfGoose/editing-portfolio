@@ -62,7 +62,7 @@ portfolio/
 | `HeroAudioToggle.tsx` | Client | Toggle button for hero audio on/off |
 | `HeroPlayerBoundary.tsx` | Client | Error boundary around hero video player |
 | `About.tsx` | Server | Studio note section with Mux poster still |
-| `Process.tsx` | Client | GSAP ScrollTrigger scrub of three edit stages (desktop) |
+| `Process.tsx` | Client | GSAP ScrollTrigger scrub of three edit stages (all tiers; reduced-motion fallback) |
 | `FeaturedWork.tsx` | Client | Project list with dynamic modal import |
 | `Services.tsx` | Server | Five craft "chapters" describing services |
 | `Contact.tsx` | Client | Contact CTA, credits roll, and footer |

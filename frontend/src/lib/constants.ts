@@ -85,6 +85,7 @@ export const SESSION_KEYS = {
 export const MUX_DEMO_VIDEO = {
   playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
   title: "Carezza Leanne",
+  posterTime: 4,
 } as const;
 
 /** About section still — swap src to /about.jpg when user provides asset. */

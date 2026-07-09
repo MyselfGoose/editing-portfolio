@@ -28,6 +28,7 @@
   --section-py: clamp(3.5rem, 10vw, 8rem);
   --container-max: 90rem;
   --gap-section: clamp(2rem, 5vw, 4rem);
+  --nav-offset: 4.5rem;
 }
 
 @layer base {

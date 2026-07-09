@@ -106,8 +106,9 @@ Common development, deployment, and runtime issues and how to resolve them.
 
 **Fix:**
 - Ensure `SmoothScroll` is mounted (it's inside `ExperienceShell`)
-- GSAP ScrollTrigger requires Lenis to be initialized first
-- On mobile, some ScrollTrigger effects are disabled by design
+- On desktop, GSAP ScrollTrigger syncs with Lenis via `ScrollTrigger.update`
+- On mobile/tablet, native scroll calls `ScrollTrigger.update` directly — Lenis is intentionally off
+- If Process pin feels stuck on iOS, try orientation change or scroll refresh; `ignoreMobileResize` is enabled
 
 ### Custom cursor not visible
 

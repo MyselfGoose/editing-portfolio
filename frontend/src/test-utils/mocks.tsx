@@ -41,6 +41,27 @@ vi.mock("@mux/mux-player-react", () => ({
   ),
 }));
 
+vi.mock("@mux/mux-video-react", () => ({
+  default: React.forwardRef<
+    HTMLVideoElement,
+    { playbackId?: string; poster?: string }
+  >(function MockMuxVideo({ playbackId, poster }, ref) {
+    return (
+      <video
+        ref={ref}
+        data-testid="mux-video"
+        data-playback-id={playbackId}
+        poster={poster}
+        // jsdom does not implement HTMLMediaElement.play()
+        onLoadedData={(event) => {
+          const node = event.currentTarget;
+          node.play = () => Promise.resolve();
+        }}
+      />
+    );
+  }),
+}));
+
 vi.mock("gsap", () => {
   const timeline = {
     set: vi.fn().mockReturnThis(),

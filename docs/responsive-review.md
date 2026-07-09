@@ -39,13 +39,13 @@ flowchart TB
 | Contact CTA | `inline-flex` overflow risk | Fluid `text-cta` with wrap |
 | Lenis | Always on (including touch) | Desktop + fine pointer only |
 | Reduced motion | Partial (7 files) | `MotionConfig` + tier-aware presets |
-| Hero video | Mobile only at 640px | Mobile + tablet poster; desktop video |
+| Hero video | Mobile only at 640px | Ambient video on all tiers; tier-based poster + resolution caps |
 | Mux images | Fixed 1920px everywhere | Tier-based widths + `sizes` attribute |
 | Modal player | 2160p everywhere | 1080p on mobile/tablet |
 | Navigation | Scroll only | Fullscreen mobile nav below 1024px |
 | Film grain | Animated on all devices | Static on mobile |
 | Bundle | All sections eager | Below-fold sections dynamically imported |
-| Process scrub | 1024px only | 1024px + fine pointer |
+| Process scrub | All tiers + reduced-motion fallback | Previously 1024px + fine pointer only |
 
 ## 3. Remaining risks
 

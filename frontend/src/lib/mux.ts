@@ -109,6 +109,12 @@ export const MUX_PLAYER_PRESETS = {
     capRenditionToPlayerSize: true,
     streamType: "on-demand" as const,
   },
+  /** Hero background loop on mobile: 720p cap for bandwidth. */
+  ambientMobile: {
+    maxResolution: "720p" as const,
+    capRenditionToPlayerSize: true,
+    streamType: "on-demand" as const,
+  },
 } as const;
 
 export const MUX_IMAGE_DEFAULTS = {

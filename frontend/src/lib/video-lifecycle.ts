@@ -7,9 +7,16 @@ export function pauseVideo(video: HTMLVideoElement | null | undefined): void {
 /** Safely play an HTML video element; ignores autoplay policy rejections. */
 export function playVideo(video: HTMLVideoElement | null | undefined): void {
   if (!video) return;
-  void video.play().catch(() => {
+  try {
+    const result = video.play();
+    if (result !== undefined && typeof result.catch === "function") {
+      void result.catch(() => {
+        /* autoplay policy */
+      });
+    }
+  } catch {
     /* autoplay policy */
-  });
+  }
 }
 
 interface PausableMedia {

@@ -7,6 +7,7 @@ import { posterUrl } from "@/lib/mux";
 interface HeroPlayerBoundaryProps {
   playbackId: string;
   posterTime?: number;
+  posterWidth?: number;
   children: ReactNode;
 }
 
@@ -32,13 +33,15 @@ export class HeroPlayerBoundary extends Component<
     if (this.state.hasError) {
       const poster = posterUrl(this.props.playbackId, {
         time: this.props.posterTime ?? 0,
-        width: 1920,
+        width: this.props.posterWidth ?? 1920,
       });
       return (
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${poster})` }}
-          aria-hidden="true"
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={poster}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover"
+          decoding="async"
         />
       );
     }
