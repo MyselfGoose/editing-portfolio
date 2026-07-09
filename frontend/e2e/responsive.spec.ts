@@ -34,6 +34,11 @@ test.describe("Responsive layout", () => {
     await expect(
       page.getByRole("button", { name: "Open menu" }),
     ).toHaveCount(0);
+    await expect(
+      page.getByRole("navigation", { name: "Site navigation" }).getByRole("link", {
+        name: "Process",
+      }),
+    ).toBeVisible();
   });
 
   test("contact CTA fits at 320px", async ({ page }) => {

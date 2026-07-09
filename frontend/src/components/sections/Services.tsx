@@ -35,7 +35,7 @@ const CHAPTERS: ReadonlyArray<Chapter> = [
   {
     index: 4,
     title: "Delivery.",
-    copy: "Formats, exports, archive. The film leaves the timeline and enters the world cleanly — ready for every screen it will live on.",
+    copy: "Mastering for every destination — DCP, web, social, and archive. Exports are spec-checked, labeled, and handed off with a clear delivery package.",
   },
   {
     index: 5,
@@ -51,7 +51,7 @@ export function Services(): React.ReactElement {
   return (
     <Section id="services" labelledBy="services-heading" borderTop>
       <Container>
-        <SectionHeader label="03 / Craft" aside="Chapters of a process" />
+        <SectionHeader label="04 / Services" aside="What we offer" />
 
         <h2
           id="services-heading"

@@ -89,7 +89,7 @@ portfolio/
 |------|---------|
 | `constants.ts` | Brand, contact, breakpoints, durations, eases, loader lines, session keys, demo video |
 | `mux.ts` | Mux URL builders (`posterUrl`, `animatedPreviewUrl`, `streamUrl`), `isRealPlaybackId`, player presets |
-| `animations.ts` | Shared Motion transition configs (modal, section entrances) |
+| `motion-presets.ts` | Section reveal and modal motion variants |
 | `utils.ts` | `cn`, `clamp`, `lerp`, `formatIndex`, `isBrowser` |
 
 ### Test Utilities (`src/test-utils/`)

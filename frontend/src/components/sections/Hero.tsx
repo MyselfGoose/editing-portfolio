@@ -5,24 +5,17 @@ import { ArrowDown } from "lucide-react";
 
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { EASE } from "@/lib/constants";
+import { EASE, HEADLINE_LINES } from "@/lib/constants";
 
 import { HeroAudioToggle } from "./HeroAudioToggle";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { HeroMediaProvider, useHeroMedia } from "./HeroMediaContext";
 
-const HEADLINE_LINES: ReadonlyArray<ReadonlyArray<string>> = [
-  ["We", "don't"],
-  ["edit", "videos."],
-  ["We", "create"],
-  ["memories."],
-];
-
 const TEXT_FADE_OPACITY = 0.1;
 
 function HeroContent(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
-  const { isDesktop, finePointer, isHydrated } = useBreakpoint();
+  const { isDesktop, finePointer, isHydrated, isMobile } = useBreakpoint();
   const { isMuted } = useHeroMedia();
   const showVideo =
     isHydrated && isDesktop && finePointer && !reducedMotion;
@@ -59,8 +52,8 @@ function HeroContent(): React.ReactElement {
         <span className="text-eyebrow text-[color:var(--color-muted)]">
           Cinematic Studio / Est. 2019
         </span>
-        <span className="text-eyebrow text-[color:var(--color-muted)] hidden sm:inline">
-          Reel 01 / 04
+        <span className="text-eyebrow text-[color:var(--color-muted)]">
+          {isMobile ? "01/04" : "Reel 01 / 04"}
         </span>
       </motion.header>
 

@@ -36,4 +36,34 @@ test.describe("Project modal", () => {
     await page.getByRole("button", { name: "Close project" }).click();
     await expect(page.getByRole("dialog")).toBeHidden();
   });
+
+  test("closes when overlay is clicked", async ({ page }) => {
+    await openFirstProject(page);
+
+    await page.getByRole("dialog").click({ position: { x: 8, y: 8 } });
+    await expect(page.getByRole("dialog")).toBeHidden();
+  });
+
+  test("opens second project Meghan and Edward", async ({ page }) => {
+    await page.goto("/#work");
+    const projectButton = page.getByRole("button", {
+      name: "Open Meghan and Edward",
+    });
+    await expect(projectButton).toBeVisible({ timeout: 15_000 });
+    await projectButton.scrollIntoViewIfNeeded();
+    await projectButton.click();
+    await expect(page.getByRole("dialog")).toBeVisible();
+    await expect(
+      page.getByRole("dialog").getByRole("heading", { name: "Meghan and Edward" }),
+    ).toBeVisible();
+  });
+
+  test("deep link opens modal", async ({ page }) => {
+    await page.goto("/?project=carezza-leanne");
+    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
+    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await expect(
+      dialog.getByRole("heading", { name: "Carezza Leanne" }),
+    ).toBeVisible();
+  });
 });

@@ -52,7 +52,7 @@ flowchart TB
 | Risk | Severity | Notes |
 |------|----------|-------|
 | Color contrast on `--color-dim` text | Medium | axe flags serious violations; design choice for cinematic dim aesthetic |
-| Hydration tier flash | Low | SSR defaults to mobile tier; brief layout shift possible on desktop |
+| Hydration tier flash | Low | SSR defaults to mobile tier; brief layout shift possible on desktop. **Accepted:** HeroBackdrop renders CSS poster until hydrated video mounts. |
 | iPad with trackpad | Low | May get desktop tier behaviors at 1024px+ — intended |
 | SiteNav + modal scroll lock | Low | Both set `body.overflow`; modal uses ExperienceProvider lock for Lenis |
 | Dynamic section loading | Low | Brief placeholder flash on slow connections |

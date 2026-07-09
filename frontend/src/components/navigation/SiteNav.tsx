@@ -5,21 +5,15 @@ import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BRAND } from "@/lib/constants";
+import { NAV_LINKS } from "@/lib/navigation";
+import { scrollToSection } from "@/lib/scroll-to-section";
 import { cn } from "@/lib/utils";
-
-const NAV_LINKS: ReadonlyArray<{ href: string; label: string }> = [
-  { href: "#hero", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#process", label: "Process" },
-  { href: "#work", label: "Work" },
-  { href: "#services", label: "Services" },
-  { href: "#contact", label: "Contact" },
-];
 
 export function SiteNav(): React.ReactElement {
   const [open, setOpen] = useState<boolean>(false);
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
+  const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
 
   const close = useCallback((): void => {
     setOpen(false);
@@ -34,6 +28,10 @@ export function SiteNav(): React.ReactElement {
 
     document.body.style.overflow = "hidden";
     const menuButton = menuBtnRef.current;
+
+    requestAnimationFrame(() => {
+      firstLinkRef.current?.focus();
+    });
 
     const handleKey = (event: KeyboardEvent): void => {
       if (event.key === "Escape") {
@@ -67,11 +65,9 @@ export function SiteNav(): React.ReactElement {
   }, [open, close]);
 
   const handleNavClick = useCallback(
-    (href: string) => {
+    (sectionId: string) => {
       close();
-      const id = href.replace("#", "");
-      const target = document.getElementById(id);
-      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+      scrollToSection(sectionId);
     },
     [close],
   );
@@ -117,6 +113,7 @@ export function SiteNav(): React.ReactElement {
               {NAV_LINKS.map((link, index) => (
                 <motion.a
                   key={link.href}
+                  ref={index === 0 ? firstLinkRef : undefined}
                   href={link.href}
                   className={cn(
                     "font-display text-headline border-b border-[color:var(--color-divider)] py-4",
@@ -128,7 +125,7 @@ export function SiteNav(): React.ReactElement {
                   transition={{ delay: index * 0.05, duration: 0.4 }}
                   onClick={(event) => {
                     event.preventDefault();
-                    handleNavClick(link.href);
+                    handleNavClick(link.sectionId);
                   }}
                 >
                   {link.label}

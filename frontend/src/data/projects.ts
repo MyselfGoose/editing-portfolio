@@ -57,6 +57,14 @@ export const projects: ReadonlyArray<Project> = [
       duration: "04:12",
       posterTime: 8,
       previewRange: { start: 4, end: 8 },
+      captions: [
+        {
+          src: "/captions/carezza-leanne.en.vtt",
+          srcLang: "en",
+          label: "English",
+          default: true,
+        },
+      ],
     },
     credits: {
       role: "Director / Editor",

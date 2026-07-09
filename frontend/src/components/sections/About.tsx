@@ -9,7 +9,7 @@ import { Stack } from "@/components/layout/Stack";
 import { MediaFrame } from "@/components/layout/MediaFrame";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
-import { EASE, MUX_DEMO_VIDEO } from "@/lib/constants";
+import { ABOUT_STILL, EASE } from "@/lib/constants";
 import { sectionReveal } from "@/lib/motion-presets";
 import { posterUrl } from "@/lib/mux";
 
@@ -20,8 +20,8 @@ export function About(): React.ReactElement {
   const { tier } = useBreakpoint();
   const reveal = sectionReveal(tier);
   const posterWidth = posterWidthForTier(tier);
-  const still = posterUrl(MUX_DEMO_VIDEO.playbackId, {
-    time: 4,
+  const still = posterUrl(ABOUT_STILL.playbackId, {
+    time: ABOUT_STILL.time,
     width: posterWidth,
   });
 
@@ -53,7 +53,7 @@ export function About(): React.ReactElement {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={still}
-                alt=""
+                alt={ABOUT_STILL.alt}
                 className="h-full w-full object-cover"
                 loading="lazy"
                 decoding="async"

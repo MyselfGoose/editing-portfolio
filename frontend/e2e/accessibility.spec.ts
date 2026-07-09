@@ -22,6 +22,22 @@ test.describe("Accessibility", () => {
     expect(critical).toEqual([]);
   });
 
+  test("home page has no serious contrast violations", async ({ page }) => {
+    await page.goto("/");
+
+    const results = await new AxeBuilder({ page })
+      .withTags(["wcag2aa"])
+      .analyze();
+
+    const seriousContrast = results.violations.filter(
+      (violation) =>
+        violation.impact === "serious" &&
+        violation.id === "color-contrast",
+    );
+
+    expect(seriousContrast).toEqual([]);
+  });
+
   test("tab order reaches modal close button", async ({ page }) => {
     await page.goto("/#work");
 

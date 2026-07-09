@@ -2,7 +2,7 @@
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
@@ -56,6 +56,51 @@ export default function CinematicLoader({
     setMounted(false);
     onFinish?.();
   }, [markPlayed, onFinish]);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    document.documentElement.setAttribute("aria-busy", "true");
+
+    const main = document.getElementById("main");
+    const skipLink = document.querySelector<HTMLElement>(".skip-link");
+
+    main?.setAttribute("inert", "");
+    skipLink?.setAttribute("inert", "");
+
+    const root = rootRef.current;
+    root?.focus();
+
+    const handleKey = (event: KeyboardEvent): void => {
+      if (event.key !== "Tab" || !root) return;
+      const focusables = root.querySelectorAll<HTMLElement>(
+        '[tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) {
+        event.preventDefault();
+        return;
+      }
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKey);
+
+    return () => {
+      document.removeEventListener("keydown", handleKey);
+      document.documentElement.removeAttribute("aria-busy");
+      main?.removeAttribute("inert");
+      skipLink?.removeAttribute("inert");
+      skipLink?.focus();
+    };
+  }, [mounted]);
 
   useGSAP(
     () => {
@@ -139,7 +184,16 @@ export default function CinematicLoader({
   if (!mounted) return null;
 
   return (
-    <div ref={rootRef} className="loader-root" style={{ visibility: "hidden" }}>
+    <div
+      ref={rootRef}
+      className="loader-root"
+      style={{ visibility: "hidden" }}
+      role="status"
+      aria-live="polite"
+      aria-busy="true"
+      aria-label="Loading experience"
+      tabIndex={-1}
+    >
       <div
         ref={outroRef}
         aria-hidden="true"

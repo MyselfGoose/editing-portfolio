@@ -72,15 +72,22 @@ Production domain: **goose-productions.com**
 
 ## Post-Deploy Checklist
 
-- [x] Home page loads with all sections visible
-- [x] Custom domain resolves with HTTPS
-- [ ] Cinematic loader plays on first visit
-- [ ] Project video previews show poster frames
-- [ ] Clicking a project opens the fullscreen modal with Mux Player
-- [ ] Contact email link opens mail client
-- [x] Page metadata (title, description, Open Graph) is correct
-- [x] Favicon displays
-- [x] `sitemap.xml` and `robots.txt` served
+Manual QA on [goose-productions.com](https://goose-productions.com). Mark pass/fail per item.
+
+| Check | Pass criteria | Status |
+|-------|---------------|--------|
+| Home page sections | Hero, About, Process, Work, Services, Contact visible after loader | [x] |
+| Custom domain + HTTPS | `https://goose-productions.com` resolves with valid TLS | [x] |
+| Cinematic loader | First visit in new tab: loader plays and dismisses; revisit skips | [ ] |
+| Project poster previews | Work section cards show Mux poster frames | [ ] |
+| Project modal playback | Click project → fullscreen modal → Mux Player plays | [ ] |
+| Contact mailto | `START A PROJECT` and email link open mail client to `info@gooseproductions.com` | [ ] |
+| Page metadata | Title, description, OG image on share previews | [x] |
+| Favicon | Tab shows branded icon | [x] |
+| Sitemap + robots | `/sitemap.xml` and `/robots.txt` return 200 | [x] |
+| Desktop navigation | At 1024px+: top nav links jump to all sections | [ ] |
+| Deep link | `/?project=carezza-leanne` opens correct modal | [ ] |
+| 404 page | `/nonexistent` shows branded not-found | [ ] |
 
 ## CI/CD
 

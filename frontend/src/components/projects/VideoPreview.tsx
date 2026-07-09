@@ -39,6 +39,7 @@ export function VideoPreview({
   const [hovered, setHovered] = useState<boolean>(false);
   const [previewLoaded, setPreviewLoaded] = useState<boolean>(false);
   const [shouldLoadPreview, setShouldLoadPreview] = useState<boolean>(false);
+  const [mediaError, setMediaError] = useState<boolean>(false);
 
   const { tier, finePointer, isDesktop } = useBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
@@ -140,7 +141,7 @@ export function VideoPreview({
       data-cursor={hasPlayback ? "play" : undefined}
       tabIndex={hasPlayback ? 0 : -1}
     >
-      {hasPlayback && posterSrc ? (
+      {hasPlayback && posterSrc && !mediaError ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -150,6 +151,7 @@ export function VideoPreview({
             loading="lazy"
             decoding="async"
             sizes={MUX_IMAGE_SIZES}
+            onError={() => setMediaError(true)}
             className={cn(
               "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
               hovered && previewLoaded && isPageVisible ? "opacity-0" : "opacity-100",
@@ -166,6 +168,7 @@ export function VideoPreview({
                 decoding="async"
                 sizes={MUX_IMAGE_SIZES}
                 onLoad={() => setPreviewLoaded(true)}
+                onError={() => setPreviewLoaded(false)}
                 className={cn(
                   "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
                   hovered && previewLoaded && isPageVisible ? "opacity-100" : "opacity-0",
@@ -174,6 +177,15 @@ export function VideoPreview({
             </>
           ) : null}
         </>
+      ) : hasPlayback && mediaError ? (
+        <div
+          className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-[color:var(--color-elevated)] px-4"
+          aria-hidden="true"
+        >
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            Preview unavailable
+          </span>
+        </div>
       ) : (
         <div
           className="absolute inset-0 flex items-center justify-center bg-[color:var(--color-elevated)]"

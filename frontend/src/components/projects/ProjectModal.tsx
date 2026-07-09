@@ -3,7 +3,7 @@
 import MuxPlayer from "@mux/mux-player-react";
 import { AnimatePresence, motion } from "motion/react";
 import { X } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useExperience } from "@/components/providers/ExperienceProvider";
 import type { Project } from "@/data/projects";
@@ -34,6 +34,7 @@ export function ProjectModal({
   const isPageVisible = usePageVisibility();
   const { setScrollLocked } = useExperience();
   const { overlay, panel } = modalMotion(tier);
+  const [failedProjectId, setFailedProjectId] = useState<string | null>(null);
 
   const playerPreset = isDesktop
     ? MUX_PLAYER_PRESETS.cinematic
@@ -100,6 +101,8 @@ export function ProjectModal({
 
   const hasPlayback =
     project !== null && isRealPlaybackId(project.video.playbackId);
+  const playbackError =
+    project !== null && failedProjectId === project.id;
 
   return (
     <AnimatePresence mode="wait" initial={false}>
@@ -153,7 +156,7 @@ export function ProjectModal({
               className="relative w-full overflow-hidden bg-black"
               style={{ aspectRatio: project.video.aspectRatio }}
             >
-              {hasPlayback ? (
+              {hasPlayback && !playbackError ? (
                 <MuxPlayer
                   playbackId={project.video.playbackId}
                   streamType={playerPreset.streamType}
@@ -180,6 +183,7 @@ export function ProjectModal({
                     width: "100%",
                   }}
                   aria-label={`${project.title} — full video`}
+                  onError={() => setFailedProjectId(project.id)}
                 >
                   {project.video.captions?.map((track) => (
                     <track
@@ -192,6 +196,21 @@ export function ProjectModal({
                     />
                   ))}
                 </MuxPlayer>
+              ) : hasPlayback && playbackError ? (
+                <div className="relative flex h-full min-h-[240px] flex-col items-center justify-center gap-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={posterUrl(project.video.playbackId, {
+                      time: project.video.posterTime,
+                      width: posterWidthForTier(tier),
+                    })}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover opacity-40"
+                  />
+                  <p className="relative text-eyebrow text-[color:var(--color-muted)]">
+                    Playback unavailable
+                  </p>
+                </div>
               ) : (
                 <div className="flex h-full min-h-[240px] items-center justify-center">
                   <p className="text-eyebrow text-[color:var(--color-muted)]">

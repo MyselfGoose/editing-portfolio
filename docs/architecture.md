@@ -63,15 +63,15 @@ flowchart TB
 
 ### Server Components (default)
 
-Most of the page is server-rendered:
-
 - `layout.tsx` — HTML shell, fonts, metadata, skip link
-- `page.tsx` — Composes all six sections
-- Section components (`About`, `Services`, `Contact`) — Static content, no client interactivity
+- `page.tsx` — Composes all six sections (Hero static; below-fold sections dynamically imported)
+- `not-found.tsx` — Branded 404 page
 
 ### Client Components (`"use client"`)
 
-Interactive systems are client components, mounted through a single boundary:
+All section components are client components because they use Motion, GSAP, or breakpoint hooks:
+
+- `Hero`, `About`, `Process`, `FeaturedWork`, `Services`, `Contact`
 
 ```
 layout.tsx

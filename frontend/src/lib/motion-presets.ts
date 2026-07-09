@@ -25,45 +25,6 @@ export function sectionReveal(tier: DeviceTier): Variants {
   };
 }
 
-export function heroWordVariant(
-  tier: DeviceTier,
-  reducedMotion: boolean,
-): Variants | undefined {
-  if (reducedMotion) return undefined;
-  if (tier === "mobile") {
-    return {
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: { duration: 0.4, ease: EASE.expoOut },
-      },
-    };
-  }
-
-  return {
-    hidden: { y: "110%" },
-    visible: {
-      y: "0%",
-      transition: { duration: 0.9, ease: EASE.expoOut },
-    },
-  };
-}
-
-export function heroStagger(
-  tier: DeviceTier,
-  reducedMotion: boolean,
-): Variants | undefined {
-  if (reducedMotion) return undefined;
-  const stagger = tier === "mobile" ? 0.05 : 0.09;
-  const delay = tier === "mobile" ? 0.15 : 0.35;
-  return {
-    hidden: {},
-    visible: {
-      transition: { delayChildren: delay, staggerChildren: stagger },
-    },
-  };
-}
-
 export function modalMotion(tier: DeviceTier): {
   overlay: Transition;
   panel: Variants;

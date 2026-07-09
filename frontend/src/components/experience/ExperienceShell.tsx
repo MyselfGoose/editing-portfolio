@@ -5,6 +5,7 @@ import { MotionConfig } from "motion/react";
 
 import { BreakpointProvider } from "@/components/providers/BreakpointProvider";
 import { ExperienceProvider } from "@/components/providers/ExperienceProvider";
+import { DesktopNav } from "@/components/navigation/DesktopNav";
 import { SiteNav } from "@/components/navigation/SiteNav";
 import { EASE } from "@/lib/constants";
 
@@ -34,6 +35,7 @@ export function ExperienceShell({
           <SmoothScroll>
             <CursorProvider>
               <SiteNav />
+              <DesktopNav />
               <CustomCursor />
               <CinematicLoader />
               <div className="film-grain" aria-hidden="true" />

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -69,7 +69,9 @@ describe("ProjectModal", () => {
     renderWithProviders(<ProjectModal project={testProject} onClose={vi.fn()} />);
 
     const closeButton = screen.getByRole("button", { name: "Close project" });
-    expect(closeButton).toHaveFocus();
+    await waitFor(() => {
+      expect(closeButton).toHaveFocus();
+    });
 
     await user.tab();
     // Focus should wrap back to close button (only focusable in mock)

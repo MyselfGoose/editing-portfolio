@@ -108,22 +108,14 @@ function PhaseRail({ frames, activeIndex }: PhaseRailProps): React.ReactElement 
   return (
     <div
       className="flex flex-wrap items-center gap-2 sm:gap-3"
-      role="tablist"
-      aria-label="Process stages"
+      aria-hidden="true"
     >
       {frames.map((frame, i) => (
         <span key={frame.phase} className="flex items-center gap-2 sm:gap-3">
           {i > 0 ? (
-            <span
-              className="text-[color:var(--color-divider)]"
-              aria-hidden="true"
-            >
-              →
-            </span>
+            <span className="text-[color:var(--color-divider)]">→</span>
           ) : null}
           <span
-            role="tab"
-            aria-selected={i === activeIndex}
             className={cn(
               "text-eyebrow transition-colors duration-300",
               i === activeIndex
@@ -243,7 +235,7 @@ function ProcessDesktopScrub({
         <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-4 px-[var(--section-px)] pt-8">
           <div className="flex items-center justify-between">
             <span className="text-eyebrow text-[color:var(--color-muted)]">
-              The Process / Post-Production
+              02 / The Process / Post-Production
             </span>
             <span className="text-eyebrow text-[color:var(--color-muted)]">
               Stage {formatIndex(activeIndex + 1, 2)} /{" "}
@@ -362,7 +354,7 @@ function ProcessMobileStory({
       <Container className="flex flex-col gap-4 pb-8 pt-[var(--section-py)]">
         <div className="flex items-center justify-between">
           <span className="text-eyebrow text-[color:var(--color-muted)]">
-            The Process / Post-Production
+            02 / The Process / Post-Production
           </span>
           <span className="text-eyebrow text-[color:var(--color-muted)]">
             Stage {formatIndex(activeIndex + 1, 2)} /{" "}

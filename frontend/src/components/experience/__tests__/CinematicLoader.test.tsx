@@ -51,4 +51,23 @@ describe("CinematicLoader", () => {
     });
     expect(sessionStorage.getItem(SESSION_KEYS.loaderPlayed)).toBe("1");
   });
+
+  it("sets inert on main while loader is visible", () => {
+    mockMatchMediaForQuery({
+      "(prefers-reduced-motion: reduce)": true,
+      "(max-width: 767px)": false,
+    });
+
+    const main = document.createElement("main");
+    main.id = "main";
+    document.body.appendChild(main);
+
+    renderWithProviders(<CinematicLoader />);
+
+    expect(main.hasAttribute("inert")).toBe(true);
+    expect(screen.getByLabelText("Loading experience")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
+  });
 });

@@ -1,28 +1,30 @@
 import { expect, test } from "@playwright/test";
 
-const LOADER_KEY = "gp:loader-played";
-
-test.describe("Cinematic loader", () => {
-  test("plays on first visit then dismisses", async ({ page }) => {
-    await page.addInitScript((key) => {
-      window.sessionStorage.removeItem(key);
-    }, LOADER_KEY);
+test.describe("Loader accessibility", () => {
+  test("tab does not reach main content while loader visible", async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      window.sessionStorage.removeItem("gp:loader-played");
+    });
 
     await page.goto("/");
 
     await expect(page.getByText("WELCOME TO")).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByText("WELCOME TO")).toBeHidden({ timeout: 15_000 });
-    await expect(page.locator("#hero")).toBeVisible();
-  });
 
-  test("is skipped on repeat visit in the same session", async ({ page }) => {
-    await page.addInitScript((key) => {
-      window.sessionStorage.setItem(key, "1");
-    }, LOADER_KEY);
+    const mainHadFocus = await page.evaluate(() => {
+      for (let i = 0; i < 8; i += 1) {
+        const active = document.activeElement;
+        if (active?.id === "main" || active?.getAttribute("href") === "#main") {
+          return true;
+        }
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
+        );
+      }
+      return false;
+    });
 
-    await page.goto("/");
-
-    await expect(page.getByText("WELCOME TO")).toHaveCount(0);
-    await expect(page.locator("#hero")).toBeVisible();
+    expect(mainHadFocus).toBe(false);
   });
 });

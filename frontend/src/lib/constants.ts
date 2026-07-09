@@ -5,14 +5,37 @@ export const BRAND = {
   handle: "@gooseproductions",
 } as const;
 
+/** Headline display lines derived from brand tagline. */
+export const HEADLINE_LINES: ReadonlyArray<ReadonlyArray<string>> = [
+  ["We", "don't"],
+  ["edit", "videos."],
+  ["We", "create"],
+  ["memories."],
+] as const;
+
 /** Canonical production origin — used for metadata, sitemap, and JSON-LD. */
 export const SITE = {
   url: "https://goose-productions.com",
 } as const;
 
 export const CONTACT = {
+  /** Keep unless MX is configured for goose-productions.com — see emailNote. */
   email: "info@gooseproductions.com",
   ctaLabel: "START A PROJECT",
+  /** Migrating to info@goose-productions.com requires DNS/MX changes — confirm with user first. */
+  emailNote:
+    "Domain-aligned email (info@goose-productions.com) requires MX record update.",
+} as const;
+
+export interface SocialLinks {
+  readonly instagram?: string;
+  readonly vimeo?: string;
+  readonly youtube?: string;
+}
+
+/** Render social links in UI only when URLs are defined. */
+export const SOCIAL: SocialLinks = {
+  instagram: "https://instagram.com/gooseproductions",
 } as const;
 
 export { BREAKPOINTS } from "@/lib/breakpoints";
@@ -35,10 +58,10 @@ export const EASE = {
 };
 
 export const LOADER_LINES = [
-  { label: "INITIALIZING VISUAL SYSTEM", status: "READY" },
-  { label: "COLOR GRADING", status: "DONE" },
-  { label: "FRAME ANALYSIS", status: "DONE" },
-  { label: "STORY ENGINE", status: "READY" },
+  { label: "LOADING SELECTS", status: "READY" },
+  { label: "CALIBRATING GRADE", status: "DONE" },
+  { label: "LOCKING PICTURE", status: "DONE" },
+  { label: "SETTING MOOD", status: "READY" },
 ] as const;
 
 export const SESSION_KEYS = {
@@ -51,5 +74,9 @@ export const MUX_DEMO_VIDEO = {
   title: "Carezza Leanne",
 } as const;
 
-/** @deprecated Use MUX_DEMO_VIDEO */
-export const MUX_PLACEHOLDER = MUX_DEMO_VIDEO;
+/** About section still — swap src to /about.jpg when user provides asset. */
+export const ABOUT_STILL = {
+  playbackId: MUX_DEMO_VIDEO.playbackId,
+  time: 4,
+  alt: "A still frame from a Goose Productions wedding film",
+} as const;

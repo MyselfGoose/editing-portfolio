@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import { useExperience } from "@/components/providers/ExperienceProvider";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
+import { registerScrollToSection } from "@/lib/scroll-to-section";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -46,6 +47,12 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
 
     lenis.on("scroll", ScrollTrigger.update);
 
+    registerScrollToSection((sectionId: string) => {
+      const target = document.getElementById(sectionId);
+      if (!target) return;
+      lenis.scrollTo(target, { offset: 0 });
+    });
+
     const raf = (time: number): void => {
       lenis.raf(time * 1000);
     };
@@ -54,10 +61,17 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      registerScrollToSection(null);
       gsap.ticker.remove(raf);
       lenis.destroy();
       lenisRef.current = null;
     };
+  }, [enableLenis]);
+
+  useEffect(() => {
+    if (!enableLenis) {
+      registerScrollToSection(null);
+    }
   }, [enableLenis]);
 
   useEffect(() => {

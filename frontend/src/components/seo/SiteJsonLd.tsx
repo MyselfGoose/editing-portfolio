@@ -1,9 +1,16 @@
-import { BRAND, CONTACT, SITE } from "@/lib/constants";
+import { BRAND, CONTACT, SITE, SOCIAL } from "@/lib/constants";
 
 const DESCRIPTION =
   "A cinematic video studio. We don't edit videos. We create memories.";
 
+function socialUrls(): string[] {
+  return Object.values(SOCIAL).filter(
+    (url): url is string => typeof url === "string" && url.length > 0,
+  );
+}
+
 export function SiteJsonLd(): React.ReactElement {
+  const sameAs = socialUrls();
   const data = {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
@@ -11,7 +18,11 @@ export function SiteJsonLd(): React.ReactElement {
     url: SITE.url,
     description: DESCRIPTION,
     email: CONTACT.email,
+    foundingDate: "2019",
+    image: `${SITE.url}/opengraph-image`,
+    logo: `${SITE.url}/icon`,
     areaServed: "Worldwide",
+    ...(sameAs.length > 0 ? { sameAs } : {}),
     serviceType: [
       "Wedding Films",
       "Video Editing",

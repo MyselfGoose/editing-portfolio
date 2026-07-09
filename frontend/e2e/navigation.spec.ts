@@ -1,32 +1,39 @@
 import { expect, test } from "@playwright/test";
 
-test.describe("Section navigation", () => {
+test.describe("Desktop navigation", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       window.sessionStorage.setItem("gp:loader-played", "1");
+      const style = document.createElement("style");
+      style.textContent = "nextjs-portal { display: none !important; }";
+      document.documentElement.appendChild(style);
     });
   });
 
-  test("hash navigation reveals target sections", async ({ page }) => {
-    await page.goto("/#work");
-    await expect(page.locator("#work")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /Each project is a chapter/i }),
-    ).toBeVisible();
+  test("desktop nav jumps to process at 1440px", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/");
 
-    await page.goto("/#contact");
-    await expect(page.locator("#contact")).toBeVisible();
-    await expect(
-      page.getByRole("heading", { name: /Ready to tell/i }),
-    ).toBeVisible();
+    await page
+      .getByRole("navigation", { name: "Site navigation" })
+      .getByRole("link", { name: "Process" })
+      .click();
+
+    await expect(page.locator("#process")).toBeInViewport();
   });
 
-  test("work section lists all projects", async ({ page }) => {
-    await page.goto("/#work");
+  test("mobile nav open click process closes menu", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    await page.evaluate(() => {
+      document.querySelectorAll("nextjs-portal").forEach((node) => node.remove());
+    });
 
-    await expect(page.getByText("Carezza Leanne")).toBeVisible();
-    await expect(page.getByText("Meghan and Edward")).toBeVisible();
-    await expect(page.getByText("Elvira")).toBeVisible();
-    await expect(page.getByText("Dominguez Quince")).toBeVisible();
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await expect(page.getByRole("dialog", { name: "Site navigation" })).toBeVisible();
+
+    await page.getByRole("link", { name: "Process" }).click();
+    await expect(page.getByRole("dialog", { name: "Site navigation" })).toBeHidden();
+    await expect(page.locator("#process")).toBeInViewport();
   });
 });

@@ -8,16 +8,13 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useCursor } from "@/components/experience/CursorContext";
-import { BRAND, CONTACT, EASE } from "@/lib/constants";
+import { CREDITS } from "@/data/credits";
+import { BRAND, CONTACT, EASE, SOCIAL } from "@/lib/constants";
 import { sectionReveal } from "@/lib/motion-presets";
 
-const CREDITS: ReadonlyArray<{ role: string; name: string }> = [
-  { role: "Director", name: "Goose Productions" },
-  { role: "Editor", name: "Goose Productions" },
-  { role: "Colorist", name: "Goose Productions" },
-  { role: "Sound Design", name: "Goose Productions" },
-  { role: "Score", name: "Licensed / Original" },
-];
+const SOCIAL_ENTRIES = (
+  Object.entries(SOCIAL) as Array<[keyof typeof SOCIAL, string | undefined]>
+).filter((entry): entry is [keyof typeof SOCIAL, string] => Boolean(entry[1]));
 
 export function Contact(): React.ReactElement {
   const { tier } = useBreakpoint();
@@ -27,7 +24,7 @@ export function Contact(): React.ReactElement {
   return (
     <Section id="contact" labelledBy="contact-heading" borderTop padding="contact">
       <Container>
-        <SectionHeader label="04 / Contact" aside="End Credits" />
+        <SectionHeader label="05 / Contact" aside="End Credits" />
 
         <motion.h2
           id="contact-heading"
@@ -78,6 +75,29 @@ export function Contact(): React.ReactElement {
             {CONTACT.email}
           </a>
         </motion.div>
+
+        {SOCIAL_ENTRIES.length > 0 ? (
+          <motion.ul
+            className="mt-10 flex flex-wrap gap-6 font-mono text-xs text-[color:var(--color-muted)]"
+            variants={reveal}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-15% 0px" }}
+          >
+            {SOCIAL_ENTRIES.map(([network, url]) => (
+              <li key={network}>
+                <a
+                  href={url}
+                  className="text-eyebrow transition-colors hover:text-[color:var(--color-foreground)]"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {network === "instagram" ? BRAND.handle : network}
+                </a>
+              </li>
+            ))}
+          </motion.ul>
+        ) : null}
 
         <div className="mt-32 border-t border-[color:var(--color-divider)] pt-10">
           <p className="text-eyebrow text-[color:var(--color-muted)]">

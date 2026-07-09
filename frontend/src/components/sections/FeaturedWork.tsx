@@ -7,6 +7,7 @@ import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { useProjectDeepLink } from "@/hooks/useProjectDeepLink";
 import { projects, type Project } from "@/data/projects";
 
 const ProjectModal = dynamic(
@@ -25,11 +26,17 @@ export function FeaturedWork(): React.ReactElement {
     setActiveProject(null);
   }, []);
 
+  const { openProject, closeProject } = useProjectDeepLink({
+    activeProject,
+    onOpen: handleOpen,
+    onClose: handleClose,
+  });
+
   return (
     <Section id="work" labelledBy="work-heading" borderTop>
       <Container>
         <SectionHeader
-          label="02 / Selected Work"
+          label="03 / Selected Work"
           aside={`${projects.length} chapters`}
         />
 
@@ -45,12 +52,12 @@ export function FeaturedWork(): React.ReactElement {
             <ProjectCard
               key={project.id}
               project={project}
-              onOpen={handleOpen}
+              onOpen={openProject}
             />
           ))}
         </div>
 
-        <ProjectModal project={activeProject} onClose={handleClose} />
+        <ProjectModal project={activeProject} onClose={closeProject} />
       </Container>
     </Section>
   );

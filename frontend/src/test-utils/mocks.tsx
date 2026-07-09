@@ -70,46 +70,46 @@ vi.mock("@gsap/react", () => ({
 }));
 
 vi.mock("motion/react", () => {
-  const MotionDiv = React.forwardRef<
-    HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement>
-  >(function MotionDiv({ children, ...props }, ref) {
-    return (
-      <div ref={ref} {...props}>
-        {children}
-      </div>
-    );
-  });
+  function createMotionElement(tag: string) {
+    return React.forwardRef<
+      HTMLElement,
+      React.HTMLAttributes<HTMLElement> & Record<string, unknown>
+    >(function MotionElement({ children, ...props }, ref) {
+      const domProps = { ...props } as React.HTMLAttributes<HTMLElement>;
+      delete (domProps as Record<string, unknown>).initial;
+      delete (domProps as Record<string, unknown>).animate;
+      delete (domProps as Record<string, unknown>).exit;
+      delete (domProps as Record<string, unknown>).variants;
+      delete (domProps as Record<string, unknown>).transition;
+      delete (domProps as Record<string, unknown>).whileInView;
+      delete (domProps as Record<string, unknown>).viewport;
+      return React.createElement(
+        tag,
+        { ref, ...domProps },
+        children as React.ReactNode,
+      );
+    });
+  }
 
-  const MotionArticle = React.forwardRef<
-    HTMLElement,
-    React.HTMLAttributes<HTMLElement>
-  >(function MotionArticle({ children, ...props }, ref) {
-    return (
-      <article ref={ref} {...props}>
-        {children}
-      </article>
-    );
-  });
-
-  const MotionH2 = React.forwardRef<
-    HTMLHeadingElement,
-    React.HTMLAttributes<HTMLHeadingElement>
-  >(function MotionH2({ children, ...props }, ref) {
-    return (
-      <h2 ref={ref} {...props}>
-        {children}
-      </h2>
-    );
-  });
+  const cache = new Map<string, ReturnType<typeof createMotionElement>>();
+  const motion = new Proxy(
+    {},
+    {
+      get: (_target, prop: string) => {
+        if (!cache.has(prop)) {
+          cache.set(prop, createMotionElement(prop));
+        }
+        return cache.get(prop);
+      },
+    },
+  ) as Record<string, ReturnType<typeof createMotionElement>>;
 
   return {
-    motion: {
-      div: MotionDiv,
-      article: MotionArticle,
-      h2: MotionH2,
-    },
+    motion,
     AnimatePresence: ({ children }: { children: React.ReactNode }) => (
+      <>{children}</>
+    ),
+    MotionConfig: ({ children }: { children: React.ReactNode }) => (
       <>{children}</>
     ),
   };

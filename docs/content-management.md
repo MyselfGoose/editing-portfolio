@@ -1,12 +1,14 @@
 # Content Management
 
-How to customize portfolio content — projects, brand identity, contact information, and placeholder conventions.
+How to customize portfolio content — projects, brand identity, contact information, and asset conventions.
 
 **Last verified against:** Next.js 16.2.9
 
 ## Overview
 
 All content is defined as typed TypeScript constants. There is no CMS or database. To update content, edit the source files and redeploy.
+
+**Live site:** [https://goose-productions.com](https://goose-productions.com)
 
 ## Brand and Contact
 
@@ -16,13 +18,17 @@ Edit [`frontend/src/lib/constants.ts`](../frontend/src/lib/constants.ts):
 export const BRAND = {
   name: "Goose Productions",
   short: "Goose",
-  tagline: "[STUDIO TAGLINE]",
-  handle: "@studio",
+  tagline: "We don't edit videos. We create memories.",
+  handle: "@gooseproductions",
 } as const;
 
 export const CONTACT = {
   email: "info@gooseproductions.com",
   ctaLabel: "START A PROJECT",
+} as const;
+
+export const SOCIAL = {
+  instagram: "https://instagram.com/gooseproductions",
 } as const;
 ```
 
@@ -30,29 +36,36 @@ These values appear in:
 
 - Page metadata (`layout.tsx` title, description, Open Graph)
 - Cinematic loader brand reveal
-- Contact section CTA and email links
+- Contact section CTA, email links, and social links
 - Footer copyright
+- JSON-LD structured data
+
+**Email note:** `info@gooseproductions.com` is the current production address. Migrating to `info@goose-productions.com` requires DNS/MX changes — do not change without configuring mail routing.
 
 ## Projects
 
-Projects are defined in [`frontend/src/data/projects.ts`](../frontend/src/data/projects.ts).
+Four real projects are defined in [`frontend/src/data/projects.ts`](../frontend/src/data/projects.ts):
+
+1. Carezza Leanne
+2. Meghan and Edward
+3. Elvira
+4. Dominguez Quince
+
+Each uses a real Mux public playback ID.
 
 ### Project Schema
 
 ```typescript
 interface Project {
-  id: string;              // URL-safe slug (e.g. "the-wedding-film")
+  id: string;              // URL-safe slug (e.g. "carezza-leanne")
   index: number;           // Display order (1, 2, 3...)
-  title: string;           // Project title
-  category: ProjectCategory; // "Wedding Film" | "Documentary" | "Brand Story" | "Music Video"
-  year: number;            // Release year
-  location: string;        // Shoot location
-  description: string;     // Short description (1-2 sentences)
-  video: ProjectVideo;     // Video configuration (see below)
-  credits: {
-    role: string;          // Your role (e.g. "Editor / Colorist")
-    client: string;        // Client name
-  };
+  title: string;
+  category: ProjectCategory;
+  year: number;
+  location: string;
+  description: string;
+  video: ProjectVideo;
+  credits: { role: string; client: string };
 }
 ```
 
@@ -60,104 +73,78 @@ interface Project {
 
 ```typescript
 interface ProjectVideo {
-  playbackId: string;      // Mux playback ID or placeholder
-  aspectRatio: VideoAspectRatio; // "16/9" | "9/16" | "4/3"
-  duration: string;        // Display duration (e.g. "03:42")
-  posterTime?: number;     // Seconds — frame for still poster
-  previewRange?: {         // Seconds — hover animated preview window
-    start: number;
-    end: number;
-  };
-  captions?: ReadonlyArray<ProjectCaptionTrack>; // Optional VTT tracks
+  playbackId: string;
+  aspectRatio: VideoAspectRatio;
+  duration: string;
+  posterTime?: number;
+  previewRange?: { start: number; end: number };
+  captions?: ReadonlyArray<ProjectCaptionTrack>;
 }
 ```
+
+### Captions (VTT)
+
+Add WebVTT files under `frontend/public/captions/` and reference them in `projects.ts`:
+
+```typescript
+captions: [
+  {
+    src: "/captions/carezza-leanne.en.vtt",
+    srcLang: "en",
+    label: "English",
+    default: true,
+  },
+],
+```
+
+Alternatively, upload text tracks in the Mux dashboard and use the Mux-hosted URL.
 
 ### Adding a New Project
 
 1. Upload the video to Mux (see [Video Ingest](video-ingest.md))
-2. Add a new entry to the `projects` array in `projects.ts`:
+2. Add a new entry to the `projects` array
+3. Run `npm run check` and deploy
 
-```typescript
-{
-  id: "new-project-slug",
-  index: 4,
-  title: "Project Title",
-  category: "Documentary",
-  year: 2026,
-  location: "City, Country",
-  description: "A brief description of the project.",
-  video: {
-    playbackId: "YOUR_MUX_PLAYBACK_ID",
-    aspectRatio: "16/9",
-    duration: "05:30",
-    posterTime: 15,
-    previewRange: { start: 10, end: 15 },
-  },
-  credits: {
-    role: "Editor",
-    client: "Client Name",
-  },
-},
-```
+### Placeholder Convention
 
-3. Run `npm run build` to verify, then deploy.
+Bracketed playback IDs (e.g. `[PLAYBACK_ID_01]`) are still supported via `isRealPlaybackId()` — the UI shows "Coming Soon" without Mux requests. All current projects use real IDs.
 
-## Placeholder Convention
+### Shareable project links
 
-Projects without a ready playback ID use bracketed placeholders:
+Open a project modal via query param: `/?project=carezza-leanne`
 
-```typescript
-playbackId: "[PLAYBACK_ID_01]",
-```
+## Credits
 
-When `isRealPlaybackId()` detects a bracketed value, the UI:
-
-- Shows **"Coming Soon"** instead of a video preview
-- Disables the open button (`tabIndex={-1}`)
-- Skips all Mux CDN requests
-- Displays "Video coming soon" in the modal if opened programmatically
-
-Replace the placeholder with a real Mux playback ID when the video is ready. See [Video Ingest](video-ingest.md) for the upload workflow.
-
-## Shared Demo Video
-
-Until each project has its own playback ID, all projects share a demo asset:
-
-```typescript
-// frontend/src/lib/constants.ts
-export const MUX_DEMO_VIDEO = {
-  playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
-  // ...
-} as const;
-```
-
-Replace individual project `playbackId` values as assets become available.
+End-credit roll entries live in [`frontend/src/data/credits.ts`](../frontend/src/data/credits.ts). Replace placeholder names when real credits are known.
 
 ## Section Content
 
-Some section content is defined inline in component files:
-
 | Section | File | Editable Content |
 |---------|------|------------------|
-| Services | `components/sections/Services.tsx` | Five craft chapters (title + description) |
-| Process | `components/sections/Process.tsx` | Three edit stage frames (title + description) |
-| Contact | `components/sections/Contact.tsx` | Credits roll (role + name pairs) |
-| Hero | `components/sections/Hero.tsx` | Headline words, subtext |
+| Hero | `components/sections/Hero.tsx` | Subtext; headline from `HEADLINE_LINES` in constants |
+| About | `components/sections/About.tsx` | Copy; still from `ABOUT_STILL` in constants |
+| Process | `components/sections/Process.tsx` | Three editorial stage frames |
+| Services | `components/sections/Services.tsx` | Five service chapters |
+| Contact | `components/sections/Contact.tsx` | Uses `CREDITS` and `SOCIAL` data |
 
 ## Loader Lines
 
-The cinematic loader displays status lines defined in `constants.ts`:
+Defined in `constants.ts` (`LOADER_LINES`). Edit for brand voice.
 
-```typescript
-export const LOADER_LINES = [
-  { label: "INITIALIZING VISUAL SYSTEM", status: "READY" },
-  { label: "COLOR GRADING", status: "DONE" },
-  // ...
-] as const;
-```
+## Brand assets
+
+| Asset | Path | Fallback |
+|-------|------|----------|
+| Logo | `public/brand/logo.svg` | Programmatic icon in `icon.tsx` / `apple-icon.tsx` |
+| About photo | `public/about.jpg` | Mux still via `ABOUT_STILL` |
+| OG image | Generated at `/opengraph-image` | Mux poster composited with brand text |
+
+## Project categories
+
+The schema supports `Wedding Film`, `Celebration Film`, `Documentary`, `Brand Story`, and `Music Video`. Do not add fake projects to fill categories.
 
 ## Related Documentation
 
-- [Video Ingest](video-ingest.md) — Mux upload workflow and playback IDs
-- [Architecture](architecture.md) — Data flow and content pipeline
-- [Deployment](deployment.md) — How to deploy content changes
+- [Video Ingest](video-ingest.md) — Mux upload workflow
+- [Architecture](architecture.md) — Data flow
+- [Deployment](deployment.md) — Deploy content changes
