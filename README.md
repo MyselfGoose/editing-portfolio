@@ -2,6 +2,8 @@
 
 A single-page cinematic video studio portfolio built with Next.js, featuring Mux-powered video playback, GSAP animations, and a polished scroll-driven experience.
 
+**Live site:** [goose-productions.com](https://goose-productions.com)
+
 ![CI](https://github.com/MyselfGoose/editing-portfolio/actions/workflows/ci.yml/badge.svg)
 ![Next.js](https://img.shields.io/badge/Next.js-16-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)

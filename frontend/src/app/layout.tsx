@@ -2,7 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 
 import { ExperienceShell } from "@/components/experience/ExperienceShell";
-import { BRAND } from "@/lib/constants";
+import { SiteJsonLd } from "@/components/seo/SiteJsonLd";
+import { BRAND, SITE } from "@/lib/constants";
 
 import "./globals.css";
 
@@ -28,15 +29,18 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
+const DESCRIPTION =
+  "A cinematic video studio. We don't edit videos. We create memories.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
   title: {
     default: `${BRAND.name} — Cinematic Video Studio`,
     template: `%s — ${BRAND.name}`,
   },
-  description:
-    "A cinematic video studio. We don't edit videos. We create memories.",
+  description: DESCRIPTION,
   applicationName: BRAND.name,
-  authors: [{ name: BRAND.name }],
+  authors: [{ name: BRAND.name, url: SITE.url }],
   keywords: [
     "video editing",
     "cinematography",
@@ -44,18 +48,25 @@ export const metadata: Metadata = {
     "wedding films",
     "documentary",
     "brand films",
+    "Goose Productions",
+    "Southern California",
   ],
   robots: { index: true, follow: true },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     title: `${BRAND.name} — Cinematic Video Studio`,
-    description:
-      "A cinematic video studio. We don't edit videos. We create memories.",
+    description: DESCRIPTION,
     siteName: BRAND.name,
     type: "website",
+    url: SITE.url,
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
     title: `${BRAND.name} — Cinematic Video Studio`,
+    description: DESCRIPTION,
   },
 };
 
@@ -79,6 +90,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full">
+        <SiteJsonLd />
         <a href="#main" className="skip-link">
           Skip to content
         </a>

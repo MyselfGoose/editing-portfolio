@@ -5,6 +5,11 @@ export const BRAND = {
   handle: "@gooseproductions",
 } as const;
 
+/** Canonical production origin — used for metadata, sitemap, and JSON-LD. */
+export const SITE = {
+  url: "https://goose-productions.com",
+} as const;
+
 export const CONTACT = {
   email: "info@gooseproductions.com",
   ctaLabel: "START A PROJECT",

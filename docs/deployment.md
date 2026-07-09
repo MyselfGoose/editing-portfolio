@@ -2,6 +2,8 @@
 
 How to deploy the Goose Productions portfolio to production on Vercel.
 
+**Live site:** [https://goose-productions.com](https://goose-productions.com)
+
 **Last verified against:** Next.js 16.2.9
 
 ## Overview
@@ -60,20 +62,25 @@ This runs lint, typecheck, unit tests, and production build in sequence.
 
 ## Custom Domain
 
+Production domain: **goose-productions.com**
+
 1. In Vercel project settings, go to **Domains**
-2. Add your custom domain (e.g. `gooseproductions.com`)
-3. Configure DNS as instructed by Vercel (CNAME or A record)
-4. Vercel provisions TLS automatically
+2. Add your custom domain (e.g. `goose-productions.com`)
+3. Add `www.goose-productions.com` and point it to the same project (redirects to apex via `next.config.ts`)
+4. Configure DNS as instructed by Vercel (CNAME or A record)
+5. Vercel provisions TLS automatically
 
 ## Post-Deploy Checklist
 
-- [ ] Home page loads with all sections visible
+- [x] Home page loads with all sections visible
+- [x] Custom domain resolves with HTTPS
 - [ ] Cinematic loader plays on first visit
 - [ ] Project video previews show poster frames
 - [ ] Clicking a project opens the fullscreen modal with Mux Player
 - [ ] Contact email link opens mail client
-- [ ] Page metadata (title, description, Open Graph) is correct
-- [ ] Favicon displays
+- [x] Page metadata (title, description, Open Graph) is correct
+- [x] Favicon displays
+- [x] `sitemap.xml` and `robots.txt` served
 
 ## CI/CD
 
