@@ -10,14 +10,16 @@ test.describe("Contact", () => {
   test("mailto fallback href present", async ({ page }) => {
     await page.goto("/contact");
 
-    const mailto = page.locator('a[href="mailto:info@gooseproductions.com"]').first();
+    const mailto = page
+      .locator('a[href="mailto:gooseproductionsstudio@gmail.com"]')
+      .first();
     await expect(mailto).toBeVisible({ timeout: 15_000 });
   });
 
   test("contact form submits successfully with mocked network", async ({
     page,
   }) => {
-    await page.route("**/api.formspree.io/**", async (route) => {
+    await page.route("**/api/contact", async (route) => {
       await route.fulfill({
         status: 200,
         contentType: "application/json",

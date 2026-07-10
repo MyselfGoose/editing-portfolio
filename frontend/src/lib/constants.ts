@@ -17,12 +17,8 @@ export const SITE = {
 } as const;
 
 export const CONTACT = {
-  /** Keep unless MX is configured for goose-productions.com — see emailNote. */
-  email: "info@gooseproductions.com",
+  email: "gooseproductionsstudio@gmail.com",
   ctaLabel: "START A PROJECT",
-  /** Migrating to info@goose-productions.com requires DNS/MX changes — confirm with user first. */
-  emailNote:
-    "Domain-aligned email (info@goose-productions.com) requires MX record update.",
 } as const;
 
 export interface SocialLinks {
@@ -37,10 +33,8 @@ export const SOCIAL: SocialLinks = {
 } as const;
 
 export const FORM = {
-  endpoint:
-    process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ??
-    "https://api.formspree.io/f/demo",
   honeypotFieldName: "company",
+  apiPath: "/api/contact",
 } as const;
 
 export const ANALYTICS = {

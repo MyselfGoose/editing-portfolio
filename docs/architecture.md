@@ -150,13 +150,18 @@ The app has two primary routes:
 | `/` | `src/app/page.tsx` | Home page with all sections |
 | `/contact` | `src/app/contact/page.tsx` | Contact form and project inquiry |
 | `/privacy` | `src/app/privacy/page.tsx` | Data collection and analytics disclosure |
+| `/api/contact` | `src/app/api/contact/route.ts` | Server-side contact form submission and email delivery |
 
-No API routes, dynamic routes, or middleware exist.
+No dynamic page routes or middleware exist.
+
+## Contact form delivery
+
+Contact submissions POST to `/api/contact`, which validates input, applies rate limiting, enriches the request with server/client metadata, and sends a formatted notification email via Resend to `CONTACT.email`.
 
 ## Key Design Decisions
 
-1. **No backend** — Static site with Mux CDN for video. No server-side data fetching.
-2. **Minimal environment surface** — Public runtime config is limited to contact endpoint and analytics toggle.
+1. **No database** — Static site content with Mux CDN for video. Contact delivery uses a serverless API route plus Resend.
+2. **Minimal public environment surface** — Public runtime config is limited to analytics toggle; email secrets stay server-side.
 3. **Single client boundary** — `ExperienceShell` mounts all interactive systems in one place, keeping the rest server-rendered.
 4. **Session-based loader** — The cinematic intro plays once per browser tab via `sessionStorage`.
 5. **Progressive video loading** — Hover previews load only when cards enter the viewport (IntersectionObserver) and only on fine-pointer devices without reduced motion.

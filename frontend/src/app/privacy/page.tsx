@@ -4,7 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { SiteFooter } from "@/components/layout/SiteFooter";
 import { BRAND, CONTACT } from "@/lib/constants";
 
-const LAST_UPDATED = "2026-07-09";
+const LAST_UPDATED = "2026-07-10";
 
 const SECTIONS = [
   {
@@ -15,7 +15,7 @@ const SECTIONS = [
   {
     id: "contact-form",
     title: "Contact form data",
-    body: "When you submit the contact form, we receive the information you provide (name, email, and message) so we can respond to your inquiry.",
+    body: "When you submit the contact form, we receive the information you provide (name, email, message, and optional project type) so we can respond to your inquiry. We also collect limited technical context such as IP address, approximate location derived from IP, browser and device details, referrer, and page URL to help prevent abuse and understand submission context. This information is delivered to us by email via Resend and is not stored in a separate database.",
   },
   {
     id: "cookies",

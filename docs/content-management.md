@@ -23,7 +23,7 @@ export const BRAND = {
 } as const;
 
 export const CONTACT = {
-  email: "info@gooseproductions.com",
+  email: "gooseproductionsstudio@gmail.com",
   ctaLabel: "START A PROJECT",
 } as const;
 
@@ -41,7 +41,7 @@ These values appear in:
 - Privacy page contact reference
 - JSON-LD structured data
 
-**Email note:** `info@gooseproductions.com` is the current production address. Migrating to `info@goose-productions.com` requires DNS/MX changes — do not change without configuring mail routing.
+**Email note:** Contact form submissions are delivered to `CONTACT.email` via Resend. Outgoing mail is sent from a verified `goose-productions.com` domain address configured in Vercel env vars.
 
 ## Projects
 
@@ -146,7 +146,7 @@ Replace `public/brand/logo.svg` with the final approved studio mark when availab
 
 ## Contact form configuration
 
-The form endpoint is configured with `NEXT_PUBLIC_FORMSPREE_ENDPOINT`. See [Deployment](deployment.md) for env setup. If unset, the UI falls back to direct email.
+The contact form posts to `/api/contact` and delivers submissions by email via Resend. See [Deployment](deployment.md) for Resend and Upstash env setup. If email delivery is not configured, the API returns a temporary-unavailable error and users can still reach out via the mailto link.
 
 ## Project categories
 

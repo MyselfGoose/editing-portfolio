@@ -13,6 +13,14 @@ interface ContactFormData {
   company: string;
 }
 
+interface ClientMetadataPayload {
+  pageUrl: string;
+  timezone: string;
+  screenSize: string;
+  viewport: string;
+  language: string;
+}
+
 type SubmitState =
   | { status: "idle" }
   | { status: "submitting" }
@@ -58,13 +66,21 @@ function hasErrorMessage(value: unknown): value is { error: string } {
   return isRecord(value) && typeof value.error === "string";
 }
 
+function collectClientMetadata(): ClientMetadataPayload {
+  return {
+    pageUrl: `${window.location.pathname}${window.location.search}`,
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    screenSize: `${window.screen.width}x${window.screen.height}`,
+    viewport: `${window.innerWidth}x${window.innerHeight}`,
+    language: navigator.language,
+  };
+}
+
 export function ContactForm(): React.ReactElement {
   const [formData, setFormData] = useState<ContactFormData>(INITIAL_FORM);
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [submitState, setSubmitState] = useState<SubmitState>({ status: "idle" });
   const statusId = useId();
-
-  const endpointConfigured = FORM.endpoint.trim().length > 0;
 
   const submitLabel = useMemo(() => {
     if (submitState.status === "submitting") return "Sending...";
@@ -98,18 +114,10 @@ export function ContactForm(): React.ReactElement {
       return;
     }
 
-    if (!endpointConfigured) {
-      setSubmitState({
-        status: "error",
-        message: `Form endpoint not configured. Email us directly at ${CONTACT.email}.`,
-      });
-      return;
-    }
-
     setSubmitState({ status: "submitting" });
 
     try {
-      const response = await fetch(FORM.endpoint, {
+      const response = await fetch(FORM.apiPath, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -121,6 +129,7 @@ export function ContactForm(): React.ReactElement {
           message: formData.message.trim(),
           projectType: formData.projectType.trim() || undefined,
           [FORM.honeypotFieldName]: formData.company.trim(),
+          client: collectClientMetadata(),
         }),
       });
 
