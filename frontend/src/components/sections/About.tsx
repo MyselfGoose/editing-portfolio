@@ -7,20 +7,11 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { Stack } from "@/components/layout/Stack";
 import { MediaFrame } from "@/components/layout/MediaFrame";
-import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { useRevealMotion } from "@/hooks/useRevealMotion";
-import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
-import { ABOUT_STILL, EASE } from "@/lib/constants";
-import { posterUrl } from "@/lib/mux";
+import { ABOUT_IMAGE, EASE } from "@/lib/constants";
 
 export function About(): React.ReactElement {
-  const { tier } = useHydrationSafeBreakpoint();
   const revealMotion = useRevealMotion();
-  const posterWidth = posterWidthForTier(tier);
-  const still = posterUrl(ABOUT_STILL.playbackId, {
-    time: ABOUT_STILL.time,
-    width: posterWidth,
-  });
 
   return (
     <Section id="about" labelledBy="about-heading" borderTop>
@@ -49,17 +40,14 @@ export function About(): React.ReactElement {
             <MediaFrame aspectRatio="3/4" className="w-full border border-[color:var(--color-divider)] md:max-w-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={still}
-                alt={ABOUT_STILL.alt}
-                className="h-full w-full object-cover"
+                src={ABOUT_IMAGE.src}
+                alt={ABOUT_IMAGE.alt}
+                className="h-full w-full object-cover object-center"
                 loading="lazy"
                 decoding="async"
-                sizes={MUX_IMAGE_SIZES}
+                sizes="(max-width: 768px) 100vw, 384px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-              <span className="absolute bottom-4 left-4 text-eyebrow text-[color:var(--color-muted)]">
-                Still / 00:04
-              </span>
             </MediaFrame>
           </motion.div>
 

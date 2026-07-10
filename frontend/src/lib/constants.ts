@@ -80,9 +80,8 @@ export const MUX_DEMO_VIDEO = {
   posterTime: 4,
 } as const;
 
-/** About section still — swap src to /about.jpg when user provides asset. */
-export const ABOUT_STILL = {
-  playbackId: MUX_DEMO_VIDEO.playbackId,
-  time: 4,
-  alt: "A still frame from a Goose Productions wedding film",
+/** About section portrait. */
+export const ABOUT_IMAGE = {
+  src: "/images/me.jpeg",
+  alt: "Goose Productions",
 } as const;
