@@ -16,7 +16,6 @@ import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { useMounted } from "@/hooks/useMounted";
 import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
-import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { posterUrl } from "@/lib/mux";
 import { activeIndexFromTimelineProgress } from "@/lib/process-timeline";
 import { refreshScrollLayout } from "@/lib/scroll-layout";
@@ -44,8 +43,9 @@ interface ProcessFrame {
   craft: string;
   title: string;
   copy: string;
-  playbackId: string;
-  posterTime: number;
+  media:
+    | { type: "image"; src: string }
+    | { type: "mux"; playbackId: string; posterTime: number };
   filter: string;
 }
 
@@ -57,9 +57,8 @@ const FRAMES: ReadonlyArray<ProcessFrame> = [
     craft: "Editorial",
     title: "We find the best parts",
     copy: "Every project begins in the footage. Hours of footage are reviewed to find the very best moments and build a selection of clips that have the most impact.",
-    playbackId: MUX_DEMO_VIDEO.playbackId,
-    posterTime: 6,
-    filter: "saturate(0.55) contrast(1.05) brightness(0.88)",
+    media: { type: "image", src: "/images/cut.jpg" },
+    filter: "none",
   },
   {
     index: 2,
@@ -68,8 +67,11 @@ const FRAMES: ReadonlyArray<ProcessFrame> = [
     craft: "Editing",
     title: "The vision and structure are formed",
     copy: "We finalize the structure and the vision of the project and determine the exact length, feel and finish the edit would have.",
-    playbackId: "01pLE9oSaFRESO6zzy7lXGcR01di3hz1BTbLM1ye4eRWk",
-    posterTime: 24,
+    media: {
+      type: "mux",
+      playbackId: "01pLE9oSaFRESO6zzy7lXGcR01di3hz1BTbLM1ye4eRWk",
+      posterTime: 24,
+    },
     filter: "saturate(0.75) contrast(1.08) brightness(0.92)",
   },
   {
@@ -79,9 +81,8 @@ const FRAMES: ReadonlyArray<ProcessFrame> = [
     craft: "Color",
     title: "Bringing out the colors",
     copy: "Assembly, pacing, and grade work as one language. Contrast, temperature, and grain are adjusted to carry mood. The visual look is finalized.",
-    playbackId: "mYoZjovjdBNNfNbPLGnCzCAQrXLw2ItEbBc8T9m746M",
-    posterTime: 12,
-    filter: "saturate(0.85) contrast(1.1) brightness(0.95)",
+    media: { type: "image", src: "/images/color.jpg" },
+    filter: "none",
   },
   {
     index: 4,
@@ -90,9 +91,8 @@ const FRAMES: ReadonlyArray<ProcessFrame> = [
     craft: "Delivery",
     title: "The film leaves the timeline.",
     copy: "Sound design, color and the final polish are done. The film is ready for every screen that it will be presented on.",
-    playbackId: "Hmxee1qD3tQMRNomZAsR9FOX026EC00YzMOqglcjGZVUI",
-    posterTime: 16,
-    filter: "saturate(1.05) contrast(1.05) brightness(1)",
+    media: { type: "image", src: "/images/export.webp" },
+    filter: "none",
   },
 ];
 
@@ -586,26 +586,30 @@ function FrameImage({
   posterWidth,
   priority = false,
 }: FrameImageProps): React.ReactElement {
-  const [posterError, setPosterError] = useState(false);
-  const posterSrc = posterUrl(frame.playbackId, {
-    time: frame.posterTime,
-    width: posterWidth,
-  });
+  const [imageError, setImageError] = useState(false);
+  const imageSrc =
+    frame.media.type === "image"
+      ? frame.media.src
+      : posterUrl(frame.media.playbackId, {
+          time: frame.media.posterTime,
+          width: posterWidth,
+        });
+  const sizes = frame.media.type === "image" ? "100vw" : MUX_IMAGE_SIZES;
 
   return (
     <>
-      {!posterError ? (
+      {!imageError ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={posterSrc}
+          src={imageSrc}
           alt=""
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-center"
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
           decoding="async"
-          sizes={MUX_IMAGE_SIZES}
+          sizes={sizes}
           style={{ filter: frame.filter }}
-          onError={() => setPosterError(true)}
+          onError={() => setImageError(true)}
         />
       ) : (
         <div className="h-full w-full bg-[color:var(--color-elevated)]" />
