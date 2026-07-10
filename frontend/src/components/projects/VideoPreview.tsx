@@ -40,6 +40,7 @@ export function VideoPreview({
   const [previewLoaded, setPreviewLoaded] = useState<boolean>(false);
   const [shouldLoadPreview, setShouldLoadPreview] = useState<boolean>(false);
   const [mediaError, setMediaError] = useState<boolean>(false);
+  const [animatedFailed, setAnimatedFailed] = useState<boolean>(false);
 
   const { tier, finePointer, isDesktop } = useHydrationSafeBreakpoint();
   const reducedMotion = usePrefersReducedMotion();
@@ -112,7 +113,7 @@ export function VideoPreview({
       })
     : undefined;
   const animatedSrc =
-    canAnimate && shouldLoadPreview
+    canAnimate && shouldLoadPreview && !animatedFailed
       ? animatedPreviewUrl(playbackId, {
           start: previewRange?.start,
           end: previewRange?.end,
@@ -168,7 +169,10 @@ export function VideoPreview({
                 decoding="async"
                 sizes={MUX_IMAGE_SIZES}
                 onLoad={() => setPreviewLoaded(true)}
-                onError={() => setPreviewLoaded(false)}
+                onError={() => {
+                  setPreviewLoaded(false);
+                  setAnimatedFailed(true);
+                }}
                 className={cn(
                   "absolute inset-0 h-full w-full object-cover transition-opacity duration-500",
                   hovered && previewLoaded && isPageVisible ? "opacity-100" : "opacity-0",

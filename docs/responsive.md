@@ -49,7 +49,9 @@ Fluid utility classes in `globals.css`:
 |-------|-----|
 | `text-massive` | Hero and contact headlines |
 | `text-headline` | Section titles |
-| `text-eyebrow` | Labels and metadata |
+| `text-eyebrow` | Section labels and metadata (12–14px) |
+| `text-nav` | Navigation links (13–15px) |
+| `text-meta` | Secondary metadata lines (12–13px) |
 | `text-cta` | Contact call-to-action |
 | `text-chapter` | Services chapter titles |
 | `text-body-lg` | Body copy |

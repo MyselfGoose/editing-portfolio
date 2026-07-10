@@ -45,7 +45,8 @@ flowchart TB
 | Navigation | Scroll only | Fullscreen mobile nav below 1024px |
 | Film grain | Animated on all devices | Static on mobile |
 | Bundle | All sections eager | Below-fold sections dynamically imported |
-| Process scrub | All tiers + reduced-motion fallback | Previously 1024px + fine pointer only |
+| Process scrub | All tiers + reduced-motion fallback | Timeline-driven stage index; visibility gating; unified scroll refresh |
+| Scroll lifecycle | Lenis limit stale after layout growth; no route reset | `scroll-layout.ts` + ResizeObserver + pathname reset |
 
 ## 3. Remaining risks
 
@@ -55,7 +56,8 @@ flowchart TB
 | Hydration tier flash | Low | SSR defaults to mobile tier; brief layout shift possible on desktop. **Accepted:** HeroBackdrop renders CSS poster until hydrated video mounts. |
 | iPad with trackpad | Low | May get desktop tier behaviors at 1024px+ — intended |
 | SiteNav + modal scroll lock | Low | Both set `body.overflow`; modal uses ExperienceProvider lock for Lenis |
-| Dynamic section loading | Low | Brief placeholder flash on slow connections |
+| Dynamic section loading | Low | Brief placeholder flash on slow connections; mitigated by `refreshScrollLayout()` on resize |
+| GSAP pin + multi-page routing | Low | Process cleans up triggers on unmount; SmoothScroll resets scroll on route change |
 
 ## 4. Performance considerations
 
@@ -82,6 +84,7 @@ flowchart TB
 | Unit | `breakpoints.ts` tier mapping and width helpers |
 | Component | Existing suite updated with `BreakpointProvider` |
 | E2E | `responsive.spec.ts` — 320px overflow, nav visibility, CTA fit |
+| E2E | `scroll-reliability.spec.ts` — process stage/headline sync, home CTA reachability, contact scroll reset |
 
 Run full verification:
 

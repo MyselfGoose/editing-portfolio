@@ -1,13 +1,13 @@
 import { screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Contact } from "@/components/sections/Contact";
+import { ContactPageContent } from "@/components/contact/ContactPageContent";
 import { CONTACT } from "@/lib/constants";
 import { renderWithProviders } from "@/test-utils/render";
 
-describe("Contact", () => {
+describe("ContactPageContent", () => {
   it("renders contact heading and CTA", () => {
-    renderWithProviders(<Contact />);
+    renderWithProviders(<ContactPageContent />);
 
     expect(
       screen.getByRole("heading", { name: /Ready to tell/i }),
@@ -15,24 +15,24 @@ describe("Contact", () => {
     expect(screen.getByText(CONTACT.ctaLabel)).toBeInTheDocument();
   });
 
-  it("renders mailto links with correct email", () => {
-    renderWithProviders(<Contact />);
+  it("renders mailto link with correct email", () => {
+    renderWithProviders(<ContactPageContent />);
 
     const links = screen.getAllByRole("link");
     const mailtoLinks = links.filter(
       (link) => link.getAttribute("href") === `mailto:${CONTACT.email}`,
     );
-    expect(mailtoLinks.length).toBeGreaterThanOrEqual(2);
+    expect(mailtoLinks.length).toBeGreaterThanOrEqual(1);
   });
 
   it("renders credits section", () => {
-    renderWithProviders(<Contact />);
+    renderWithProviders(<ContactPageContent />);
     expect(screen.getByText("Credits")).toBeInTheDocument();
     expect(screen.getByText("Director")).toBeInTheDocument();
   });
 
   it("renders footer with brand name", () => {
-    renderWithProviders(<Contact />);
+    renderWithProviders(<ContactPageContent />);
     expect(screen.getByText(/All rights reserved/i)).toBeInTheDocument();
   });
 });

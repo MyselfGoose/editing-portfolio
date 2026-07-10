@@ -3,8 +3,8 @@
 @theme inline {
   --color-background: #0a0a0a;
   --color-foreground: #f5f5f5;
-  --color-muted: #8a8a8a;
-  --color-dim: #7a7a7a;
+  --color-muted: #9a9a9a;
+  --color-dim: #8a8a8a;
   --color-divider: #1a1a1a;
   --color-elevated: #141414;
   --color-accent: #f5f5f5;
@@ -98,9 +98,22 @@
   }
 
   .text-eyebrow {
-    font-size: clamp(0.625rem, 0.6rem + 0.15vw, 0.6875rem);
-    letter-spacing: clamp(0.15em, 0.2em, 0.25em);
+    font-size: clamp(0.75rem, 0.72rem + 0.2vw, 0.875rem);
+    letter-spacing: clamp(0.12em, 0.15em, 0.2em);
     text-transform: uppercase;
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  .text-nav {
+    font-size: clamp(0.8125rem, 0.78rem + 0.25vw, 0.9375rem);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+
+  .text-meta {
+    font-size: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+    letter-spacing: 0.14em;
     font-family: var(--font-mono), ui-monospace, monospace;
   }
 

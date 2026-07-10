@@ -13,12 +13,29 @@ if (typeof window !== "undefined") {
 import { Container } from "@/components/layout/Container";
 import { MediaFrame } from "@/components/layout/MediaFrame";
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
+import { useMounted } from "@/hooks/useMounted";
 import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { posterUrl } from "@/lib/mux";
-import { cn } from "@/lib/utils";
-import { formatIndex } from "@/lib/utils";
+import { activeIndexFromTimelineProgress } from "@/lib/process-timeline";
+import { refreshScrollLayout } from "@/lib/scroll-layout";
+import { cn, formatIndex } from "@/lib/utils";
+
+function resetFrameStyles(elements: ReadonlyArray<HTMLElement>): void {
+  elements.forEach((el) => {
+    el.style.removeProperty("visibility");
+  });
+}
+
+function setInitialFrameAlpha(
+  elements: ReadonlyArray<HTMLElement>,
+  activeIndex: number,
+): void {
+  elements.forEach((el, index) => {
+    gsap.set(el, { autoAlpha: index === activeIndex ? 1 : 0 });
+  });
+}
 
 interface ProcessFrame {
   index: number;
@@ -136,6 +153,8 @@ function PhaseRail({ frames, activeIndex }: PhaseRailProps): React.ReactElement 
   );
 }
 
+const NAV_OFFSET_PX = 72;
+
 function ProcessScrub({
   frames,
 }: ProcessFramesProps): React.ReactElement {
@@ -145,12 +164,17 @@ function ProcessScrub({
   const textsRef = useRef<Array<HTMLDivElement | null>>([]);
   const progressRef = useRef<HTMLDivElement | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { tier, isDesktop } = useHydrationSafeBreakpoint();
+  const activeIndexRef = useRef(0);
+  const mounted = useMounted();
+  const { tier, isHydrated, isDesktop } = useHydrationSafeBreakpoint();
   const posterWidth = posterWidthForTier(tier);
-  const pinStart = isDesktop ? "top top" : "top var(--nav-offset)";
+  const scrubReady = mounted && isHydrated;
+  const pinStart = isDesktop ? "top top" : `top ${NAV_OFFSET_PX}px`;
 
   useGSAP(
     () => {
+      if (!scrubReady) return;
+
       configureScrollTriggerForMobile();
 
       const root = rootRef.current;
@@ -164,14 +188,16 @@ function ProcessScrub({
       const progressBar = progressRef.current;
       if (!root || !track || visuals.length === 0 || texts.length === 0) return;
 
-      gsap.set(visuals, { opacity: (i: number) => (i === 0 ? 1 : 0) });
-      gsap.set(texts, {
-        opacity: (i: number) => (i === 0 ? 1 : 0),
-        y: (i: number) => (i === 0 ? 0 : 24),
-      });
+      resetFrameStyles(visuals);
+      resetFrameStyles(texts);
+      setInitialFrameAlpha(visuals, 0);
+      setInitialFrameAlpha(texts, 0);
+      gsap.set(texts, { y: (i: number) => (i === 0 ? 0 : 24) });
       if (progressBar) {
         gsap.set(progressBar, { scaleX: 0, transformOrigin: "left center" });
       }
+
+      const timelineDuration = frames.length;
 
       const tl = gsap.timeline({
         scrollTrigger: {
@@ -183,12 +209,24 @@ function ProcessScrub({
           pinSpacing: true,
           anticipatePin: 1,
           invalidateOnRefresh: true,
+          onEnter: () => {
+            setInitialFrameAlpha(visuals, activeIndexRef.current);
+            setInitialFrameAlpha(texts, activeIndexRef.current);
+          },
+          onEnterBack: () => {
+            setInitialFrameAlpha(visuals, activeIndexRef.current);
+            setInitialFrameAlpha(texts, activeIndexRef.current);
+          },
           onUpdate: (self) => {
-            const idx = Math.min(
-              frames.length - 1,
-              Math.floor(self.progress * frames.length),
+            const idx = activeIndexFromTimelineProgress(
+              self.progress,
+              frames.length,
+              timelineDuration,
             );
-            setActiveIndex(idx);
+            if (idx !== activeIndexRef.current) {
+              activeIndexRef.current = idx;
+              setActiveIndex(idx);
+            }
           },
         },
       });
@@ -197,22 +235,22 @@ function ProcessScrub({
         const position = i + 1;
         tl.to(
           visuals[i],
-          { opacity: 0, duration: 1, ease: "power2.inOut" },
+          { autoAlpha: 0, duration: 1, ease: "power2.inOut" },
           position,
         )
           .to(
             visuals[i + 1],
-            { opacity: 1, duration: 1, ease: "power2.inOut" },
+            { autoAlpha: 1, duration: 1, ease: "power2.inOut" },
             position,
           )
           .to(
             texts[i],
-            { opacity: 0, y: -16, duration: 1, ease: "power2.inOut" },
+            { autoAlpha: 0, y: -16, duration: 1, ease: "power2.inOut" },
             position,
           )
           .to(
             texts[i + 1],
-            { opacity: 1, y: 0, duration: 1, ease: "power2.inOut" },
+            { autoAlpha: 1, y: 0, duration: 1, ease: "power2.inOut" },
             position,
           );
       }
@@ -220,43 +258,44 @@ function ProcessScrub({
       if (progressBar) {
         tl.to(
           progressBar,
-          { scaleX: 1, ease: "none", duration: frames.length - 1 },
+          { scaleX: 1, ease: "none", duration: timelineDuration },
           0,
         );
       }
 
-      const refreshScrollTrigger = (): void => {
-        ScrollTrigger.refresh();
+      const handleLayoutChange = (): void => {
+        refreshScrollLayout();
       };
-      window.addEventListener("resize", refreshScrollTrigger, { passive: true });
-      window.addEventListener("orientationchange", refreshScrollTrigger, {
+      window.addEventListener("resize", handleLayoutChange, { passive: true });
+      window.addEventListener("orientationchange", handleLayoutChange, {
         passive: true,
       });
 
+      requestAnimationFrame(() => {
+        refreshScrollLayout();
+      });
+
       return () => {
-        window.removeEventListener("resize", refreshScrollTrigger);
-        window.removeEventListener("orientationchange", refreshScrollTrigger);
+        window.removeEventListener("resize", handleLayoutChange);
+        window.removeEventListener("orientationchange", handleLayoutChange);
+        resetFrameStyles(visuals);
+        resetFrameStyles(texts);
         tl.scrollTrigger?.kill();
         tl.kill();
-        ScrollTrigger.refresh();
+        refreshScrollLayout();
       };
     },
-    { dependencies: [frames.length, pinStart], scope: rootRef },
+    { dependencies: [frames.length, pinStart, scrubReady], scope: rootRef },
   );
 
   return (
     <div ref={rootRef}>
       <div
         ref={trackRef}
-        className="relative flex h-[100svh] w-full flex-col overflow-hidden"
+        className="relative flex h-[100svh] w-full flex-col overflow-hidden supports-[height:100dvh]:h-[100dvh]"
       >
-        <div
-          className={cn(
-            "absolute inset-x-0 top-0 z-20 flex flex-col gap-4 px-[var(--section-px)]",
-            isDesktop ? "pt-8" : "pt-[calc(var(--nav-offset)+0.75rem)]",
-          )}
-        >
-          <div className="flex items-center justify-between gap-3">
+        <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-4 px-[var(--section-px)] pt-[calc(var(--nav-offset)+0.75rem)] lg:pt-[calc(var(--nav-offset)+0.5rem)]">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6 lg:pr-[min(14rem,30vw)]">
             <span className="text-eyebrow text-[color:var(--color-muted)]">
               02 / The Process / Post-Production
             </span>
@@ -268,10 +307,10 @@ function ProcessScrub({
           <PhaseRail frames={frames} activeIndex={activeIndex} />
         </div>
 
-        <Container className="grid flex-1 grid-cols-1 items-center gap-6 pb-16 pt-24 sm:gap-8 sm:pb-20 sm:pt-28 md:grid-cols-2 md:gap-16 md:pt-32">
+        <Container className="flex min-h-0 flex-1 flex-col items-start justify-start gap-5 px-[var(--section-px)] pb-24 pt-[calc(var(--nav-offset)+4.75rem)] sm:gap-6 sm:pb-20 sm:pt-28 md:grid md:grid-cols-2 md:items-center md:gap-16 md:px-0 md:pb-20 md:pt-32">
           <MediaFrame
             aspectRatio="4/3"
-            className="border border-[color:var(--color-divider)]"
+            className="w-full max-h-[38dvh] shrink-0 border border-[color:var(--color-divider)] md:max-h-none"
           >
             {frames.map((frame, i) => (
               <div
@@ -280,14 +319,22 @@ function ProcessScrub({
                   visualsRef.current[i] = el;
                 }}
                 className="absolute inset-0"
-                style={{ opacity: i === 0 ? 1 : 0 }}
+                style={{ zIndex: i === activeIndex ? 2 : 1 }}
+                aria-hidden={i !== activeIndex}
               >
-                <FrameImage frame={frame} posterWidth={posterWidth} />
+                <FrameImage
+                  frame={frame}
+                  posterWidth={posterWidth}
+                  priority={i === 0}
+                />
               </div>
             ))}
           </MediaFrame>
 
-          <div className="relative min-h-[240px] sm:min-h-[300px] md:min-h-[340px]">
+          <div
+            className="relative w-full min-h-0 flex-1 md:min-h-[340px] md:flex-none"
+            data-active-stage={activeIndex}
+          >
             {frames.map((frame, i) => (
               <div
                 key={`text-${frame.index}`}
@@ -295,7 +342,8 @@ function ProcessScrub({
                   textsRef.current[i] = el;
                 }}
                 className="absolute inset-0 flex flex-col justify-center gap-4 sm:gap-6"
-                style={{ opacity: i === 0 ? 1 : 0 }}
+                style={{ zIndex: i === activeIndex ? 2 : 1 }}
+                aria-hidden={i !== activeIndex}
               >
                 <FrameCopy frame={frame} total={frames.length} />
               </div>
@@ -381,11 +429,11 @@ function ProcessReducedMotion({
   return (
     <div className="relative">
       <Container className="flex flex-col gap-4 pb-8 pt-[var(--section-py)]">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
           <span className="text-eyebrow text-[color:var(--color-muted)]">
             02 / The Process / Post-Production
           </span>
-          <span className="text-eyebrow text-[color:var(--color-muted)]">
+          <span className="shrink-0 text-eyebrow text-[color:var(--color-muted)]">
             Stage {formatIndex(activeIndex + 1, 2)} /{" "}
             {formatIndex(frames.length, 2)}
           </span>
@@ -519,27 +567,38 @@ const ReducedMotionProcessStep = forwardRef<
 interface FrameImageProps {
   frame: ProcessFrame;
   posterWidth: number;
+  priority?: boolean;
 }
 
 function FrameImage({
   frame,
   posterWidth,
+  priority = false,
 }: FrameImageProps): React.ReactElement {
+  const [posterError, setPosterError] = useState(false);
+  const posterSrc = posterUrl(frame.playbackId, {
+    time: frame.posterTime,
+    width: posterWidth,
+  });
+
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={posterUrl(frame.playbackId, {
-          time: frame.posterTime,
-          width: posterWidth,
-        })}
-        alt=""
-        className="h-full w-full object-cover"
-        loading="lazy"
-        decoding="async"
-        sizes={MUX_IMAGE_SIZES}
-        style={{ filter: frame.filter }}
-      />
+      {!posterError ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={posterSrc}
+          alt=""
+          className="h-full w-full object-cover"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding="async"
+          sizes={MUX_IMAGE_SIZES}
+          style={{ filter: frame.filter }}
+          onError={() => setPosterError(true)}
+        />
+      ) : (
+        <div className="h-full w-full bg-[color:var(--color-elevated)]" />
+      )}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-4 py-3">
         <span className="text-eyebrow text-[color:var(--color-muted)]">
           {frame.eyebrow}

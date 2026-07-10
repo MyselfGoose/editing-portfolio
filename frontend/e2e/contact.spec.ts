@@ -8,7 +8,7 @@ test.describe("Contact", () => {
   });
 
   test("mailto fallback href present", async ({ page }) => {
-    await page.goto("/#contact");
+    await page.goto("/contact");
 
     const mailto = page.locator('a[href="mailto:info@gooseproductions.com"]').first();
     await expect(mailto).toBeVisible({ timeout: 15_000 });
@@ -24,7 +24,7 @@ test.describe("Contact", () => {
         body: JSON.stringify({ ok: true }),
       });
     });
-    await page.goto("/#contact");
+    await page.goto("/contact");
 
     await page.getByLabel("Name").fill("Goose Client");
     await page.getByLabel("Email").fill("client@example.com");

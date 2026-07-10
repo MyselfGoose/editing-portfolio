@@ -107,7 +107,7 @@ export function About(): React.ReactElement {
             </motion.div>
 
             <motion.p
-              className="border-t border-[color:var(--color-divider)] pt-6 font-mono text-xs tracking-[0.2em] text-[color:var(--color-dim)] uppercase text-balance"
+              className="text-meta border-t border-[color:var(--color-divider)] pt-6 uppercase text-[color:var(--color-dim)] text-balance"
               variants={revealMotion.variants}
               initial={revealMotion.initial}
               whileInView="visible"

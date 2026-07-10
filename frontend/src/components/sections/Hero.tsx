@@ -49,10 +49,10 @@ function HeroContent(): React.ReactElement {
         animate={{ opacity: textOpacity }}
         transition={textTransition}
       >
-        <span className="text-eyebrow text-[color:var(--color-muted)]">
+        <span className="text-meta uppercase text-[color:var(--color-muted)]">
           Cinematic Studio / Est. 2019
         </span>
-        <span className="text-eyebrow text-[color:var(--color-muted)]">
+        <span className="text-meta uppercase text-[color:var(--color-muted)]">
           {isMobile ? "01/04" : "Reel 01 / 04"}
         </span>
       </motion.header>

@@ -29,6 +29,15 @@ export function mockMatchMediaForQuery(
   }));
 }
 
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
+
 vi.mock("@mux/mux-player-react", () => ({
   default: ({
     "aria-label": ariaLabel,

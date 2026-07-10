@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 
 import { Hero } from "@/components/sections/Hero";
+import { HomeContactCta } from "@/components/sections/HomeContactCta";
 import { SectionSkeleton } from "@/components/sections/SectionSkeleton";
 
 const About = dynamic(
@@ -23,11 +24,6 @@ const Services = dynamic(
   { loading: () => <SectionSkeleton /> },
 );
 
-const Contact = dynamic(
-  () => import("@/components/sections/Contact").then((m) => m.Contact),
-  { loading: () => <SectionSkeleton /> },
-);
-
 export default function Home(): React.ReactElement {
   return (
     <main id="main" className="relative min-h-[100svh] w-full">
@@ -36,7 +32,7 @@ export default function Home(): React.ReactElement {
       <Process />
       <FeaturedWork />
       <Services />
-      <Contact />
+      <HomeContactCta />
     </main>
   );
 }

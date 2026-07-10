@@ -91,16 +91,30 @@ A custom cursor ring with dot and label that replaces the default pointer on fin
 
 ## Smooth Scroll
 
-**File:** `src/components/experience/SmoothScroll.tsx`
+**Files:** `src/components/experience/SmoothScroll.tsx`, `src/lib/scroll-layout.ts`
 
-Lenis smooth scroll integrated with GSAP's ticker for synchronized animation.
+Lenis smooth scroll integrated with GSAP's ticker for synchronized animation. Enabled on desktop with a fine pointer when reduced motion is off.
 
 ### How It Works
 
-1. Lenis creates a smooth scroll instance on `window`
+1. Lenis creates a smooth scroll instance and registers with `scroll-layout.ts`
 2. GSAP's ticker calls `lenis.raf(time)` each frame
-3. ScrollTrigger and other GSAP animations stay in sync with Lenis scroll position
-4. `useScrollProgress` reads native `window.scrollY`, which Lenis updates under the hood
+3. `ScrollTrigger.scrollerProxy` bridges Lenis scroll position to GSAP pin/scrub math
+4. A `ResizeObserver` on `document.body` calls `refreshScrollLayout()` when layout height changes (dynamic sections, pin spacers)
+5. On route change (`usePathname`), `resetScrollPosition()` scrolls to top and recalculates limits
+6. `history.scrollRestoration` is set to `manual` to avoid browser restoring stale positions across routes
+
+### Scroll layout API
+
+| Function | Purpose |
+|----------|---------|
+| `registerLenis(lenis)` | Called by SmoothScroll when Lenis mounts/unmounts |
+| `refreshScrollLayout()` | `ScrollTrigger.refresh()` + `lenis.resize()` |
+| `resetScrollPosition()` | Scroll to top on route changes |
+
+Process and other ScrollTrigger consumers should call `refreshScrollLayout()` after init/cleanup rather than calling `ScrollTrigger.refresh()` directly.
+
+On mobile/tablet (no Lenis), a body `ResizeObserver` still refreshes ScrollTrigger when content height changes.
 
 ## Film Grain
 
@@ -110,15 +124,17 @@ A CSS overlay (`div.film-grain`) with an animated noise texture. Defined in `glo
 
 **File:** `src/components/experience/TransitionManager.tsx`
 
-Wraps page content in Motion's `AnimatePresence` for route change transitions. Currently a single-page app, but ready for future multi-page expansion.
+Wraps page content in a stable wrapper for route changes. Intentionally avoids `AnimatePresence` exit animations — they conflict with GSAP pin spacers on the home page. Scroll reset on navigation is handled by `SmoothScroll` via `resetScrollPosition()`.
 
 ## Process Section (GSAP ScrollTrigger)
 
 **File:** `src/components/sections/Process.tsx`
 
-On all screen sizes, the process section uses GSAP ScrollTrigger to scrub through three edit stages as the user scrolls — the section pins in place while visuals and copy cross-fade. On mobile and tablet, native touch scroll drives the scrub (Lenis remains desktop-only). When `prefers-reduced-motion: reduce` is enabled, a simplified stepped layout is shown instead.
+On all screen sizes (except `prefers-reduced-motion: reduce`), the process section uses GSAP ScrollTrigger to scrub through three edit stages. The section pins in place while visuals and copy cross-fade. Stage indicators (`activeIndex`) are derived from GSAP timeline progress via `activeIndexFromTimelineProgress()` in `src/lib/process-timeline.ts` — not a separate scroll formula. Inactive frames use `visibility: hidden` when opacity drops below 5% to prevent ghost text during crossfades.
 
-Scroll-pin uses `ignoreMobileResize` for iOS address-bar stability and `--nav-offset` to clear the fixed mobile header.
+When reduced motion is enabled, a simplified sticky/intersection layout (`ProcessReducedMotion`) is shown instead.
+
+Scroll-pin uses `ignoreMobileResize` for iOS address-bar stability and `--nav-offset` padding to clear fixed navigation.
 
 ## Related Documentation
 

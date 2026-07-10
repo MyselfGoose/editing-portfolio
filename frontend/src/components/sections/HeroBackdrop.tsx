@@ -9,6 +9,7 @@ import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { MUX_DEMO_VIDEO } from "@/lib/constants";
 import { MUX_PLAYER_PRESETS, posterUrl } from "@/lib/mux";
+import { MUX_DEV_VIDEO_PROPS } from "@/lib/mux-dev";
 import { pauseVideo, playVideo } from "@/lib/video-lifecycle";
 
 import { useHeroMedia } from "./HeroMediaContext";
@@ -106,6 +107,7 @@ export function HeroBackdrop(): React.ReactElement {
             disablePictureInPicture
             disableRemotePlayback
             metadata={{ video_title: title }}
+            {...MUX_DEV_VIDEO_PROPS}
             className="pointer-events-none absolute inset-0 h-full w-full object-cover"
             style={{
               width: "100%",

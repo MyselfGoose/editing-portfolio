@@ -45,10 +45,11 @@ describe("SiteNav", () => {
 });
 
 describe("DesktopNav", () => {
-  it("renders desktop navigation links", () => {
+  it("renders route navigation links", () => {
     mockDesktopBreakpoint();
     renderWithProviders(<DesktopNav />);
-    expect(screen.getByRole("link", { name: "Process" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Work" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Home" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Privacy" })).toBeInTheDocument();
   });
 });

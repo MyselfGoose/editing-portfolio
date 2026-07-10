@@ -23,7 +23,8 @@ test.describe("Visual regression", () => {
       });
       await page.goto("/");
       await expect(page.locator("#hero")).toBeVisible();
-      await expect(page.locator("#contact")).toBeAttached();
+      await expect(page.locator("#contact")).not.toBeAttached();
+      await expect(page.getByRole("link", { name: "Get in touch" })).toBeVisible();
       await expect(page).toHaveScreenshot(`home-${viewport.name}.png`, {
         fullPage: true,
         maxDiffPixelRatio: 0.06,

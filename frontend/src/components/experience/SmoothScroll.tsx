@@ -3,12 +3,17 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { useExperience } from "@/components/providers/ExperienceProvider";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { registerScrollToSection } from "@/lib/scroll-to-section";
+import {
+  refreshScrollLayout,
+  registerLenis,
+  resetScrollPosition,
+} from "@/lib/scroll-layout";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -19,19 +24,34 @@ interface SmoothScrollProps {
 }
 
 export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElement {
+  const pathname = usePathname();
   const reducedMotion = usePrefersReducedMotion();
   const { isDesktop, finePointer } = useBreakpoint();
   const { scrollLocked } = useExperience();
   const lenisRef = useRef<Lenis | null>(null);
+  const isInitialPathnameRef = useRef(true);
 
   const enableLenis =
     isDesktop && finePointer && !reducedMotion;
 
   useEffect(() => {
+    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+  }, []);
+
+  useEffect(() => {
     if (!enableLenis) {
+      registerLenis(null);
       const onScroll = (): void => ScrollTrigger.update();
       window.addEventListener("scroll", onScroll, { passive: true });
-      return () => window.removeEventListener("scroll", onScroll);
+      return () => {
+        window.removeEventListener("scroll", onScroll);
+        registerLenis(null);
+        if (typeof window !== "undefined") {
+          delete window.__portfolioScrollTo;
+        }
+      };
     }
 
     const lenis = new Lenis({
@@ -44,14 +64,27 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
     });
 
     lenisRef.current = lenis;
+    registerLenis(lenis);
+
+    ScrollTrigger.scrollerProxy(document.documentElement, {
+      scrollTop(value) {
+        if (arguments.length && value !== undefined) {
+          lenis.scrollTo(value, { immediate: true });
+        }
+        return lenis.scroll;
+      },
+      getBoundingClientRect() {
+        return {
+          top: 0,
+          left: 0,
+          width: window.innerWidth,
+          height: window.innerHeight,
+        };
+      },
+      pinType: document.documentElement.style.transform ? "transform" : "fixed",
+    });
 
     lenis.on("scroll", ScrollTrigger.update);
-
-    registerScrollToSection((sectionId: string) => {
-      const target = document.getElementById(sectionId);
-      if (!target) return;
-      lenis.scrollTo(target, { offset: 0 });
-    });
 
     const raf = (time: number): void => {
       lenis.raf(time * 1000);
@@ -59,19 +92,25 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
 
     gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
+    refreshScrollLayout();
+
+    const resizeObserver = new ResizeObserver(() => {
+      refreshScrollLayout();
+    });
+    resizeObserver.observe(document.body);
 
     return () => {
-      registerScrollToSection(null);
+      resizeObserver.disconnect();
       gsap.ticker.remove(raf);
       lenis.destroy();
       lenisRef.current = null;
+      registerLenis(null);
+      if (typeof window !== "undefined") {
+        delete window.__portfolioScrollTo;
+      }
+      ScrollTrigger.scrollerProxy(document.documentElement, {});
+      refreshScrollLayout();
     };
-  }, [enableLenis]);
-
-  useEffect(() => {
-    if (!enableLenis) {
-      registerScrollToSection(null);
-    }
   }, [enableLenis]);
 
   useEffect(() => {
@@ -83,6 +122,25 @@ export function SmoothScroll({ children }: SmoothScrollProps): React.ReactElemen
       lenis.start();
     }
   }, [scrollLocked]);
+
+  useEffect(() => {
+    if (isInitialPathnameRef.current) {
+      isInitialPathnameRef.current = false;
+      return;
+    }
+
+    resetScrollPosition();
+  }, [pathname]);
+
+  useEffect(() => {
+    if (enableLenis) return;
+
+    const resizeObserver = new ResizeObserver(() => {
+      ScrollTrigger.refresh();
+    });
+    resizeObserver.observe(document.body);
+    return () => resizeObserver.disconnect();
+  }, [enableLenis]);
 
   return <>{children}</>;
 }

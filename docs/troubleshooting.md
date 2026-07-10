@@ -109,6 +109,7 @@ Common development, deployment, and runtime issues and how to resolve them.
 - On desktop, GSAP ScrollTrigger syncs with Lenis via `ScrollTrigger.update`
 - On mobile/tablet, native scroll calls `ScrollTrigger.update` directly — Lenis is intentionally off
 - If Process pin feels stuck on iOS, try orientation change or scroll refresh; `ignoreMobileResize` is enabled
+- `inferred.litix.io` CORS errors in local dev are from Mux Data beacons and are suppressed in development via `MUX_DEV_VIDEO_PROPS`
 
 ### Custom cursor not visible
 

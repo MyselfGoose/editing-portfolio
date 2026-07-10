@@ -2,14 +2,16 @@
 
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { BRAND } from "@/lib/constants";
 import { NAV_LINKS } from "@/lib/navigation";
-import { scrollToSection } from "@/lib/scroll-to-section";
 import { cn } from "@/lib/utils";
 
 export function SiteNav(): React.ReactElement {
+  const pathname = usePathname();
   const [open, setOpen] = useState<boolean>(false);
   const menuBtnRef = useRef<HTMLButtonElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -64,20 +66,22 @@ export function SiteNav(): React.ReactElement {
     };
   }, [open, close]);
 
-  const handleNavClick = useCallback(
-    (sectionId: string) => {
-      close();
-      scrollToSection(sectionId);
-    },
-    [close],
-  );
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => {
+      setOpen(false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pathname]);
 
   return (
     <>
       <header className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between px-[var(--section-px)] py-4 lg:hidden">
-        <span className="text-eyebrow text-[color:var(--color-muted)]">
+        <Link
+          href="/"
+          className="text-nav text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)]"
+        >
           {BRAND.short}
-        </span>
+        </Link>
         <button
           ref={menuBtnRef}
           type="button"
@@ -110,27 +114,37 @@ export function SiteNav(): React.ReactElement {
             aria-label="Site navigation"
           >
             <nav className="flex flex-1 flex-col justify-center gap-2">
-              {NAV_LINKS.map((link, index) => (
-                <motion.a
-                  key={link.href}
-                  ref={index === 0 ? firstLinkRef : undefined}
-                  href={link.href}
-                  className={cn(
-                    "font-display text-headline border-b border-[color:var(--color-divider)] py-4",
-                    "text-[color:var(--color-foreground)] transition-colors",
-                    "hover:text-[color:var(--color-muted)]",
-                  )}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05, duration: 0.4 }}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    handleNavClick(link.sectionId);
-                  }}
-                >
-                  {link.label}
-                </motion.a>
-              ))}
+              {NAV_LINKS.map((link, index) => {
+                const isActive =
+                  link.href === "/"
+                    ? pathname === "/"
+                    : pathname === link.href ||
+                      pathname.startsWith(`${link.href}/`);
+                return (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05, duration: 0.4 }}
+                  >
+                    <Link
+                      ref={index === 0 ? firstLinkRef : undefined}
+                      href={link.href}
+                      className={cn(
+                        "font-display text-headline block border-b border-[color:var(--color-divider)] py-4",
+                        "transition-colors",
+                        isActive
+                          ? "text-[color:var(--color-foreground)]"
+                          : "text-[color:var(--color-muted)] hover:text-[color:var(--color-foreground)]",
+                      )}
+                      aria-current={isActive ? "page" : undefined}
+                      onClick={close}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                );
+              })}
             </nav>
           </motion.div>
         ) : null}

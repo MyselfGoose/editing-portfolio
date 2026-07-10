@@ -6,7 +6,7 @@ This document describes the system design, data flow, and technology choices beh
 
 ## Overview
 
-The portfolio is a single-page experience built with Next.js App Router plus supporting static routes (`/privacy`, metadata routes). It has no custom backend or database. Content is static TypeScript data, and video is delivered through Mux's public CDN using playback IDs.
+The portfolio is a Next.js App Router site: a scrollable cinematic home page (`/`) plus dedicated routes (`/contact`, `/privacy`). It has no custom backend or database. Content is static TypeScript data, and video is delivered through Mux's public CDN using playback IDs.
 
 ```mermaid
 flowchart TB
@@ -81,7 +81,7 @@ layout.tsx
         ├── CustomCursor (ring + dot + label)
         ├── CinematicLoader (session one-shot overlay)
         ├── film-grain (CSS overlay)
-        └── TransitionManager (route change animations)
+        └── TransitionManager (stable route wrapper — no exit animations)
               └── page.tsx (children)
                     ├── Hero (client — video, audio toggle)
                     ├── Process (client — GSAP ScrollTrigger)
@@ -89,6 +89,28 @@ layout.tsx
 ```
 
 `ExperienceShell` is the single client boundary that wraps all experience systems. Everything below it stays server-rendered by default unless a child component opts into `"use client"`.
+
+## Scroll Lifecycle
+
+Scroll behavior is coordinated through `SmoothScroll` and `scroll-layout.ts`:
+
+```mermaid
+flowchart TB
+  smooth[SmoothScroll]
+  layout[scroll-layout.ts]
+  lenis[Lenis desktop]
+  st[ScrollTrigger]
+  route[usePathname]
+
+  smooth --> layout
+  layout --> lenis
+  layout --> st
+  route -->|resetScrollPosition| layout
+  bodyResize[ResizeObserver on body] -->|refreshScrollLayout| layout
+  process[Process pin init/cleanup] -->|refreshScrollLayout| layout
+```
+
+**Contract:** Any layout change that affects document height (dynamic imports, GSAP pin spacers, route changes) must trigger `refreshScrollLayout()`. Route changes must call `resetScrollPosition()` so Lenis does not carry home-page scroll depth onto shorter pages like `/contact`.
 
 ## Data Flow
 
@@ -126,6 +148,7 @@ The app has two primary routes:
 | Route | File | Description |
 |-------|------|-------------|
 | `/` | `src/app/page.tsx` | Home page with all sections |
+| `/contact` | `src/app/contact/page.tsx` | Contact form and project inquiry |
 | `/privacy` | `src/app/privacy/page.tsx` | Data collection and analytics disclosure |
 
 No API routes, dynamic routes, or middleware exist.

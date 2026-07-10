@@ -16,7 +16,7 @@ test.describe("Home page", () => {
     await expect(page.locator("#process")).toBeAttached();
     await expect(page.locator("#work")).toBeAttached();
     await expect(page.locator("#services")).toBeAttached();
-    await expect(page.locator("#contact")).toBeAttached();
+    await expect(page.getByRole("link", { name: "Get in touch" })).toBeAttached();
   });
 
   test("skip link targets main content", async ({ page }) => {

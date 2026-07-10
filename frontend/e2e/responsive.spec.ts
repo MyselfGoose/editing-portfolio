@@ -36,14 +36,14 @@ test.describe("Responsive layout", () => {
     ).toHaveCount(0);
     await expect(
       page.getByRole("navigation", { name: "Site navigation" }).getByRole("link", {
-        name: "Process",
+        name: "Contact",
       }),
     ).toBeVisible();
   });
 
   test("contact form submit button fits at 320px", async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 568 });
-    await page.goto("/#contact");
+    await page.goto("/contact");
 
     const cta = page.getByRole("button", { name: "Send Message" });
     await expect(cta).toBeVisible({ timeout: 15_000 });
@@ -52,6 +52,26 @@ test.describe("Responsive layout", () => {
     expect(box).not.toBeNull();
     if (box) {
       expect(box.width).toBeLessThanOrEqual(320);
+      expect(box.height).toBeGreaterThanOrEqual(44);
     }
+
+    const overflow = await page.evaluate(() => {
+      return document.documentElement.scrollWidth > window.innerWidth;
+    });
+    expect(overflow).toBe(false);
+  });
+
+  test("privacy page has no horizontal overflow at 320px", async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 });
+    await page.goto("/privacy");
+
+    await expect(
+      page.getByRole("heading", { name: "Privacy policy" }),
+    ).toBeVisible();
+
+    const overflow = await page.evaluate(() => {
+      return document.documentElement.scrollWidth > window.innerWidth;
+    });
+    expect(overflow).toBe(false);
   });
 });
