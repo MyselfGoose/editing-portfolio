@@ -42,7 +42,7 @@ test.describe("Accessibility", () => {
     await page.goto("/#work");
 
     await expect(
-      page.getByRole("heading", { name: /Each project is a chapter/i }),
+      page.getByRole("heading", { name: /Here is our best work/i }),
     ).toBeVisible({ timeout: 15_000 });
 
     const projectButton = page.getByRole("button", {

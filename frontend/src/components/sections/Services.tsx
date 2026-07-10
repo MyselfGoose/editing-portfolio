@@ -19,27 +19,27 @@ const CHAPTERS: ReadonlyArray<Chapter> = [
   {
     index: 1,
     title: "Pre-production.",
-    copy: "Understanding the emotion before touching the timeline. We start with the intent, the audience, and the arc. Everything downstream serves that.",
+    copy: "You tell us what the video needs to achieve. We review the brief, the footage and the deadline so everyone is on the same page before editing starts.",
   },
   {
     index: 2,
     title: "Editing.",
-    copy: "Every cut exists for a reason. Pacing, silence, tension, release. The edit is the story; everything else is finish.",
+    copy: "We pull the strongest moments from the footage and build the first cut. Pacing and structure come first so the story reads clearly.",
   },
   {
     index: 3,
     title: "Color.",
-    copy: "Turning footage into atmosphere. Grade for mood, not for trend. Skin lives, blacks breathe, highlights hold.",
+    copy: "When the edit is locked we work on the grade. Contrast, temperature and mood are adjusted until the footage looks the way it should on every screen.",
   },
   {
     index: 4,
     title: "Delivery.",
-    copy: "Mastering for every destination — DCP, web, social, and archive. Exports are spec-checked, labeled, and handed off with a clear delivery package.",
+    copy: "We export the final file for every platform you need. Web, social, presentations or archive. Everything is checked before it is sent to you.",
   },
   {
     index: 5,
     title: "Refinement.",
-    copy: "Client notes, revision rounds, fine cut. The edit sharpens until it feels inevitable — not just approved.",
+    copy: "Your notes go back into the timeline. We revise until the edit feels right and you are happy to share it.",
   },
 ];
 
@@ -49,13 +49,13 @@ export function Services(): React.ReactElement {
   return (
     <Section id="services" labelledBy="services-heading" borderTop>
       <Container>
-        <SectionHeader label="04 / Services" aside="What we offer" />
+        <SectionHeader label="04 / Process" aside="How we work" />
 
         <h2
           id="services-heading"
           className="font-display mt-10 text-headline max-w-3xl sm:mt-12"
         >
-          Five chapters. One craft.
+          Our Process
         </h2>
 
         <ol className="mt-16 divide-y divide-[color:var(--color-divider)]">

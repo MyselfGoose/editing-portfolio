@@ -19,7 +19,7 @@ describe("About", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /A studio for stories that need to be felt/i,
+        name: /Helping professionals save time by outsourcing/i,
       }),
     ).toBeInTheDocument();
   });

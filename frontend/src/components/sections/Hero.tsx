@@ -91,8 +91,8 @@ function HeroContent(): React.ReactElement {
                 }
           }
         >
-          A film-first studio built around emotion, silence, and pacing.
-          Editing, color, motion &mdash; treated as one craft.
+          Here is a collection of all the work we have done over the years
+          working with clients. Keep scrolling to find more.
         </motion.p>
 
         <motion.div

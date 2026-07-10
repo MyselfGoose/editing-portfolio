@@ -25,7 +25,7 @@ export function HomeContactCta(): React.ReactElement {
               05 / Contact
             </p>
             <h2 className="font-display text-headline text-balance">
-              Ready to tell your story?
+              Ready to craft your cinematic story?
             </h2>
             <p className="max-w-lg text-body-lg text-[color:var(--color-muted)]">
               Start a project with a message, or reach out directly by email.

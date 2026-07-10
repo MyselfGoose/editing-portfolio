@@ -31,7 +31,7 @@ const fraunces = Fraunces({
 });
 
 const DESCRIPTION =
-  "A cinematic video studio. We don't edit videos. We create memories.";
+  "Goose Productions editing portfolio for wedding films, birthday films, and client projects.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),

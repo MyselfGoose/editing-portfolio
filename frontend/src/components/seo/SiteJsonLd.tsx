@@ -1,7 +1,7 @@
 import { BRAND, CONTACT, SITE, SOCIAL } from "@/lib/constants";
 
 const DESCRIPTION =
-  "A cinematic video studio. We don't edit videos. We create memories.";
+  "Goose Productions editing portfolio for wedding films, birthday films, and client projects.";
 
 function socialUrls(): string[] {
   return Object.values(SOCIAL).filter(

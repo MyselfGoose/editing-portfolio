@@ -14,7 +14,7 @@ function mockMobileViewport(): void {
 }
 
 describe("Process", () => {
-  it("renders three process phases in reduced-motion fallback", () => {
+  it("renders four process phases in reduced-motion fallback", () => {
     mockMatchMediaForQuery({
       "(prefers-reduced-motion: reduce)": true,
       "(max-width: 767px)": true,
@@ -27,9 +27,10 @@ describe("Process", () => {
     renderWithProviders(<Process />);
 
     expect(screen.getAllByText("SELECTS").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("STRUCTURE").length).toBeGreaterThan(0);
     expect(screen.getAllByText("GRADE").length).toBeGreaterThan(0);
     expect(screen.getAllByText("DELIVER").length).toBeGreaterThan(0);
-    expect(screen.getAllByRole("article")).toHaveLength(3);
+    expect(screen.getAllByRole("article")).toHaveLength(4);
   });
 
   it("uses scroll-pin scrub layout on mobile when motion is allowed", async () => {
@@ -46,7 +47,7 @@ describe("Process", () => {
     renderWithProviders(<Process />);
 
     await waitFor(() => {
-      expect(screen.getAllByText(/Stage 01 \/ 03/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/Stage 01 \/ 04/).length).toBeGreaterThan(0);
     });
     expect(screen.queryByRole("article")).not.toBeInTheDocument();
   });

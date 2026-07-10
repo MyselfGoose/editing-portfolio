@@ -1,12 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 const PROCESS_HEADLINES = [
-  "We find what matters.",
-  "Picture and color tell the feeling.",
+  "We find the best parts",
+  "The vision and structure are formed",
+  "Bringing out the colors",
   "The film leaves the timeline.",
 ] as const;
 
-const PROCESS_STAGE_OFFSETS = [0.5, 1.75, 2.75] as const;
+const PROCESS_STAGE_OFFSETS = [0.5, 1.5, 2.5, 3.5] as const;
 
 async function scrubProcessToStageOffset(
   page: import("@playwright/test").Page,
@@ -82,7 +83,7 @@ test.describe("Scroll reliability", () => {
         )
         .toBe(true);
 
-      const stageLabel = `Stage 0${stage + 1} / 03`;
+      const stageLabel = `Stage 0${stage + 1} / 04`;
       await expect(
         page.locator("#process").getByText(stageLabel).first(),
       ).toBeVisible();
@@ -106,7 +107,7 @@ test.describe("Scroll reliability", () => {
 
     await expect(page.locator("#contact-cta")).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByRole("heading", { name: /Ready to tell your story/i }),
+      page.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
     ).toBeVisible();
   });
 
@@ -139,7 +140,7 @@ test.describe("Scroll reliability", () => {
       .toBeLessThan(50);
 
     await expect(
-      page.getByRole("heading", { name: /Ready to tell your story/i }),
+      page.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
     ).toBeVisible();
   });
 });

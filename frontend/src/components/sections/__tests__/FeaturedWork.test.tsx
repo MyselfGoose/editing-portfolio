@@ -21,7 +21,7 @@ describe("FeaturedWork", () => {
 
     renderWithProviders(<FeaturedWork />);
 
-    expect(screen.getByRole("heading", { name: /Each project is a chapter/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Here is our best work/i })).toBeInTheDocument();
 
     for (const project of projects) {
       expect(screen.getByText(project.title)).toBeInTheDocument();

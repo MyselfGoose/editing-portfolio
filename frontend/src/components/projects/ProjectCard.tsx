@@ -48,9 +48,11 @@ export function ProjectCard({
           </span>
         </div>
         <h3 className="font-display mt-4 text-title">{project.title}</h3>
-        <p className="mt-4 max-w-md text-body-lg text-[color:var(--color-muted)] sm:mt-6">
-          {project.description}
-        </p>
+        {project.description?.trim() ? (
+          <p className="mt-4 max-w-md text-body-lg text-[color:var(--color-muted)] sm:mt-6">
+            {project.description}
+          </p>
+        ) : null}
         <dl className="mt-6 flex flex-col gap-2 text-xs font-mono text-[color:var(--color-muted)] sm:mt-8">
           <div className="flex justify-between border-t border-[color:var(--color-divider)] pt-2">
             <dt>Location</dt>

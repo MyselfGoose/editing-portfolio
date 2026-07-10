@@ -44,7 +44,7 @@ export function FeaturedWork(): React.ReactElement {
           id="work-heading"
           className="font-display mt-10 text-headline max-w-3xl sm:mt-12"
         >
-          Each project is a chapter.
+          Here is our best work that we have done.
         </h2>
 
         <div className="mt-8 divide-y divide-[color:var(--color-divider)]">

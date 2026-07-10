@@ -13,9 +13,6 @@ import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { ABOUT_STILL, EASE } from "@/lib/constants";
 import { posterUrl } from "@/lib/mux";
 
-const PULL_QUOTE =
-  "Every frame is chosen for the emotion it holds, not the effect it lands.";
-
 export function About(): React.ReactElement {
   const { tier } = useHydrationSafeBreakpoint();
   const revealMotion = useRevealMotion();
@@ -75,18 +72,8 @@ export function About(): React.ReactElement {
               whileInView="visible"
               viewport={{ once: true, margin: "-20% 0px" }}
             >
-              A studio for stories that need to be felt&mdash;not just watched.
+              Helping professionals save time by outsourcing
             </motion.h2>
-
-            <motion.blockquote
-              className="border-l border-[color:var(--color-foreground)] pl-5 font-display text-chapter leading-snug text-[color:var(--color-foreground)] sm:pl-6 sm:text-cta"
-              variants={revealMotion.variants}
-              initial={revealMotion.initial}
-              whileInView="visible"
-              viewport={{ once: true, margin: "-15% 0px" }}
-            >
-              {PULL_QUOTE}
-            </motion.blockquote>
 
             <motion.div
               className="flex flex-col gap-6 text-body-lg text-[color:var(--color-muted)]"
@@ -96,13 +83,13 @@ export function About(): React.ReactElement {
               viewport={{ once: true, margin: "-15% 0px" }}
             >
               <p>
-                We treat editing, color and motion as one craft. Every cut earns
-                its place. Every silence carries weight.
+                At Goose Productions, we work with clients across the globe with
+                their editing needs.
               </p>
               <p>
-                The work moves slowly on purpose. We spend as much time watching
-                the raw footage as most studios spend cutting. What survives feels
-                inevitable.
+                We treat color grading, editing and motion as one important
+                craft. With a team of editors, we are more than capable of
+                working with any kind of requirements our clients may have.
               </p>
             </motion.div>
 
@@ -113,7 +100,7 @@ export function About(): React.ReactElement {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              Est. 2019 &mdash; Southern California &mdash; Worldwide &mdash; Remote-first
+              We work remotely through South Asia
             </motion.p>
           </Stack>
         </div>

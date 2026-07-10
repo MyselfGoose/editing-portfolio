@@ -27,7 +27,7 @@ describe("Hero", () => {
     renderWithProviders(<Hero />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /memories/i,
+      /Goose.*Portfolio/i,
     );
   });
 

@@ -33,8 +33,8 @@ test.describe("Mobile cinematic features", () => {
     await page.goto("/");
     await expect(page.locator("#process")).toBeVisible();
 
-    const stageCounter = page.locator("#process").getByText(/Stage \d{2} \/ 03/);
-    await expect(stageCounter.first()).toContainText("Stage 01 / 03");
+    const stageCounter = page.locator("#process").getByText(/Stage \d{2} \/ 04/);
+    await expect(stageCounter.first()).toContainText("Stage 01 / 04");
 
     await page.evaluate(() => {
       const process = document.getElementById("process");
@@ -56,7 +56,7 @@ test.describe("Mobile cinematic features", () => {
 
     await expect
       .poll(async () => stageCounter.first().textContent(), { timeout: 15_000 })
-      .toMatch(/Stage 0[2-3] \/ 03/);
+      .toMatch(/Stage 0[2-4] \/ 04/);
   });
 });
 
@@ -86,7 +86,7 @@ test.describe("Desktop process scroll-pin", () => {
 
     await expect(processHeader.first()).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.locator("#process").getByText(/Stage 0[2-3] \/ 03/).first(),
+      page.locator("#process").getByText(/Stage 0[2-4] \/ 04/).first(),
     ).toBeVisible({ timeout: 15_000 });
   });
 });

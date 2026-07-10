@@ -11,7 +11,7 @@ test.describe("Home page", () => {
     await page.goto("/");
 
     await expect(page.locator("#hero")).toBeVisible();
-    await expect(page.getByRole("heading", { name: /We don't edit videos/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Goose Productions/i })).toBeVisible();
     await expect(page.locator("#about")).toBeAttached();
     await expect(page.locator("#process")).toBeAttached();
     await expect(page.locator("#work")).toBeAttached();

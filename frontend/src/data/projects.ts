@@ -2,7 +2,7 @@ import type { VideoAspectRatio } from "@/lib/mux";
 
 export type ProjectCategory =
   | "Wedding Film"
-  | "Celebration Film"
+  | "Birthday Film"
   | "Documentary"
   | "Brand Story"
   | "Music Video";
@@ -33,7 +33,7 @@ export interface Project {
   category: ProjectCategory;
   year: number;
   location: string;
-  description: string;
+  description?: string;
   video: ProjectVideo;
   credits: {
     role: string;
@@ -49,8 +49,6 @@ export const projects: ReadonlyArray<Project> = [
     category: "Wedding Film",
     year: 2026,
     location: "Southern California",
-    description:
-      "An intimate wedding film built around quiet glances, handwritten vows, and the kind of silence that only happens when two people are fully present.",
     video: {
       playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
       aspectRatio: "16/9",
@@ -78,8 +76,6 @@ export const projects: ReadonlyArray<Project> = [
     category: "Wedding Film",
     year: 2025,
     location: "California",
-    description:
-      "A classic celebration captured with restraint — golden-hour portraits, candid reception energy, and a final dance that holds the whole story together.",
     video: {
       playbackId: "01pLE9oSaFRESO6zzy7lXGcR01di3hz1BTbLM1ye4eRWk",
       aspectRatio: "16/9",
@@ -103,11 +99,9 @@ export const projects: ReadonlyArray<Project> = [
     id: "elvira",
     index: 3,
     title: "Elvira",
-    category: "Wedding Film",
+    category: "Birthday Film",
     year: 2025,
     location: "California",
-    description:
-      "A portrait of a wedding day told through texture and tempo — lace, candlelight, and the unhurried rhythm of a film that breathes.",
     video: {
       playbackId: "mYoZjovjdBNNfNbPLGnCzCAQrXLw2ItEbBc8T9m746M",
       aspectRatio: "16/9",
@@ -131,11 +125,9 @@ export const projects: ReadonlyArray<Project> = [
     id: "dominguez-quince",
     index: 4,
     title: "Dominguez Quince",
-    category: "Celebration Film",
+    category: "Birthday Film",
     year: 2025,
     location: "Southern California",
-    description:
-      "A quinceañera film that honors tradition and family — from the first look to the last song, cut to feel like a memory you can return to.",
     video: {
       playbackId: "Hmxee1qD3tQMRNomZAsR9FOX026EC00YzMOqglcjGZVUI",
       aspectRatio: "16/9",

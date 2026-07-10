@@ -245,10 +245,18 @@ export function ProjectModal({
               )}
             </div>
 
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <p className="md:col-span-2 max-w-xl text-body-lg text-[color:var(--color-muted)]">
-                {project.description}
-              </p>
+            <div
+              className={
+                project.description?.trim()
+                  ? "grid grid-cols-1 gap-6 md:grid-cols-3"
+                  : "flex flex-col gap-6"
+              }
+            >
+              {project.description?.trim() ? (
+                <p className="md:col-span-2 max-w-xl text-body-lg text-[color:var(--color-muted)]">
+                  {project.description}
+                </p>
+              ) : null}
               <dl className="flex flex-col gap-2 text-xs font-mono text-[color:var(--color-muted)]">
                 <div className="flex justify-between border-t border-[color:var(--color-divider)] pt-2">
                   <dt>Role</dt>

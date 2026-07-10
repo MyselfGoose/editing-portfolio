@@ -18,7 +18,7 @@ describe("Services", () => {
     renderWithProviders(<Services />);
 
     expect(
-      screen.getByRole("heading", { name: /Five chapters. One craft./i }),
+      screen.getByRole("heading", { name: /Our Process/i }),
     ).toBeInTheDocument();
     expect(screen.getByText("Pre-production.")).toBeInTheDocument();
     expect(screen.getByText("Refinement.")).toBeInTheDocument();

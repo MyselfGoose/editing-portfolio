@@ -25,7 +25,6 @@ describe("projects data contract", () => {
     (_id, project) => {
       expect(project.id).toBeTruthy();
       expect(project.title).toBeTruthy();
-      expect(project.description).toBeTruthy();
       expect(project.location).toBeTruthy();
       expect(project.year).toBeGreaterThan(0);
       expect(project.index).toBeGreaterThan(0);

@@ -10,7 +10,7 @@ describe("ContactPageContent", () => {
     renderWithProviders(<ContactPageContent />);
 
     expect(
-      screen.getByRole("heading", { name: /Ready to tell/i }),
+      screen.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(CONTACT.ctaLabel)).toBeInTheDocument();
   });
@@ -23,12 +23,6 @@ describe("ContactPageContent", () => {
       (link) => link.getAttribute("href") === `mailto:${CONTACT.email}`,
     );
     expect(mailtoLinks.length).toBeGreaterThanOrEqual(1);
-  });
-
-  it("renders credits section", () => {
-    renderWithProviders(<ContactPageContent />);
-    expect(screen.getByText("Credits")).toBeInTheDocument();
-    expect(screen.getByText("Director")).toBeInTheDocument();
   });
 
   it("renders footer with brand name", () => {

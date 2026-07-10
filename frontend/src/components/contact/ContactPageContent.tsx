@@ -6,7 +6,6 @@ import { motion } from "motion/react";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { useCursor } from "@/components/experience/CursorContext";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { CREDITS } from "@/data/credits";
 import { useRevealMotion } from "@/hooks/useRevealMotion";
 import { BRAND, CONTACT, EASE, SOCIAL } from "@/lib/constants";
 import { cn } from "@/lib/utils";
@@ -15,13 +14,7 @@ const SOCIAL_ENTRIES = (
   Object.entries(SOCIAL) as Array<[keyof typeof SOCIAL, string | undefined]>
 ).filter((entry): entry is [keyof typeof SOCIAL, string] => Boolean(entry[1]));
 
-interface ContactPageContentProps {
-  showCredits?: boolean;
-}
-
-export function ContactPageContent({
-  showCredits = true,
-}: ContactPageContentProps): React.ReactElement {
+export function ContactPageContent(): React.ReactElement {
   const revealMotion = useRevealMotion();
   const { setState, reset } = useCursor();
 
@@ -37,7 +30,7 @@ export function ContactPageContent({
           animate="visible"
           transition={{ duration: 1.1, ease: EASE.expoOut }}
         >
-          Ready to tell your story?
+          Ready to craft your cinematic story?
         </motion.h1>
 
         <motion.p
@@ -126,27 +119,6 @@ export function ContactPageContent({
             ))}
           </ul>
         </motion.section>
-      ) : null}
-
-      {showCredits ? (
-        <section className="border-t border-[color:var(--color-divider)] pt-8 md:pt-10">
-          <p className="text-eyebrow text-[color:var(--color-muted)]">Credits</p>
-          <ul className="mt-6 grid grid-cols-1 gap-3 text-meta sm:grid-cols-2 sm:gap-4 md:grid-cols-3">
-            {CREDITS.map((credit) => (
-              <li
-                key={credit.role}
-                className="flex flex-col gap-1 border-t border-[color:var(--color-divider)] pt-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4"
-              >
-                <span className="text-[color:var(--color-dim)] uppercase tracking-[0.14em]">
-                  {credit.role}
-                </span>
-                <span className="text-[color:var(--color-foreground)]">
-                  {credit.name}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
       ) : null}
 
       <div className="border-t border-[color:var(--color-divider)] pt-8 md:pt-10">
