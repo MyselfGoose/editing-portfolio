@@ -80,7 +80,7 @@ ui_confirm() {
   fi
   local hint="[Y/n]"
   if [[ "$default" == "n" ]]; then hint="[y/N]"; fi
-  printf '%s %s ' "$prompt" "$hint"
+  printf '%s %s ' "$prompt" "$hint" >&2
   local ans=""
   read -r ans
   ans="${ans:-$default}"
@@ -90,17 +90,18 @@ ui_confirm() {
   esac
 }
 
+# Prompts write to stderr; only the answer goes to stdout (safe for $(ui_prompt ...)).
 ui_prompt() {
   local prompt="$1"
   local default="${2:-}"
   if [[ ! -t 0 ]]; then
-    printf '%s\n' "$default"
+    printf '%s' "$default"
     return 0
   fi
   if [[ -n "$default" ]]; then
-    printf '%s [%s]: ' "$prompt" "$default"
+    printf '%s [%s]: ' "$prompt" "$default" >&2
   else
-    printf '%s: ' "$prompt"
+    printf '%s: ' "$prompt" >&2
   fi
   local ans=""
   read -r ans
@@ -114,7 +115,7 @@ ui_prompt_secret() {
     printf ''
     return 0
   fi
-  printf '%s: ' "$prompt"
+  printf '%s: ' "$prompt" >&2
   local ans=""
   read -rs ans
   printf '\n' >&2

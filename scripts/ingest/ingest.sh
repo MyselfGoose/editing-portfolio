@@ -215,29 +215,26 @@ cmd_configure() {
 }
 
 menu_ingest_flow() {
-  ui_section "Ingest videos — selection"
-  printf '  [a] All new (default)\n'
-  printf '  [b] Pick by number (from last scan)\n'
-  printf '  [c] By project ID\n'
-  printf '  [d] From manifest only\n'
+  ui_section "Ingest videos"
+  printf 'Folder: %s\n\n' "${RCLONE_FOLDER:-?}" >&2
+  printf '  [a] All new videos in that folder (recommended)\n' >&2
+  printf '  [b] Pick specific files\n' >&2
+  printf '  [c] One project slug\n' >&2
   local choice
   choice="$(ui_prompt "Choice" "a")"
   case "${choice,,}" in
-    a) pipeline_run "all-new" ;;
+    a|"") pipeline_run "all-new" ;;
     b)
-      if [[ "$(printf '%s' "$INGEST_LAST_SCAN" | jq 'length')" -eq 0 ]]; then
-        local scan
-        scan="$(drive_scan)" || return $?
-        INGEST_LAST_SCAN="$scan"
-        drive_print_scan "$scan"
-      fi
+      local scan
+      scan="$(drive_scan)" || return $?
+      INGEST_LAST_SCAN="$scan"
+      drive_print_scan "$scan"
       pipeline_run "pick"
       ;;
     c)
       INGEST_PROJECT_FILTER="$(ui_prompt "Project ID (slug)" "")"
       pipeline_run "project"
       ;;
-    d) pipeline_run "manifest-only" ;;
     *) ui_err "Invalid choice"; return 1 ;;
   esac
 }

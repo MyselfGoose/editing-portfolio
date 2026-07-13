@@ -28,11 +28,95 @@ config_resolve_path() {
   esac
 }
 
+config_quote_shell() {
+  local raw="$1"
+  local escaped="${raw//\'/\'\\\'\'}"
+  printf "'%s'" "$escaped"
+}
+
+config_sanitize_value() {
+  local val="$1"
+  val="$(printf '%s' "$val" | sed -E \
+    's/^Paste Token ID: //;
+     s/^Paste Token Secret: //;
+     s/^RCLONE_FOLDER \[[^]]*\]: //')"
+  val="$(printf '%s' "$val" | sed -E 's/^["'\'']|["'\'']$//g')"
+  printf '%s' "$val"
+}
+
+config_repair_file() {
+  local cfg="$1"
+  [[ -f "$cfg" ]] || return 0
+
+  local repaired=0
+  local tmp
+  tmp="$(mktemp)"
+  local line key raw val quoted
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    case "$line" in
+      MUX_TOKEN_ID=*|MUX_TOKEN_SECRET=*|RCLONE_FOLDER=*|RCLONE_REMOTE=*|DRIVE_FOLDER_ID=*)
+        key="${line%%=*}"
+        raw="${line#*=}"
+        raw="${raw#\'}"; raw="${raw%\'}"
+        raw="${raw#\"}"; raw="${raw%\"}"
+        val="$(config_sanitize_value "$raw")"
+        if [[ "$val" != "$raw" ]]; then
+          repaired=1
+        fi
+        quoted="$(config_quote_shell "$val")"
+        printf '%s=%s\n' "$key" "$quoted" >>"$tmp"
+        ;;
+      *)
+        printf '%s\n' "$line" >>"$tmp"
+        ;;
+    esac
+  done <"$cfg"
+
+  if [[ "$repaired" == "1" ]]; then
+    mv "$tmp" "$cfg"
+    chmod 600 "$cfg" 2>/dev/null || true
+  else
+    rm -f "$tmp"
+  fi
+}
+
+config_save_key() {
+  local key="$1"
+  local value="$2"
+  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
+  if [[ ! -f "$cfg" ]]; then
+    cp "${INGEST_ROOT}/config.example.env" "$cfg"
+    chmod 600 "$cfg"
+  fi
+  value="$(config_sanitize_value "$value")"
+  local quoted
+  quoted="$(config_quote_shell "$value")"
+  local tmp="${cfg}.tmp.$$"
+  local found=0
+
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    if [[ "$line" =~ ^${key}= ]]; then
+      printf '%s=%s\n' "$key" "$quoted"
+      found=1
+    else
+      printf '%s\n' "$line"
+    fi
+  done <"$cfg" >"$tmp"
+
+  if [[ "$found" == "0" ]]; then
+    printf '%s=%s\n' "$key" "$quoted" >>"$tmp"
+  fi
+  mv "$tmp" "$cfg"
+  chmod 600 "$cfg" 2>/dev/null || true
+}
+
 config_load() {
   local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
   if [[ ! -f "$cfg" ]]; then
     return 1
   fi
+  config_repair_file "$cfg"
   # shellcheck disable=SC1090
   set -a
   source "$cfg"
@@ -128,23 +212,6 @@ config_validate() {
   done
 
   return "$errors"
-}
-
-config_save_key() {
-  local key="$1"
-  local value="$2"
-  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
-  if [[ ! -f "$cfg" ]]; then
-    cp "${INGEST_ROOT}/config.example.env" "$cfg"
-    chmod 600 "$cfg"
-  fi
-  if grep -q "^${key}=" "$cfg"; then
-    local escaped
-    escaped="$(printf '%s' "$value" | sed 's/[&/\]/\\&/g')"
-    sed -i "s|^${key}=.*|${key}=${escaped}|" "$cfg"
-  else
-    printf '%s=%s\n' "$key" "$value" >>"$cfg"
-  fi
 }
 
 config_ensure_dirs() {

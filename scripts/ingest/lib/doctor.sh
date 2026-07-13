@@ -35,6 +35,7 @@ doctor_missing_items() {
   [[ ! -f "$cfg" ]] && items+=("config.env")
 
   if [[ -f "$cfg" ]]; then
+    config_repair_file "$cfg"
     # shellcheck disable=SC1090
     set -a
     # shellcheck disable=SC1091
@@ -83,58 +84,154 @@ setup_mux_credentials() {
     return 0
   fi
 
-  ui_section "Mux API credentials"
-  cat <<'EOF'
-
-Mux gives you two values when you create a token. You will paste them
-into the prompts below — the script saves them to config.env for you.
-
-── In the Mux dashboard ──────────────────────────────────────────
-
-  1. Open: https://dashboard.mux.com/settings/access-tokens
-  2. Click "Generate new token" (or "Create API token")
-  3. Name it something like "goose-ingest" (any name is fine)
-  4. Permissions: enable Mux Video — Read and Write
-     (no other permissions needed)
-  5. Click Create / Generate
-
-── After you create it ───────────────────────────────────────────
-
-  Mux shows two strings:
-
-    • Token ID      — always visible in the dashboard later
-    • Token Secret  — shown ONCE; copy it immediately
-
-  Paste each value when prompted below.
-
-EOF
+  ui_section "Mux API keys"
+  printf '%s\n' \
+    'Open https://dashboard.mux.com/settings/access-tokens' \
+    '→ Generate new token → enable Mux Video Read + Write' \
+    '→ Copy both values and paste below (Secret is shown only once)' \
+    '' >&2
 
   local token_id token_secret
   if [[ "$need_id" -eq 1 ]]; then
-    printf '\n'
-    token_id="$(ui_prompt "Paste Token ID")"
+    token_id="$(ui_prompt "Token ID")"
     while [[ -z "$token_id" ]]; do
-      ui_warn "Token ID cannot be empty — copy it from the Mux dashboard."
-      token_id="$(ui_prompt "Paste Token ID")"
+      token_id="$(ui_prompt "Token ID")"
     done
     config_save_key "MUX_TOKEN_ID" "$token_id"
     ui_ok "Token ID saved"
   fi
 
   if [[ "$need_secret" -eq 1 ]]; then
-    printf '\n'
-    ui_dim "Token Secret is hidden as you type."
-    token_secret="$(ui_prompt_secret "Paste Token Secret")"
+    ui_dim "Token Secret (hidden as you type)" >&2
+    token_secret="$(ui_prompt_secret "Token Secret")"
     while [[ -z "$token_secret" ]]; do
-      ui_warn "Token Secret cannot be empty — if you lost it, create a new token in Mux."
-      token_secret="$(ui_prompt_secret "Paste Token Secret")"
+      token_secret="$(ui_prompt_secret "Token Secret")"
     done
     config_save_key "MUX_TOKEN_SECRET" "$token_secret"
     ui_ok "Token Secret saved"
   fi
 
   config_load
-  ui_ok "Mux credentials saved to config.env"
+  ui_ok "Mux credentials saved"
+}
+
+setup_drive_folder() {
+  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
+  config_load 2>/dev/null || true
+
+  if [[ -n "${RCLONE_FOLDER:-}" || -n "${DRIVE_FOLDER_ID:-}" ]]; then
+    if [[ "${INGEST_MOCK:-0}" != "1" ]] && doctor_check_cmd rclone; then
+      if drive_list_json >/dev/null 2>&1; then
+        ui_ok "Drive folder: ${RCLONE_FOLDER:-${DRIVE_FOLDER_ID}}"
+        return 0
+      fi
+      ui_warn "Previous folder not reachable — pick again"
+    else
+      ui_ok "Drive folder configured"
+      return 0
+    fi
+  fi
+
+  ui_section "Google Drive folder"
+  local remote="${RCLONE_REMOTE:-gdrive}"
+  local folder=""
+
+  if doctor_check_cmd rclone && rclone listremotes 2>/dev/null | grep -q "^${remote}:$"; then
+    local -a folders=()
+    while IFS= read -r name; do
+      [[ -n "$name" ]] && folders+=("$name")
+    done < <(rclone lsd "${remote}:" 2>/dev/null | awk '{print $NF}')
+
+    if [[ "${#folders[@]}" -gt 0 ]]; then
+      printf '\nPick the folder with your video files:\n' >&2
+      local i=1 f
+      for f in "${folders[@]}"; do
+        printf '  %2d) %s\n' "$i" "$f" >&2
+        i=$((i + 1))
+      done
+      printf '   c) Type a path manually\n\n' >&2
+
+      local pick
+      pick="$(ui_prompt "Folder # or c")"
+      if [[ "${pick,,}" == "c" ]]; then
+        folder="$(ui_prompt "Folder path (e.g. Portfolio/Wedding Videos)")"
+      elif [[ "$pick" =~ ^[0-9]+$ ]] && [[ "$pick" -ge 1 && "$pick" -lt "$i" ]]; then
+        folder="${folders[$((pick - 1))]}"
+        printf '\nSubfolder inside "%s" (Enter if videos are here): ' "$folder" >&2
+        local sub=""
+        read -r sub
+        sub="$(printf '%s' "$sub" | sed -E 's/^["'\'']|["'\'']$//g')"
+        if [[ -n "$sub" ]]; then
+          folder="${folder}/${sub}"
+        fi
+      else
+        folder="$pick"
+      fi
+    fi
+  fi
+
+  if [[ -z "$folder" ]]; then
+    folder="$(ui_prompt "Folder path (e.g. Portfolio/Wedding Videos)")"
+  fi
+
+  folder="$(config_sanitize_value "$folder")"
+  while [[ -z "$folder" ]]; do
+    folder="$(ui_prompt "Folder path")"
+    folder="$(config_sanitize_value "$folder")"
+  done
+
+  config_save_key "RCLONE_FOLDER" "$folder"
+  config_load
+
+  if drive_list_json >/dev/null 2>&1; then
+    ui_ok "Drive folder works: ${folder}"
+    return 0
+  fi
+
+  ui_warn "Could not list '${folder}' — double-check the path in Google Drive."
+  ui_dim "Tip: use Portfolio/Wedding Videos (no quotes)" >&2
+  ui_confirm "Keep this path anyway?" && return 0
+  return 1
+}
+
+setup_run() {
+  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
+  INGEST_CONFIG_FILE="$cfg"
+
+  ui_banner
+  printf 'Quick setup — only 3 things need you:\n' >&2
+  printf '  1) Mux API keys (paste from dashboard)\n' >&2
+  printf '  2) Google sign-in (browser, if rclone not done yet)\n' >&2
+  printf '  3) Pick your Drive folder from a list\n\n' >&2
+
+  if [[ "${INGEST_OFFLINE:-0}" == "1" ]]; then
+    ui_err "Setup cannot run in offline mode"
+    return 2
+  fi
+
+  config_repair_file "$cfg"
+
+  ui_section "Installing tools"
+  deps_install_all || true
+
+  setup_ensure_config
+  config_ensure_dirs
+
+  ui_section "Mux API keys"
+  setup_mux_credentials || return 2
+
+  ui_section "Google Drive"
+  setup_rclone_remote || true
+  setup_drive_folder || true
+
+  printf '\n'
+  if doctor_run; then
+    ui_ok "Setup complete. Run: ./ingest.sh scan"
+    return 0
+  fi
+
+  ui_warn "Almost there — run ./ingest.sh setup again to fix remaining items"
+  return 2
 }
 
 setup_rclone_remote() {
@@ -190,107 +287,6 @@ setup_rclone_remote() {
     fi
   fi
   return 1
-}
-
-setup_drive_folder() {
-  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
-  config_load 2>/dev/null || true
-
-  if [[ -n "${RCLONE_FOLDER:-}" || -n "${DRIVE_FOLDER_ID:-}" ]]; then
-    if [[ "${INGEST_MOCK:-0}" != "1" ]] && doctor_check_cmd rclone; then
-      if drive_list_json >/dev/null 2>&1; then
-        ui_ok "Drive folder reachable: ${RCLONE_FOLDER:-${DRIVE_FOLDER_ID}}"
-        return 0
-      fi
-      ui_warn "Configured folder not reachable — let's pick another"
-    else
-      ui_ok "Drive folder configured"
-      return 0
-    fi
-  fi
-
-  ui_section "Google Drive folder"
-  local remote="${RCLONE_REMOTE:-gdrive}"
-
-  if doctor_check_cmd rclone && rclone listremotes 2>/dev/null | grep -q "^${remote}:$"; then
-    printf 'Top-level folders on your Drive:\n\n'
-    rclone lsd "${remote}:" 2>/dev/null | head -20 || ui_dim "(could not list — enter path manually)"
-    printf '\n'
-  fi
-
-  printf 'Enter the folder path containing video masters.\n'
-  printf 'Examples: Portfolio/Masters   or   Videos/Portfolio\n\n'
-
-  local folder
-  folder="$(ui_prompt "RCLONE_FOLDER" "Portfolio/Masters")"
-  while [[ -z "$folder" ]]; do
-    folder="$(ui_prompt "RCLONE_FOLDER" "")"
-  done
-  config_save_key "RCLONE_FOLDER" "$folder"
-  config_load
-
-  if drive_list_json >/dev/null 2>&1; then
-    ui_ok "Drive folder reachable: ${folder}"
-    return 0
-  fi
-
-  ui_warn "Could not list folder '${folder}'."
-  printf 'Check that:\n'
-  printf '  • The folder exists in Google Drive\n'
-  printf '  • Your account has access (folder is shared if using a studio account)\n'
-  printf '  • The path is correct (case-sensitive)\n\n'
-
-  if ui_confirm "Keep this folder path anyway?"; then
-    return 0
-  fi
-  return 1
-}
-
-setup_run() {
-  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
-  INGEST_CONFIG_FILE="$cfg"
-
-  ui_banner
-  ui_section "First-time setup"
-  printf 'This wizard installs dependencies, creates config.env, and walks through\n'
-  printf 'Mux + Google Drive credentials. Human input is only needed for secrets and OAuth.\n\n'
-
-  if [[ "${INGEST_OFFLINE:-0}" == "1" ]]; then
-    ui_err "Setup cannot run in offline mode"
-    return 2
-  fi
-
-  ui_section "Step 1/5 — Install dependencies"
-  if ! deps_install_all; then
-    ui_warn "Some required packages could not be installed automatically."
-    if ! ui_confirm "Continue setup anyway?"; then
-      return 2
-    fi
-  fi
-
-  ui_section "Step 2/5 — Configuration file"
-  setup_ensure_config
-  config_ensure_dirs
-
-  ui_section "Step 3/5 — Mux API"
-  setup_mux_credentials || return 2
-
-  ui_section "Step 4/5 — Google Drive (rclone)"
-  setup_rclone_remote || true
-
-  ui_section "Step 5/5 — Drive folder"
-  setup_drive_folder || true
-
-  printf '\n'
-  ui_section "Verification"
-  if doctor_run; then
-    ui_ok "Setup complete — you're ready to ingest."
-    printf '\nNext: ./ingest.sh scan\n'
-    return 0
-  fi
-
-  ui_warn "Setup finished with remaining issues — fix them above or run: ./ingest.sh doctor"
-  return 2
 }
 
 doctor_run() {
@@ -472,13 +468,12 @@ doctor_first_run() {
     printf '  ✗ %s\n' "$item"
   done < <(doctor_missing_items)
   printf '\n'
-  printf 'This script will:\n'
-  printf '  1. Install missing tools (rclone, jq, ffmpeg, …) for your OS\n'
-  printf '  2. Create config.env and prompt for Mux API keys\n'
-  printf '  3. Walk you through Google Drive authorization\n'
-  printf '  4. Verify everything is ready to ingest\n\n'
+  printf 'This script will:\n' >&2
+  printf '  1. Install any missing tools automatically\n' >&2
+  printf '  2. Ask for Mux API keys (paste from dashboard)\n' >&2
+  printf '  3. Let you pick your Drive folder from a list\n\n' >&2
 
-  if ui_confirm "Run automated first-time setup now?"; then
+  if ui_confirm "Run setup now?"; then
     setup_run
   fi
 }

@@ -63,9 +63,16 @@ drive_list_json() {
   fi
 
   log_debug "drive_list_json: $rclone ${args[*]}"
-  local out err code
-  if ! out="$("$rclone" "${args[@]}" 2>&1)"; then
-    err="$out"
+
+  local out_file err_file
+  out_file="$(mktemp)"
+  err_file="$(mktemp)"
+  local code=0
+  if ! "$rclone" "${args[@]}" >"$out_file" 2>"$err_file"; then
+    code=$?
+    local err
+    err="$(cat "$err_file")"
+    rm -f "$out_file" "$err_file"
     if echo "$err" | grep -qiE '401|403|couldn.t find|directory not found|access denied'; then
       ui_err "E020: Drive access failed — re-run rclone config and verify folder is shared"
       log_error "$err"
@@ -76,6 +83,25 @@ drive_list_json() {
       return 4
     fi
     ui_err "E021: Could not list Drive folder: $err"
+    return 2
+  fi
+
+  # rclone may print NOTICE lines on stderr — never mix with JSON stdout
+  if [[ -s "$err_file" ]]; then
+    log_debug "$(cat "$err_file")"
+  fi
+
+  local out
+  out="$(cat "$out_file")"
+  rm -f "$out_file" "$err_file"
+
+  # Keep only the JSON array (in case any cruft slipped onto stdout)
+  if ! printf '%s' "$out" | jq -e 'type == "array"' >/dev/null 2>&1; then
+    out="$(printf '%s' "$out" | sed -n '/^\[/,/^\]/p')"
+  fi
+  if ! printf '%s' "$out" | jq -e 'type == "array"' >/dev/null 2>&1; then
+    ui_err "E021: Drive listing returned invalid JSON"
+    log_error "$out"
     return 2
   fi
   printf '%s' "$out"
