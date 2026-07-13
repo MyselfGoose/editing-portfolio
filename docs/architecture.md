@@ -127,13 +127,17 @@ There is no CMS, API, or database. To update content, edit the TypeScript files 
 ### Video Pipeline
 
 ```
-Mux Dashboard (upload master)
-  → Playback ID (public alphanumeric string)
-    → projects.ts (playbackId field)
-      → mux.ts (URL builders)
-        → Mux CDN (image.mux.com, stream.mux.com)
-          → Browser (poster img, animated WebP, HLS player)
+Google Drive (masters folder)
+  → scripts/ingest/ingest.sh (local CLI)
+    → Mux Direct Upload
+      → Playback ID
+        → projects.ts (playbackId field)
+          → mux.ts (URL builders)
+            → Mux CDN (image.mux.com, stream.mux.com)
+              → Browser (poster img, animated WebP, HLS player)
 ```
+
+Manual dashboard upload remains supported — see [Video Ingest](video-ingest.md).
 
 - **Poster frames** — `image.mux.com/{id}/thumbnail.webp?time=N&width=W`
 - **Hover previews** — `image.mux.com/{id}/animated.webp?start=N&end=N&width=W`

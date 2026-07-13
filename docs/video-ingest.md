@@ -4,12 +4,35 @@ This project delivers video through [Mux](https://www.mux.com/). Masters are upl
 
 **Last verified against:** Next.js 16.2.9
 
-## Prerequisites
+## Primary workflow: ingest CLI
 
-1. Create a Mux account at [dashboard.mux.com](https://dashboard.mux.com).
-2. No API keys are required for **public playback** on the website. Keys are only needed if you later add scripted uploads.
+Use the Bash ingest tool in [`scripts/ingest/`](../scripts/ingest/):
 
-## Upload a New Piece
+```bash
+cd scripts/ingest
+cp config.example.env config.env   # first time only
+chmod 600 config.env
+./ingest.sh doctor                 # verify setup
+./ingest.sh ingest --all-new       # Drive → Mux → playback IDs
+./ingest.sh map                    # generate projects.ts snippets
+```
+
+Full guide: **[scripts/ingest/README.md](../scripts/ingest/README.md)**
+
+The CLI:
+
+1. Scans a configured Google Drive folder (via rclone)
+2. Downloads selected masters to local temp storage
+3. Uploads to Mux via Direct Upload API
+4. Polls until assets are **ready**
+5. Writes playback IDs and metadata to `output/ingest-output.json`
+6. Optionally patches `projects.ts` (guarded, with diff preview)
+
+**Filename convention:** `carezza-leanne.mp4` → project id `carezza-leanne`.
+
+## Manual fallback: Mux dashboard
+
+If you prefer not to use the CLI:
 
 1. Sign in at [dashboard.mux.com](https://dashboard.mux.com) and select your environment.
 2. Go to **Video → Assets → Upload**.
@@ -32,7 +55,7 @@ video: {
 
 ## Recommended Encoding Settings
 
-When uploading (or in asset settings):
+When uploading (CLI defaults or dashboard):
 
 | Setting | Value |
 |---------|-------|
@@ -44,7 +67,7 @@ When uploading (or in asset settings):
 
 ## Choosing `posterTime` and `previewRange`
 
-- **`posterTime`**: Pick a frame that reads well as a still (strong composition, no motion blur).
+- **`posterTime`**: Pick a frame that reads well as a still (strong composition, no motion blur). The ingest CLI suggests a default at 25% duration; override in `ingest-manifest.json` if needed.
 - **`previewRange`**: Bracket 3–4 seconds of motion for the hover preview. The site uses Mux's `animated.webp` endpoint — it does not count as a play in Mux Data.
 
 Preview URLs are built in [`frontend/src/lib/mux.ts`](../frontend/src/lib/mux.ts).
@@ -66,7 +89,7 @@ Add VTT tracks when available:
 ```typescript
 captions: [
   {
-    src: "https://example.com/captions.vtt",
+    src: "/captions/carezza-leanne.en.vtt",
     srcLang: "en",
     label: "English",
     default: true,
@@ -74,7 +97,7 @@ captions: [
 ],
 ```
 
-Mux Player renders them in the fullscreen modal.
+Mux Player renders them in the fullscreen modal. Caption upload via the ingest CLI is planned as a future enhancement.
 
 ## Analytics
 
@@ -92,7 +115,7 @@ For ~10 pieces × 5 min, ~2000 modal plays/month: **~$6–10/month** ongoing.
 
 ## Master File Backup (Recommended)
 
-Mux retains masters internally, but keep your own copies (e.g. Cloudflare R2, Backblaze B2) if you may re-transcode or hand files to clients later.
+Mux retains masters internally, but keep your own copies (e.g. Google Drive ingest folder, Cloudflare R2, Backblaze B2) if you may re-transcode or hand files to clients later.
 
 ## URL Builders
 
@@ -106,12 +129,9 @@ The site constructs Mux URLs in `frontend/src/lib/mux.ts`:
 
 All functions validate and clamp option values (time, width, start/end bounds).
 
-## Future: Scripted Uploads
-
-A scripted uploader (`scripts/ingest.ts` with `@mux/mux-node`) can automate Direct Uploads when dashboard drag-and-drop becomes tedious. Not required for the first 10 pieces.
-
 ## Related Documentation
 
+- [scripts/ingest/README.md](../scripts/ingest/README.md) — CLI setup and daily usage
 - [Content Management](content-management.md) — Project schema and placeholder convention
 - [Architecture](architecture.md) — Video pipeline and data flow
 - [Troubleshooting](troubleshooting.md) — Video playback issues

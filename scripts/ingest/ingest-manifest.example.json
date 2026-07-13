@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "driveFileId": "1abcXYZ",
+      "filename": "carezza-leanne.mp4",
+      "projectId": "carezza-leanne",
+      "skip": false,
+      "video": {
+        "aspectRatio": "16/9",
+        "posterTime": 8,
+        "previewRange": { "start": 4, "end": 8 }
+      },
+      "notes": "Overrides filename-derived slug and ffprobe poster defaults"
+    }
+  ]
+}

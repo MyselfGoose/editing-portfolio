@@ -1,0 +1,20 @@
+[
+  {
+    "ID": "mock_file_carezza",
+    "Name": "carezza-leanne.mp4",
+    "Size": 104857600,
+    "ModTime": "2026-07-10T14:22:00.000000000Z"
+  },
+  {
+    "ID": "mock_file_new",
+    "Name": "new-wedding.mp4",
+    "Size": 209715200,
+    "ModTime": "2026-07-13T10:00:00.000000000Z"
+  },
+  {
+    "ID": "mock_file_draft",
+    "Name": "draft-rough-cut.mp4",
+    "Size": 50000000,
+    "ModTime": "2026-07-12T08:00:00.000000000Z"
+  }
+]

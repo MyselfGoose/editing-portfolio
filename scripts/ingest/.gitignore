@@ -1,0 +1,7 @@
+# Secrets and local runtime state — never commit
+config.env
+state/
+tmp/
+logs/
+output/
+ingest-manifest.json

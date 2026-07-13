@@ -29,6 +29,7 @@ Full documentation lives in the [`docs/`](docs/) folder:
 | [Project Structure](docs/project-structure.md) | Directory map and file purposes |
 | [Content Management](docs/content-management.md) | Editing projects, brand, and placeholders |
 | [Video Ingest](docs/video-ingest.md) | Mux upload workflow and playback IDs |
+| [Ingest CLI](scripts/ingest/README.md) | Drive → Mux automated ingest tool |
 | [Experience](docs/experience.md) | Loader, cursor, smooth scroll, transitions |
 | [Accessibility](docs/accessibility.md) | Reduced motion, focus, keyboard patterns |
 | [Testing](docs/testing.md) | Unit, component, and e2e test guide |
@@ -52,6 +53,8 @@ Full documentation lives in the [`docs/`](docs/) folder:
 ```
 portfolio/
 ├── docs/           # Documentation (you are here for the app README)
+├── scripts/
+│   └── ingest/     # Drive → Mux ingest CLI (Bash)
 ├── frontend/       # Next.js application
 │   ├── src/        # Source code
 │   ├── e2e/        # Playwright end-to-end tests
@@ -60,6 +63,17 @@ portfolio/
 ```
 
 The deployable application lives in [`frontend/`](frontend/). All npm commands run from that directory.
+
+### Video ingest (local)
+
+Upload masters from Google Drive to Mux and get playback IDs for `projects.ts`:
+
+```bash
+./scripts/ingest/ingest.sh doctor
+./scripts/ingest/ingest.sh ingest --all-new
+```
+
+See [scripts/ingest/README.md](scripts/ingest/README.md) for full setup.
 
 ## Scripts
 

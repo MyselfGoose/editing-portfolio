@@ -104,8 +104,8 @@ Current placeholder/stub tracks are stored for all four projects so caption file
 
 ### Adding a New Project
 
-1. Upload the video to Mux (see [Video Ingest](video-ingest.md))
-2. Add a new entry to the `projects` array
+1. Upload the video via the [ingest CLI](../scripts/ingest/README.md) (or manually to Mux — see [Video Ingest](video-ingest.md))
+2. Add a new entry to the `projects` array (or use `ingest.sh apply` for video fields on existing entries)
 3. Run `npm run check` and deploy
 
 ### Placeholder Convention

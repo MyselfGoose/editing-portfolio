@@ -1,0 +1,12 @@
+{
+  "data": {
+    "id": "asset_mock456",
+    "status": "ready",
+    "playback_ids": [
+      {
+        "id": "mockPlaybackId123456789012345678901234",
+        "policy": "public"
+      }
+    ]
+  }
+}

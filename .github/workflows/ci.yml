@@ -83,3 +83,14 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 7
+
+  ingest-smoke:
+    name: Ingest CLI Smoke
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: scripts/ingest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y jq curl
+      - run: bash test/run-smoke.sh
