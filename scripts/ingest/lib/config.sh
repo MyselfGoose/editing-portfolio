@@ -153,3 +153,15 @@ config_ensure_dirs() {
   mkdir -p "$(config_resolve_path LOG_DIR)"
   mkdir -p "$(config_resolve_path OUTPUT_DIR)"
 }
+
+config_is_complete() {
+  local cfg="${INGEST_CONFIG_FILE:-${INGEST_ROOT}/config.env}"
+  [[ -f "$cfg" ]] || return 1
+  config_load || return 1
+  [[ -n "${MUX_TOKEN_ID}" && "${MUX_TOKEN_ID}" != "your_token_id" ]] || return 1
+  [[ -n "${MUX_TOKEN_SECRET}" && "${MUX_TOKEN_SECRET}" != "your_token_secret" ]] || return 1
+  [[ -n "${RCLONE_FOLDER}" || -n "${DRIVE_FOLDER_ID}" ]] || return 1
+  command -v rclone >/dev/null 2>&1 || return 1
+  rclone listremotes 2>/dev/null | grep -q "^${RCLONE_REMOTE:-gdrive}:$" || return 1
+  return 0
+}

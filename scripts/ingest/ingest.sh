@@ -27,6 +27,7 @@ DOCTOR_FIX=0
 source "${INGEST_ROOT}/lib/ui.sh"
 source "${INGEST_ROOT}/lib/config.sh"
 source "${INGEST_ROOT}/lib/log.sh"
+source "${INGEST_ROOT}/lib/deps.sh"
 source "${INGEST_ROOT}/lib/state.sh"
 source "${INGEST_ROOT}/lib/projects.sh"
 source "${INGEST_ROOT}/lib/probe.sh"
@@ -88,6 +89,12 @@ ingest_load_runtime() {
 cmd_doctor() {
   ingest_parse_globals "$@"
   doctor_run
+}
+
+cmd_setup() {
+  ingest_parse_globals "$@"
+  DOCTOR_FIX=1
+  setup_run
 }
 
 cmd_scan() {
@@ -247,37 +254,39 @@ menu_interactive() {
       ui_warn "Status: Not configured"
     fi
     printf '\n'
-    printf '  1) Setup / Doctor\n'
-    printf '  2) Scan Drive folder\n'
-    printf '  3) Ingest videos\n'
-    printf '  4) Check progress\n'
-    printf '  5) Retry failed\n'
-    printf '  6) Map to projects\n'
-    printf '  7) Apply to projects.ts (guarded)\n'
-    printf '  8) Configure\n'
-    printf '  9) Logs & troubleshooting\n'
+    printf '  1) First-time setup (automated)\n'
+    printf '  2) Setup / Doctor (check only)\n'
+    printf '  3) Scan Drive folder\n'
+    printf '  4) Ingest videos\n'
+    printf '  5) Check progress\n'
+    printf '  6) Retry failed\n'
+    printf '  7) Map to projects\n'
+    printf '  8) Apply to projects.ts (guarded)\n'
+    printf '  9) Configure\n'
+    printf ' 10) Logs & troubleshooting\n'
     printf '  0) Exit\n'
     printf '\n'
     local choice
     choice="$(ui_prompt "Select" "")"
     case "$choice" in
-      1) doctor_run || true ;;
-      2)
-        config_load || { ui_err "Configure first"; continue; }
+      1) setup_run || true ;;
+      2) doctor_run || true ;;
+      3)
+        config_load || { ui_err "Run setup first (option 1)"; continue; }
         config_validate || continue
         cmd_scan
         ;;
-      3)
-        config_load || { ui_err "Configure first"; continue; }
+      4)
+        config_load || { ui_err "Run setup first (option 1)"; continue; }
         config_validate || continue
         menu_ingest_flow
         ;;
-      4) pipeline_status ;;
-      5) pipeline_retry_failed || true ;;
-      6) projects_map_ready ;;
-      7) projects_apply "" ;;
-      8) cmd_configure ;;
-      9)
+      5) pipeline_status ;;
+      6) pipeline_retry_failed || true ;;
+      7) projects_map_ready ;;
+      8) projects_apply "" ;;
+      9) cmd_configure ;;
+      10)
         cmd_logs
         doctor_show_errors_help
         ;;
@@ -297,6 +306,7 @@ main() {
     ""|menu) menu_interactive ;;
     help|--help|-h) ingest_usage ;;
     doctor) cmd_doctor "$@" ;;
+    setup) cmd_setup "$@" ;;
     scan) cmd_scan "$@" ;;
     ingest) cmd_ingest "$@" ;;
     status) cmd_status "$@" ;;

@@ -108,6 +108,19 @@ ui_prompt() {
   printf '%s' "$ans"
 }
 
+ui_prompt_secret() {
+  local prompt="$1"
+  if [[ ! -t 0 ]]; then
+    printf ''
+    return 0
+  fi
+  printf '%s: ' "$prompt"
+  local ans=""
+  read -rs ans
+  printf '\n' >&2
+  printf '%s' "$ans"
+}
+
 ui_spinner_start() {
   INGEST_SPINNER_PID=""
   if [[ ! -t 1 || "${INGEST_QUIET:-0}" == "1" ]]; then return 0; fi
@@ -166,6 +179,7 @@ USAGE:
 
 COMMANDS:
   (none)          Interactive main menu
+  setup           Automated first-time setup (install deps + configure)
   doctor          Check prerequisites and configuration
   scan            List videos in configured Drive folder
   ingest          Download and upload videos to Mux
@@ -196,6 +210,7 @@ GLOBAL OPTIONS:
   --help          Show this help
 
 EXAMPLES:
+  ./scripts/ingest/ingest.sh setup
   ./scripts/ingest/ingest.sh doctor
   ./scripts/ingest/ingest.sh scan
   ./scripts/ingest/ingest.sh ingest --all-new --dry-run

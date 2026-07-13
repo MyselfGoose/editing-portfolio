@@ -29,40 +29,32 @@ The site streams video from Mux (HLS, poster stills, hover previews). This tool 
 
 ## One-time setup
 
-### 1. Mux API keys
-
-1. Sign in at [dashboard.mux.com](https://dashboard.mux.com)
-2. Go to **Settings → API Access Tokens**
-3. Create a token with **Mux Video** read/write (no system access needed)
-4. Copy **Token ID** and **Token Secret**
-
-### 2. Google Drive folder
-
-1. Create or choose a folder for video masters (e.g. `Portfolio/Masters`)
-2. Share it with the Google account you'll use for rclone (Editor or Viewer is fine for read-only ingest)
-
-### 3. rclone
+**Automated (recommended):**
 
 ```bash
-# Install (Linux)
-sudo apt install rclone
-
-# Install (macOS)
-brew install rclone
-
-# Configure — name the remote "gdrive" (or match RCLONE_REMOTE in config)
-rclone config
+cd scripts/ingest
+./ingest.sh setup
 ```
 
-Walkthrough: [rclone Google Drive docs](https://rclone.org/drive/). Use **read-only** scope (`drive.readonly`) if possible.
+The setup wizard will:
 
-### 4. Ingest config
+1. **Detect your OS** (Arch/CachyOS, Debian/Ubuntu, Fedora, macOS, …)
+2. **Install missing tools** via your package manager (`pacman`, `apt`, `brew`, …) — including `rclone`, `jq`, and `ffmpeg`
+3. **Create `config.env`** with secure permissions
+4. **Prompt for Mux API keys** (the only secrets you need to paste)
+5. **Launch `rclone config`** for Google OAuth (browser sign-in)
+6. **Set your Drive folder path** and verify access
+
+Human input is only required for: sudo password (if needed), Mux tokens, Google OAuth, and Drive folder path.
+
+**Manual alternative:**
 
 ```bash
 cd scripts/ingest
 cp config.example.env config.env
 chmod 600 config.env
 # Edit MUX_TOKEN_ID, MUX_TOKEN_SECRET, RCLONE_FOLDER
+rclone config
 ./ingest.sh doctor
 ```
 
