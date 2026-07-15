@@ -103,7 +103,7 @@ cd frontend && npm run check
 | Mode | How |
 |------|-----|
 | Scan + pick | Interactive ingest → pick by number |
-| New only | Default `--all-new`; skips unchanged `ready` jobs |
+| New only | Default `--all-new`; skips Drive files already marked `ready` in state, **and** projects that already have a real Mux `playbackId` in `projects.ts` (filename slugs map to existing ids when possible, e.g. `meghan-and-edward-highlights-rev` → `meghan-and-edward`). Use `--force` to re-upload. |
 | Manifest | `ingest-manifest.json` maps files → project IDs |
 | Filename → slug | `carezza-leanne.mp4` → `carezza-leanne` |
 | Exclusions | `EXCLUDE_GLOBS` in config (`draft-*`, `_*`, etc.) |

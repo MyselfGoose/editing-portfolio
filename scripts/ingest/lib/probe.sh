@@ -38,13 +38,14 @@ probe_aspect_ratio() {
 
 probe_file() {
   local file_path="$1"
-  local manifest_overrides="${2:-{}}"
+  local manifest_overrides="${2-}"
+  if [[ -z "$manifest_overrides" ]]; then
+    manifest_overrides='{}'
+  fi
 
   if [[ "${INGEST_DRY_RUN:-0}" == "1" ]]; then
     jq -nc \
       --argjson overrides "$manifest_overrides" \
-      --argjson poster_pct "${DEFAULT_POSTER_PERCENT}" \
-      --argjson preview_sec "${DEFAULT_PREVIEW_SECONDS}" \
       '{
         durationSeconds: 252,
         durationFormatted: "04:12",

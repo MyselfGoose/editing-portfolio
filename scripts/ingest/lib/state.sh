@@ -203,7 +203,7 @@ state_mark_failed() {
     --arg status "failed" \
     --arg errorCode "$code" \
     --arg errorMessage "$message" \
-    '{status: $status, errorCode: $errorCode, errorMessage: $errorMessage}')"
+    '{status: $status, errorCode: $errorCode, errorMessage: $errorMessage}')" >/dev/null
 }
 
 state_mark_skipped() {
@@ -213,7 +213,7 @@ state_mark_skipped() {
     --arg status "skipped" \
     --arg errorMessage "$reason" \
     --arg completedAt "$(state_now)" \
-    '{status: $status, errorMessage: $errorMessage, completedAt: $completedAt}')"
+    '{status: $status, errorMessage: $errorMessage, completedAt: $completedAt}')" >/dev/null
 }
 
 state_export_json() {

@@ -12,6 +12,67 @@ projects_id_exists() {
   grep -qE "id:[[:space:]]*\"${id}\"" "$path" 2>/dev/null
 }
 
+# Returns playbackId string for a project, or empty if not found.
+projects_get_playback_id() {
+  local id="$1"
+  local path
+  path="$(projects_ts_path)"
+  awk -v pid="$id" '
+    BEGIN { in_project=0; in_video=0 }
+    /id:[[:space:]]*"/ {
+      line = $0
+      sub(/.*id:[[:space:]]*"/, "", line)
+      sub(/".*/, "", line)
+      if (line == pid) { in_project=1; next }
+      else if (in_project) { in_project=0; in_video=0 }
+    }
+    in_project && /video:[[:space:]]*\{/ { in_video=1; next }
+    in_video && /playbackId:[[:space:]]*"/ {
+      line = $0
+      sub(/.*playbackId:[[:space:]]*"/, "", line)
+      sub(/".*/, "", line)
+      print line
+      exit
+    }
+    in_video && /^[[:space:]]*\},/ { in_video=0 }
+  ' "$path" 2>/dev/null
+}
+
+# True when project exists in projects.ts with a non-placeholder Mux ID.
+projects_has_real_playback() {
+  local id="$1"
+  local playback
+  playback="$(projects_get_playback_id "$id")"
+  [[ -z "$playback" ]] && return 1
+  [[ "$playback" =~ ^\[.+\]$ ]] && return 1
+  [[ ${#playback} -lt 8 ]] && return 1
+  return 0
+}
+
+# Map a filename-derived slug to the best existing project id when possible
+# (exact match, or longest existing id that is a prefix — e.g. meghan-and-edward ← meghan-and-edward-highlights-rev).
+projects_resolve_slug() {
+  local slug="$1"
+  if projects_id_exists "$slug"; then
+    printf '%s' "$slug"
+    return 0
+  fi
+  local best="" id
+  while IFS= read -r id; do
+    [[ -z "$id" ]] && continue
+    if [[ "$slug" == "$id"-* || "$slug" == "$id" ]]; then
+      if [[ ${#id} -gt ${#best} ]]; then
+        best="$id"
+      fi
+    fi
+  done < <(projects_list_ids)
+  if [[ -n "$best" ]]; then
+    printf '%s' "$best"
+  else
+    printf '%s' "$slug"
+  fi
+}
+
 projects_list_ids() {
   local path
   path="$(projects_ts_path)"

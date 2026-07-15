@@ -110,11 +110,17 @@ pipeline_process_one() {
   modified="$(printf '%s' "$row" | jq -r '.driveModifiedTime')"
   size="$(printf '%s' "$row" | jq -r '.driveSizeBytes')"
   project_id="$(printf '%s' "$row" | jq -r '.projectId')"
+  project_id="$(projects_resolve_slug "$project_id")"
 
   ui_section "Processing: $drive_name → $project_id"
 
+  if [[ "${INGEST_FORCE:-0}" != "1" ]] && projects_has_real_playback "$project_id"; then
+    ui_ok "Skip: $project_id already has a Mux playbackId in projects.ts"
+    return 0
+  fi
+
   if state_should_skip "$drive_id" "$modified"; then
-    ui_dim "Skipping (already ingested): $drive_name"
+    ui_ok "Skip: $drive_name (unchanged since last successful ingest)"
     return 0
   fi
 
@@ -135,34 +141,35 @@ pipeline_process_one() {
   local_path="${tmp_dir}/${project_id}--${drive_id}.${drive_name##*.}"
   state_update_field "$drive_id" "$(jq -nc --arg p "$local_path" --arg s "downloading" '{status:$s, localPath:$p}')" >/dev/null
 
+  log_info "Downloading from Drive..."
   if ! drive_download "$drive_name" "$local_path"; then
     state_mark_failed "$drive_id" "E030" "Download failed"
     return 3
   fi
+  log_info "Download complete — probing video..."
 
   local manifest_overrides
-  manifest_overrides="$(probe_manifest_video_overrides "$drive_id" "$drive_name")"
+  manifest_overrides="$(probe_manifest_video_overrides "$drive_id" "$drive_name" 2>/dev/null || echo '{}')"
+  [[ -z "$manifest_overrides" || "$manifest_overrides" == "null" ]] && manifest_overrides='{}'
+
   local metadata
-  metadata="$(probe_file "$local_path" "$manifest_overrides")"
-  metadata="$(printf '%s' "$metadata" | jq -c . 2>/dev/null || echo '{"durationFormatted":"00:00","aspectRatio":"16/9","posterTime":0,"previewRange":{"start":0,"end":4}}')"
+  metadata="$(probe_file "$local_path" "$manifest_overrides" 2>/dev/null | jq -c . 2>/dev/null || true)"
+  if [[ -z "$metadata" ]]; then
+    metadata='{"durationSeconds":0,"durationFormatted":"00:00","width":1920,"height":1080,"aspectRatio":"16/9","posterTime":0,"previewRange":{"start":0,"end":4}}'
+  fi
+  log_info "Probe OK ($(printf '%s' "$metadata" | jq -r '.durationFormatted // "?"') / $(printf '%s' "$metadata" | jq -r '.aspectRatio // "?"')) — creating Mux upload..."
 
   local upload_patch
-  upload_patch="$(jq -nc \
-    --arg m "$metadata" \
-    --arg sz "${size:-0}" \
-    '{metadata: ($m|fromjson), downloadBytes: ($sz|tonumber), status:"uploading"}')"
-  state_update_field "$drive_id" "$upload_patch" >/dev/null
+  if ! upload_patch="$(jq -nc \
+    --argjson m "$metadata" \
+    --argjson sz "${size:-0}" \
+    '{metadata:$m, downloadBytes:$sz, status:"uploading"}')"; then
+    upload_patch="$(jq -nc --argjson sz "${size:-0}" '{metadata:{"durationFormatted":"00:00","aspectRatio":"16/9","posterTime":0,"previewRange":{"start":0,"end":4}}, downloadBytes:$sz, status:"uploading"}')"
+  fi
+  state_update_field "$drive_id" "$upload_patch" >/dev/null || true
 
-  local upload_resp upload_id upload_url
-  upload_resp="$(mux_create_upload)" || {
-    state_mark_failed "$drive_id" "E040" "Mux upload create failed"
-    return 4
-  }
-  upload_id="$(printf '%s' "$upload_resp" | jq -r '.data.id')"
-  upload_url="$(printf '%s' "$upload_resp" | jq -r '.data.url')"
-  state_update_field "$drive_id" "$(jq -nc --arg u "$upload_id" '{muxUploadId:$u}')" >/dev/null
-
-  if ! mux_put_file "$upload_url" "$local_path"; then
+  local upload_id
+  if ! upload_id="$(mux_upload_file_with_retries "$local_path" "$drive_id")"; then
     state_mark_failed "$drive_id" "E041" "Mux PUT upload failed"
     return 4
   fi
@@ -202,18 +209,23 @@ pipeline_run() {
   fi
 
   local failures=0
+  local completed='[]'
   while IFS= read -r row; do
-  [[ -z "$row" ]] && continue
-    pipeline_process_one "$row" || failures=$((failures + 1))
+    [[ -z "$row" ]] && continue
+    if pipeline_process_one "$row"; then
+      local drive_id ready_job
+      drive_id="$(printf '%s' "$row" | jq -r '.driveFileId')"
+      ready_job="$(state_get_by_drive_id "$drive_id" 2>/dev/null || true)"
+      if [[ -n "$ready_job" && "$ready_job" != "null" ]]; then
+        completed="$(printf '%s' "$completed" | jq --argjson j "$ready_job" '. + [$j]')"
+      fi
+    else
+      failures=$((failures + 1))
+    fi
   done < <(printf '%s' "$queue" | jq -c '.[]')
 
-  local ready_jobs='[]'
-  while IFS= read -r job; do
-    ready_jobs="$(printf '%s' "$ready_jobs" | jq --argjson j "$job" '. + [$j]')"
-  done < <(state_list_by_status "ready")
-
-  if [[ "$(printf '%s' "$ready_jobs" | jq 'length')" -gt 0 ]]; then
-    projects_write_output "$ready_jobs"
+  if [[ "$(printf '%s' "$completed" | jq 'length')" -gt 0 ]]; then
+    projects_write_output "$completed"
   fi
 
   if [[ "$failures" -gt 0 ]]; then

@@ -14,7 +14,7 @@ while [[ $# -gt 0 ]]; do
     -H) shift 2 ;;
     -d) shift 2 ;;
     --upload-file) upload_file="$2"; shift 2 ;;
-    --retry|--retry-delay) shift 2 ;;
+    --retry|--retry-delay|--connect-timeout) shift 2 ;;
     http*) url="$1"; shift ;;
     *) shift ;;
   esac

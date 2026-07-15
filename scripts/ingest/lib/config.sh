@@ -146,6 +146,7 @@ config_load() {
   : "${MIN_FREE_DISK_GB:=10}"
   : "${MUX_POLL_INTERVAL_SEC:=5}"
   : "${MUX_POLL_MAX_WAIT_SEC:=7200}"
+  : "${MUX_UPLOAD_RETRIES:=3}"
   : "${CONFIRM_BATCH_GB:=20}"
   : "${CORS_ORIGIN:=*}"
 

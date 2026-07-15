@@ -111,11 +111,11 @@ drive_scan() {
   local raw
   raw="$(drive_list_json)" || return $?
   if [[ -z "$raw" || "$raw" == "[]" ]]; then
-  if [[ "${INGEST_JSON:-0}" == "1" ]]; then
-    printf '[]'
-  else
-    ui_warn "No files found in configured Drive folder."
-  fi
+    if [[ "${INGEST_JSON:-0}" == "1" ]]; then
+      printf '[]'
+    else
+      ui_warn "No files found in configured Drive folder."
+    fi
     return 0
   fi
 
@@ -163,9 +163,14 @@ drive_scan() {
     if [[ -z "${slug:-}" ]]; then
       slug="$(drive_slug_from_filename "$name")"
     fi
+    # Map filename slug → existing project (e.g. meghan-and-edward-highlights-rev → meghan-and-edward)
+    slug="$(projects_resolve_slug "$slug")"
 
     if [[ "$status" != "excluded" ]]; then
-      if state_should_skip "$id" "$mod"; then
+      if [[ "${INGEST_FORCE:-0}" != "1" ]] && projects_has_real_playback "$slug"; then
+        status="ingested"
+        skip_reason="already in projects.ts (Mux playbackId present)"
+      elif state_should_skip "$id" "$mod"; then
         status="ingested"
         skip_reason="already ingested (unchanged)"
       fi
@@ -224,10 +229,8 @@ drive_download() {
   fi
 
   mkdir -p "$(dirname "$local_path")"
-  local remote
-  remote="$(drive_remote_spec)" || return 1
 
-  local src="${remote%/}"
+  local src
   if [[ -n "${RCLONE_FOLDER}" && -z "${DRIVE_FOLDER_ID}" ]]; then
     src="${RCLONE_REMOTE}:${RCLONE_FOLDER}/${remote_path}"
   else
@@ -235,17 +238,21 @@ drive_download() {
   fi
 
   log_info "Downloading $remote_path..."
+  local err_file
+  err_file="$(mktemp)"
+  local args=(copyto "$src" "$local_path" --retries 3 --low-level-retries 10)
   if [[ -t 1 && "${INGEST_QUIET:-0}" != "1" ]]; then
-  if ! "$rclone" copyto "$src" "$local_path" --progress --partial-links --retries 3 --low-level-retries 10; then
-      ui_err "E030: Download failed for $remote_path"
-      return 3
-    fi
-  else
-    if ! "$rclone" copyto "$src" "$local_path" --partial-links --retries 3 --low-level-retries 10; then
-      ui_err "E030: Download failed for $remote_path"
-      return 3
-    fi
+    args+=(--progress)
   fi
+
+  if ! "$rclone" "${args[@]}" 2>"$err_file"; then
+    local err
+    err="$(head -n 5 "$err_file" | tr '\n' ' ')"
+    rm -f "$err_file"
+    ui_err "E030: Download failed for $remote_path — ${err}"
+    return 3
+  fi
+  rm -f "$err_file"
 
   if [[ ! -f "$local_path" ]]; then
     ui_err "E031: Download incomplete — file missing at $local_path"

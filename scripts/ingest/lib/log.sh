@@ -34,15 +34,16 @@ log_write() {
   if [[ "${INGEST_QUIET:-0}" == "1" && "$level" != "ERROR" ]]; then
     return 0
   fi
-  if [[ "${INGEST_VERBOSE:-0}" == "1" || "$level" == "ERROR" || "$level" == "WARN" || "$level" == "INFO" ]]; then
-    if [[ "$level" == "ERROR" ]]; then
-      ui_err "$msg"
-    elif [[ "$level" == "WARN" ]]; then
-      ui_warn "$msg"
-    elif [[ "${INGEST_VERBOSE:-0}" == "1" ]]; then
-      ui_dim "[$level] $msg"
-    fi
-  fi
+  case "$level" in
+    ERROR) ui_err "$msg" ;;
+    WARN) ui_warn "$msg" ;;
+    INFO) printf '  → %s\n' "$msg" >&2 ;;
+    *)
+      if [[ "${INGEST_VERBOSE:-0}" == "1" ]]; then
+        ui_dim "[$level] $msg"
+      fi
+      ;;
+  esac
 }
 
 log_info() { log_write "INFO" "$@"; }
