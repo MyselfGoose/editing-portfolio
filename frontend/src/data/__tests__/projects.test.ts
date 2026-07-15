@@ -1,13 +1,26 @@
 import { describe, expect, it } from "vitest";
 
-import { projects, type ProjectVideo } from "@/data/projects";
+import {
+  projects,
+  featuredProjects,
+  FEATURED_PROJECT_IDS,
+  type ProjectVideo,
+} from "@/data/projects";
 import { isRealPlaybackId, type VideoAspectRatio } from "@/lib/mux";
 
 const VALID_ASPECT_RATIOS: ReadonlyArray<VideoAspectRatio> = ["16/9", "9/16", "4/3"];
 
 describe("projects data contract", () => {
+  it("has ten total projects", () => {
+    expect(projects.length).toBe(10);
+  });
+
   it("has four featured projects", () => {
-    expect(projects.length).toBe(4);
+    expect(featuredProjects.length).toBe(4);
+    expect(FEATURED_PROJECT_IDS.length).toBe(4);
+    for (const fp of featuredProjects) {
+      expect(FEATURED_PROJECT_IDS).toContain(fp.id);
+    }
   });
 
   it("has unique project IDs", () => {

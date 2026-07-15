@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ProjectModal } from "@/components/projects/ProjectModal";
 import { FeaturedWork } from "@/components/sections/FeaturedWork";
-import { projects } from "@/data/projects";
+import { featuredProjects } from "@/data/projects";
 import { mockMatchMediaForQuery } from "@/test-utils/mocks";
 import { renderWithProviders } from "@/test-utils/render";
 
@@ -23,7 +23,7 @@ describe("FeaturedWork", () => {
 
     expect(screen.getByRole("heading", { name: /Here is our best work/i })).toBeInTheDocument();
 
-    for (const project of projects) {
+    for (const project of featuredProjects) {
       expect(screen.getByText(project.title)).toBeInTheDocument();
     }
   });
@@ -38,7 +38,7 @@ describe("FeaturedWork", () => {
 
     renderWithProviders(<FeaturedWork />);
 
-    const firstProject = projects[0];
+    const firstProject = featuredProjects[0];
     const openButton = screen.getByRole("button", {
       name: new RegExp(`Open ${firstProject.title.replace(/[[\]]/g, "\\$&")}`, "i"),
     });

@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 import { SITE } from "@/lib/constants";
 
 /** Stable build-time date — avoids per-request `new Date()` in sitemap. */
-const SITE_LAST_MODIFIED = new Date("2026-07-09T00:00:00.000Z");
+const SITE_LAST_MODIFIED = new Date("2026-07-15T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -12,6 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: SITE_LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 1,
+    },
+    {
+      url: `${SITE.url}/films`,
+      lastModified: SITE_LAST_MODIFIED,
+      changeFrequency: "monthly",
+      priority: 0.9,
     },
     {
       url: `${SITE.url}/contact`,

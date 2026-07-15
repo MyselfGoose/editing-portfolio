@@ -2,7 +2,7 @@
 
 import MuxPlayer from "@mux/mux-player-react";
 import { AnimatePresence, motion } from "motion/react";
-import { X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useExperience } from "@/components/providers/ExperienceProvider";
@@ -16,16 +16,22 @@ import {
   MUX_PLAYER_PRESETS,
   posterUrl,
 } from "@/lib/mux";
+import type { AdjacentFilms } from "@/lib/projects";
 import { pauseMuxPlayer, playMuxPlayer } from "@/lib/video-lifecycle";
+import { cn } from "@/lib/utils";
 
 interface ProjectModalProps {
   project: Project | null;
   onClose: () => void;
+  onNavigate?: (direction: "prev" | "next") => void;
+  adjacentFilms?: AdjacentFilms;
 }
 
 export function ProjectModal({
   project,
   onClose,
+  onNavigate,
+  adjacentFilms,
 }: ProjectModalProps): React.ReactElement {
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -44,6 +50,18 @@ export function ProjectModal({
     onClose();
   }, [onClose]);
 
+  const handlePrev = useCallback((): void => {
+    onNavigate?.("prev");
+  }, [onNavigate]);
+
+  const handleNext = useCallback((): void => {
+    onNavigate?.("next");
+  }, [onNavigate]);
+
+  const hasPrev = adjacentFilms?.prev !== null && adjacentFilms?.prev !== undefined;
+  const hasNext = adjacentFilms?.next !== null && adjacentFilms?.next !== undefined;
+  const canNavigate = onNavigate !== undefined;
+
   useEffect(() => {
     if (!project) {
       setScrollLocked(false);
@@ -60,6 +78,16 @@ export function ProjectModal({
       if (event.key === "Escape") {
         event.preventDefault();
         handleClose();
+        return;
+      }
+      if (canNavigate && event.key === "ArrowLeft" && hasPrev) {
+        event.preventDefault();
+        handlePrev();
+        return;
+      }
+      if (canNavigate && event.key === "ArrowRight" && hasNext) {
+        event.preventDefault();
+        handleNext();
         return;
       }
       if (event.key === "Tab" && dialogRef.current) {
@@ -86,7 +114,7 @@ export function ProjectModal({
       setScrollLocked(false);
       previousFocusRef.current?.focus?.();
     };
-  }, [project, handleClose, setScrollLocked]);
+  }, [project, handleClose, handlePrev, handleNext, hasPrev, hasNext, canNavigate, setScrollLocked]);
 
   useEffect(() => {
     if (!project || !dialogRef.current) return;
@@ -166,15 +194,49 @@ export function ProjectModal({
                   {project.title}
                 </h2>
               </div>
-              <button
-                ref={closeBtnRef}
-                type="button"
-                onClick={handleClose}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors hover:bg-[color:var(--color-elevated)]"
-                aria-label="Close project"
-              >
-                <X size={18} strokeWidth={1.5} />
-              </button>
+              <div className="flex shrink-0 items-center gap-2">
+                {canNavigate ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handlePrev}
+                      disabled={!hasPrev}
+                      className={cn(
+                        "flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors",
+                        hasPrev
+                          ? "hover:bg-[color:var(--color-elevated)]"
+                          : "cursor-not-allowed opacity-30",
+                      )}
+                      aria-label="Previous film"
+                    >
+                      <ChevronLeft size={18} strokeWidth={1.5} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      disabled={!hasNext}
+                      className={cn(
+                        "flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors",
+                        hasNext
+                          ? "hover:bg-[color:var(--color-elevated)]"
+                          : "cursor-not-allowed opacity-30",
+                      )}
+                      aria-label="Next film"
+                    >
+                      <ChevronRight size={18} strokeWidth={1.5} />
+                    </button>
+                  </>
+                ) : null}
+                <button
+                  ref={closeBtnRef}
+                  type="button"
+                  onClick={handleClose}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors hover:bg-[color:var(--color-elevated)]"
+                  aria-label="Close project"
+                >
+                  <X size={18} strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
 
             <div

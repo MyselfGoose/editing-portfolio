@@ -1,6 +1,8 @@
 "use client";
 
+import { ArrowUpRight } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useCallback, useState } from "react";
 
 import { Container } from "@/components/layout/Container";
@@ -8,7 +10,7 @@ import { Section } from "@/components/layout/Section";
 import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { useProjectDeepLink } from "@/hooks/useProjectDeepLink";
-import { projects, type Project } from "@/data/projects";
+import { featuredProjects, type Project } from "@/data/projects";
 
 const ProjectModal = dynamic(
   () => import("@/components/projects/ProjectModal").then((m) => m.ProjectModal),
@@ -37,7 +39,7 @@ export function FeaturedWork(): React.ReactElement {
       <Container>
         <SectionHeader
           label="03 / Selected Work"
-          aside={`${projects.length} chapters`}
+          aside={`${featuredProjects.length} chapters`}
         />
 
         <h2
@@ -48,13 +50,27 @@ export function FeaturedWork(): React.ReactElement {
         </h2>
 
         <div className="mt-8 divide-y divide-[color:var(--color-divider)]">
-          {projects.map((project) => (
+          {featuredProjects.map((project) => (
             <ProjectCard
               key={project.id}
               project={project}
               onOpen={openProject}
             />
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center sm:mt-16">
+          <Link
+            href="/films"
+            className="group inline-flex items-center gap-2 border-b border-[color:var(--color-divider)] pb-3 text-eyebrow text-[color:var(--color-muted)] transition-colors hover:border-[color:var(--color-foreground)] hover:text-[color:var(--color-foreground)]"
+          >
+            <span>View All Films</span>
+            <ArrowUpRight
+              size={14}
+              strokeWidth={1.5}
+              className="transition-transform duration-500 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
+          </Link>
         </div>
 
         <ProjectModal project={activeProject} onClose={closeProject} />
