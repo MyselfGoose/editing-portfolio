@@ -5,7 +5,7 @@ import { FilmsJsonLd } from "@/components/seo/FilmsJsonLd";
 import { BRAND, SITE } from "@/lib/constants";
 
 const DESCRIPTION =
-  "Browse the complete collection of cinematic wedding films, birthday films, and client projects by Goose Productions.";
+  "Browse cinematic wedding and celebration films by Goose Productions.";
 
 export const metadata: Metadata = {
   title: "Films",

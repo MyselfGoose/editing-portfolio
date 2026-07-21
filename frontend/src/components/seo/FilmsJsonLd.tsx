@@ -44,7 +44,7 @@ export function FilmsJsonLd(): React.ReactElement {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: `Films — ${BRAND.name}`,
-    description: `Browse the complete collection of cinematic films by ${BRAND.name}.`,
+    description: `Browse the wedding and celebration film archive by ${BRAND.name}.`,
     numberOfItems: items.length,
     itemListElement: items,
   };

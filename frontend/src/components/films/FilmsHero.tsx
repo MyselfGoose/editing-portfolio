@@ -97,8 +97,8 @@ export function FilmsHero({
               : { duration: 0.9, ease: EASE.expoOut, delay: 0.8 }
           }
         >
-          A curated collection of cinematic stories — weddings, celebrations,
-          and brand narratives crafted with intention.
+          A curated archive of wedding and celebration films — edited for
+          feeling, paced for the day, graded for the screen.
         </motion.p>
 
         <motion.div

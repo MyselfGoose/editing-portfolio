@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
 
-import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
 import { EASE, HEADLINE_LINES } from "@/lib/constants";
@@ -12,23 +11,24 @@ import { HeroAudioToggle } from "./HeroAudioToggle";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { HeroMediaProvider, useHeroMedia } from "./HeroMediaContext";
 
-const TEXT_FADE_OPACITY = 0.1;
+/** Secondary chrome/subcopy opacity when ambient video is unmuted. */
+const SECONDARY_FADE_OPACITY = 0.65;
 
 function HeroContent(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
-  const { isMobile } = useHydrationSafeBreakpoint();
   const { canPlayAmbientVideo } = useCinematicCapabilities();
   const { isMuted } = useHeroMedia();
 
-  const textOpacity = isMuted || !canPlayAmbientVideo ? 1 : TEXT_FADE_OPACITY;
+  const secondaryOpacity =
+    isMuted || !canPlayAmbientVideo ? 1 : SECONDARY_FADE_OPACITY;
   const textTransition = reducedMotion
     ? { duration: 0 }
     : { duration: 0.9, ease: EASE.cinematic };
 
   const headlineEnter = reducedMotion
-    ? { opacity: textOpacity }
+    ? { opacity: 1 }
     : {
-        opacity: textOpacity,
+        opacity: 1,
         y: 0,
         transition: {
           opacity: textTransition,
@@ -44,16 +44,23 @@ function HeroContent(): React.ReactElement {
     >
       <HeroBackdrop />
 
+      {canPlayAmbientVideo ? (
+        <div
+          className="pointer-events-none absolute inset-0 z-[5] bg-[linear-gradient(90deg,rgba(10,10,10,0.55)_0%,rgba(10,10,10,0.15)_45%,transparent_70%),linear-gradient(180deg,transparent_40%,rgba(10,10,10,0.5)_100%)]"
+          aria-hidden="true"
+        />
+      ) : null}
+
       <motion.header
         className="relative z-10 flex items-center justify-between"
-        animate={{ opacity: textOpacity }}
+        animate={{ opacity: secondaryOpacity }}
         transition={textTransition}
       >
         <span className="text-meta uppercase text-[color:var(--color-muted)]">
-          Cinematic Studio / Est. 2019
+          Wedding Cinema / Est. 2019
         </span>
         <span className="text-meta uppercase text-[color:var(--color-muted)]">
-          {isMobile ? "01/04" : "Reel 01 / 04"}
+          Showreel
         </span>
       </motion.header>
 
@@ -81,7 +88,7 @@ function HeroContent(): React.ReactElement {
         <motion.p
           className="max-w-sm text-body-lg text-[color:var(--color-muted)]"
           initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: textOpacity, y: 0 }}
+          animate={{ opacity: secondaryOpacity, y: 0 }}
           transition={
             reducedMotion
               ? textTransition
@@ -91,14 +98,14 @@ function HeroContent(): React.ReactElement {
                 }
           }
         >
-          Here is a collection of all the work we have done over the years
-          working with clients. Keep scrolling to find more.
+          Cinematic wedding films for couples who want the day felt, not just
+          filmed. Selected work from the archive below.
         </motion.p>
 
         <motion.div
           className="flex flex-col items-start gap-2 text-eyebrow text-[color:var(--color-muted)] sm:items-end"
           initial={reducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: textOpacity }}
+          animate={{ opacity: secondaryOpacity }}
           transition={
             reducedMotion
               ? textTransition

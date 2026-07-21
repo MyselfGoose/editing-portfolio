@@ -21,7 +21,7 @@ describe("FeaturedWork", () => {
 
     renderWithProviders(<FeaturedWork />);
 
-    expect(screen.getByRole("heading", { name: /Here is our best work/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Selected films from the wedding archive/i })).toBeInTheDocument();
 
     for (const project of featuredProjects) {
       expect(screen.getByText(project.title)).toBeInTheDocument();

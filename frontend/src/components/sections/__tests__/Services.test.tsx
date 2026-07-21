@@ -6,7 +6,7 @@ import { mockMatchMediaForQuery } from "@/test-utils/mocks";
 import { renderWithProviders } from "@/test-utils/render";
 
 describe("Services", () => {
-  it("smoke renders five service chapters", () => {
+  it("smoke renders four service offerings", () => {
     mockMatchMediaForQuery({
       "(prefers-reduced-motion: reduce)": true,
       "(max-width: 767px)": true,
@@ -18,9 +18,11 @@ describe("Services", () => {
     renderWithProviders(<Services />);
 
     expect(
-      screen.getByRole("heading", { name: /Our Process/i }),
+      screen.getByRole("heading", {
+        name: /Editorial finish for weddings and celebrations/i,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Pre-production.")).toBeInTheDocument();
-    expect(screen.getByText("Refinement.")).toBeInTheDocument();
+    expect(screen.getByText("Wedding Film Edit.")).toBeInTheDocument();
+    expect(screen.getByText("Delivery & Revisions.")).toBeInTheDocument();
   });
 });

@@ -1,14 +1,14 @@
 export const BRAND = {
   name: "Goose Productions",
   short: "Goose",
-  tagline: "Goose Productions Editing Portfolio",
+  tagline: "Wedding films finished as cinema",
   handle: "@gooseproductions",
 } as const;
 
-/** Headline display lines derived from brand tagline. */
+/** Headline display lines — brand primary, positioning secondary. */
 export const HEADLINE_LINES: ReadonlyArray<ReadonlyArray<string>> = [
   ["Goose", "Productions"],
-  ["Editing", "Portfolio"],
+  ["Wedding", "Cinema"],
 ] as const;
 
 /** Canonical production origin — used for metadata, sitemap, and JSON-LD. */

@@ -27,11 +27,11 @@ describe("Hero", () => {
     renderWithProviders(<Hero />);
 
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
-      /Goose.*Portfolio/i,
+      /Goose.*Cinema/i,
     );
   });
 
-  it("shows abbreviated reel counter on mobile", () => {
+  it("shows showreel chrome on mobile", () => {
     mockMatchMediaForQuery({
       "(prefers-reduced-motion: reduce)": true,
       "(max-width: 767px)": true,
@@ -46,6 +46,6 @@ describe("Hero", () => {
     });
 
     renderWithProviders(<Hero />);
-    expect(screen.getByText("01/04")).toBeInTheDocument();
+    expect(screen.getByText("Showreel")).toBeInTheDocument();
   });
 });

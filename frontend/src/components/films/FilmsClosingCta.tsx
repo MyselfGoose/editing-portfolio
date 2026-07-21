@@ -25,11 +25,11 @@ export function FilmsClosingCta(): React.ReactElement {
               Contact
             </p>
             <h2 className="font-display text-headline text-balance">
-              Ready to craft your cinematic story?
+              Ready to begin your wedding film?
             </h2>
             <p className="max-w-lg text-body-lg text-[color:var(--color-muted)]">
-              Every film begins with a conversation. Let us know what you are
-              envisioning.
+              Share a few details about the day and the footage. We will follow
+              up with next steps.
             </p>
           </div>
 

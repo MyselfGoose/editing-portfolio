@@ -49,7 +49,8 @@ describe("DesktopNav", () => {
     mockDesktopBreakpoint();
     renderWithProviders(<DesktopNav />);
     expect(screen.getByRole("link", { name: "Home" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Films" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Privacy" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Privacy" })).not.toBeInTheDocument();
   });
 });

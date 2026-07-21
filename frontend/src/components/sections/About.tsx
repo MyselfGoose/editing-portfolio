@@ -60,7 +60,7 @@ export function About(): React.ReactElement {
               whileInView="visible"
               viewport={{ once: true, margin: "-20% 0px" }}
             >
-              Helping professionals save time by outsourcing
+              Wedding films finished with editorial care
             </motion.h2>
 
             <motion.div
@@ -71,13 +71,13 @@ export function About(): React.ReactElement {
               viewport={{ once: true, margin: "-15% 0px" }}
             >
               <p>
-                At Goose Productions, we work with clients across the globe with
-                their editing needs.
+                Goose Productions finishes wedding and celebration films with
+                the discipline of a picture lock — selects, structure, grade,
+                and sound working as one cut.
               </p>
               <p>
-                We treat color grading, editing and motion as one important
-                craft. With a team of editors, we are more than capable of
-                working with any kind of requirements our clients may have.
+                We pace for feeling, grade for skin and light, and deliver
+                masters ready for the room, the feed, and the archive.
               </p>
             </motion.div>
 
@@ -88,7 +88,7 @@ export function About(): React.ReactElement {
               whileInView="visible"
               viewport={{ once: true }}
             >
-              We work remotely through South Asia
+              Remote post-production · South Asia
             </motion.p>
           </Stack>
         </div>

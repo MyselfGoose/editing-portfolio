@@ -1,7 +1,7 @@
 import { BRAND, CONTACT, SITE, SOCIAL } from "@/lib/constants";
 
 const DESCRIPTION =
-  "Goose Productions editing portfolio for wedding films, birthday films, and client projects.";
+  "Goose Productions finishes cinematic wedding films — editorial selects, structure, grade, and delivery.";
 
 function socialUrls(): string[] {
   return Object.values(SOCIAL).filter(
@@ -25,9 +25,9 @@ export function SiteJsonLd(): React.ReactElement {
     ...(sameAs.length > 0 ? { sameAs } : {}),
     serviceType: [
       "Wedding Films",
+      "Celebration Films",
       "Video Editing",
       "Color Grading",
-      "Motion Design",
     ],
   };
 

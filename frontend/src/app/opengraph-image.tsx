@@ -4,7 +4,7 @@ import sharp from "sharp";
 import { BRAND, MUX_DEMO_VIDEO } from "@/lib/constants";
 import { posterUrl } from "@/lib/mux";
 
-export const alt = `${BRAND.name} — Cinematic Video Studio`;
+export const alt = `${BRAND.name} — Wedding Cinema`;
 export const size = {
   width: 1200,
   height: 630,
@@ -89,7 +89,7 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
               marginBottom: 24,
             }}
           >
-            Cinematic Video Studio
+            Wedding Cinema
           </div>
           <div
             style={{

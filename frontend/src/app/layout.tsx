@@ -31,33 +31,31 @@ const fraunces = Fraunces({
 });
 
 const DESCRIPTION =
-  "Goose Productions editing portfolio for wedding films, birthday films, and client projects.";
+  "Goose Productions finishes cinematic wedding films — editorial selects, structure, grade, and delivery.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${BRAND.name} — Cinematic Video Studio`,
+    default: `${BRAND.name} — Wedding Cinema`,
     template: `%s — ${BRAND.name}`,
   },
   description: DESCRIPTION,
   applicationName: BRAND.name,
   authors: [{ name: BRAND.name, url: SITE.url }],
   keywords: [
-    "video editing",
-    "cinematography",
-    "color grading",
     "wedding films",
-    "documentary",
-    "brand films",
+    "wedding cinema",
+    "video editing",
+    "color grading",
+    "celebration films",
     "Goose Productions",
-    "Southern California",
   ],
   robots: { index: true, follow: true },
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: `${BRAND.name} — Cinematic Video Studio`,
+    title: `${BRAND.name} — Wedding Cinema`,
     description: DESCRIPTION,
     siteName: BRAND.name,
     type: "website",
@@ -66,7 +64,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${BRAND.name} — Cinematic Video Studio`,
+    title: `${BRAND.name} — Wedding Cinema`,
     description: DESCRIPTION,
   },
 };

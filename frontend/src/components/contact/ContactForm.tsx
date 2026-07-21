@@ -221,7 +221,7 @@ export function ContactForm(): React.ReactElement {
             onChange={(event) => onFieldChange("projectType", event.target.value)}
             className={FIELD_CLASS}
             autoComplete="off"
-            placeholder="Wedding film, documentary, brand story..."
+            placeholder="Wedding film, celebration film, color grade..."
           />
         </label>
 

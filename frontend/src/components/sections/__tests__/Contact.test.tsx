@@ -10,7 +10,7 @@ describe("ContactPageContent", () => {
     renderWithProviders(<ContactPageContent />);
 
     expect(
-      screen.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
+      screen.getByRole("heading", { name: /Ready to begin your wedding film/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(CONTACT.ctaLabel)).toBeInTheDocument();
   });

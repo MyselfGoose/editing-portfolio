@@ -25,10 +25,11 @@ export function HomeContactCta(): React.ReactElement {
               05 / Contact
             </p>
             <h2 className="font-display text-headline text-balance">
-              Ready to craft your cinematic story?
+              Ready to begin your wedding film?
             </h2>
             <p className="max-w-lg text-body-lg text-[color:var(--color-muted)]">
-              Start a project with a message, or reach out directly by email.
+              Tell us about the day, the footage, and the timeline. Or email us
+              directly.
             </p>
           </div>
 

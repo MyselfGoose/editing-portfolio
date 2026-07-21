@@ -30,7 +30,7 @@ export function ContactPageContent(): React.ReactElement {
           animate="visible"
           transition={{ duration: 1.1, ease: EASE.expoOut }}
         >
-          Ready to craft your cinematic story?
+          Ready to begin your wedding film?
         </motion.h1>
 
         <motion.p
@@ -40,8 +40,8 @@ export function ContactPageContent(): React.ReactElement {
           animate="visible"
           transition={{ duration: 0.9, ease: EASE.expoOut, delay: 0.05 }}
         >
-          Share a few details about your project and we&apos;ll follow up with
-          next steps. Prefer email? Reach out directly anytime.
+          Share a few details about the day, the footage, and your timeline.
+          Prefer email? Reach out directly anytime.
         </motion.p>
       </header>
 

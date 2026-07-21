@@ -9,37 +9,32 @@ import { useRevealMotion } from "@/hooks/useRevealMotion";
 import { EASE } from "@/lib/constants";
 import { formatIndex } from "@/lib/utils";
 
-interface Chapter {
+interface Offering {
   index: number;
   title: string;
   copy: string;
 }
 
-const CHAPTERS: ReadonlyArray<Chapter> = [
+const OFFERINGS: ReadonlyArray<Offering> = [
   {
     index: 1,
-    title: "Pre-production.",
-    copy: "You tell us what the video needs to achieve. We review the brief, the footage and the deadline so everyone is on the same page before editing starts.",
+    title: "Wedding Film Edit.",
+    copy: "Full post on your wedding day footage — selects through picture lock — paced for emotion and the room it will play in.",
   },
   {
     index: 2,
-    title: "Editing.",
-    copy: "We pull the strongest moments from the footage and build the first cut. Pacing and structure come first so the story reads clearly.",
+    title: "Celebration Films.",
+    copy: "Birthdays, quinces, and milestone films finished with the same editorial standard as the wedding work.",
   },
   {
     index: 3,
-    title: "Color.",
-    copy: "When the edit is locked we work on the grade. Contrast, temperature and mood are adjusted until the footage looks the way it should on every screen.",
+    title: "Color Grade.",
+    copy: "Look development and finishing grade so skin, light, and mood hold across every deliverable.",
   },
   {
     index: 4,
-    title: "Delivery.",
-    copy: "We export the final file for every platform you need. Web, social, presentations or archive. Everything is checked before it is sent to you.",
-  },
-  {
-    index: 5,
-    title: "Refinement.",
-    copy: "Your notes go back into the timeline. We revise until the edit feels right and you are happy to share it.",
+    title: "Delivery & Revisions.",
+    copy: "Platform-ready masters plus a focused revision pass until the cut feels right to share.",
   },
 ];
 
@@ -49,19 +44,19 @@ export function Services(): React.ReactElement {
   return (
     <Section id="services" labelledBy="services-heading" borderTop>
       <Container>
-        <SectionHeader label="04 / Process" aside="How we work" />
+        <SectionHeader label="04 / Services" aside="What we finish" />
 
         <h2
           id="services-heading"
           className="font-display mt-10 text-headline max-w-3xl sm:mt-12"
         >
-          Our Process
+          Editorial finish for weddings and celebrations.
         </h2>
 
         <ol className="mt-16 divide-y divide-[color:var(--color-divider)]">
-          {CHAPTERS.map((chapter) => (
+          {OFFERINGS.map((offering) => (
             <motion.li
-              key={chapter.index}
+              key={offering.index}
               className="grid grid-cols-1 gap-4 py-12 sm:gap-6 sm:py-16 md:grid-cols-12 md:gap-10"
               variants={revealMotion.variants}
               initial={revealMotion.initial}
@@ -71,18 +66,18 @@ export function Services(): React.ReactElement {
             >
               <div className="flex flex-col gap-2 md:col-span-2 md:gap-4">
                 <span className="font-mono text-xs text-[color:var(--color-dim)]">
-                  {formatIndex(chapter.index)}
+                  {formatIndex(offering.index)}
                 </span>
                 <span className="text-eyebrow text-[color:var(--color-muted)]">
-                  Chapter {formatIndex(chapter.index)}
+                  Offering {formatIndex(offering.index)}
                 </span>
               </div>
               <div className="md:col-span-5">
-                <h3 className="font-display text-chapter">{chapter.title}</h3>
+                <h3 className="font-display text-chapter">{offering.title}</h3>
               </div>
               <div className="md:col-span-5 md:pt-4">
                 <p className="max-w-md text-body-lg text-[color:var(--color-muted)]">
-                  {chapter.copy}
+                  {offering.copy}
                 </p>
               </div>
             </motion.li>

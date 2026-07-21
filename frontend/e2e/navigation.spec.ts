@@ -21,7 +21,7 @@ test.describe("Site navigation", () => {
 
     await expect(page).toHaveURL(/\/contact$/);
     await expect(
-      page.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
+      page.getByRole("heading", { name: /Ready to begin your wedding film/i }),
     ).toBeVisible();
   });
 

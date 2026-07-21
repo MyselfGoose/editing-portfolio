@@ -39,14 +39,14 @@ export function FeaturedWork(): React.ReactElement {
       <Container>
         <SectionHeader
           label="03 / Selected Work"
-          aside={`${featuredProjects.length} chapters`}
+          aside={`${featuredProjects.length} films`}
         />
 
         <h2
           id="work-heading"
           className="font-display mt-10 text-headline max-w-3xl sm:mt-12"
         >
-          Here is our best work that we have done.
+          Selected films from the wedding archive.
         </h2>
 
         <div className="mt-8 divide-y divide-[color:var(--color-divider)]">

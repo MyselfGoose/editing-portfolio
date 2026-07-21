@@ -1,10 +1,27 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { PageShell } from "@/components/layout/PageShell";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { BRAND, CONTACT } from "@/lib/constants";
+import { BRAND, CONTACT, SITE } from "@/lib/constants";
 
 const LAST_UPDATED = "2026-07-10";
+
+const DESCRIPTION =
+  "How Goose Productions collects and uses data on this website.";
+
+export const metadata: Metadata = {
+  title: "Privacy",
+  description: DESCRIPTION,
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: `Privacy — ${BRAND.name}`,
+    description: DESCRIPTION,
+    url: `${SITE.url}/privacy`,
+  },
+};
 
 const SECTIONS = [
   {

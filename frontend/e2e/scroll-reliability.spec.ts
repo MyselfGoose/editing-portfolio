@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 const PROCESS_HEADLINES = [
-  "We find the best parts",
-  "The vision and structure are formed",
-  "Bringing out the colors",
-  "The film leaves the timeline.",
+  "We find the strongest moments",
+  "Structure takes shape",
+  "The grade finds the mood",
+  "The film leaves the timeline",
 ] as const;
 
 const PROCESS_STAGE_OFFSETS = [0.5, 1.5, 2.5, 3.5] as const;
@@ -107,7 +107,7 @@ test.describe("Scroll reliability", () => {
 
     await expect(page.locator("#contact-cta")).toBeVisible({ timeout: 15_000 });
     await expect(
-      page.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
+      page.getByRole("heading", { name: /Ready to begin your wedding film/i }),
     ).toBeVisible();
   });
 
@@ -140,7 +140,7 @@ test.describe("Scroll reliability", () => {
       .toBeLessThan(50);
 
     await expect(
-      page.getByRole("heading", { name: /Ready to craft your cinematic story/i }),
+      page.getByRole("heading", { name: /Ready to begin your wedding film/i }),
     ).toBeVisible();
   });
 });
