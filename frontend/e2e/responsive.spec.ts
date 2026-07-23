@@ -88,10 +88,10 @@ test.describe("Responsive layout", () => {
     ).toBe(false);
 
     await page.goto("/");
-    await page.getByRole("button", { name: "Watch Reel" }).first().click();
-    const dialog = page.getByRole("dialog", { name: "Showreel" });
+    await page.getByRole("button", { name: "Watch Carezza" }).first().click();
+    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
     await expect(dialog).toBeVisible();
-    const close = dialog.getByRole("button", { name: "Close showreel" });
+    const close = dialog.getByRole("button", { name: "Close film" });
     const box = await close.boundingBox();
     expect(box).not.toBeNull();
     if (box) {

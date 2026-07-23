@@ -1,13 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+const WATCH_CTA = "Watch Carezza";
+const DIALOG_NAME = "Carezza Leanne";
+
 async function openShowreelFromHero(
   page: import("@playwright/test").Page,
 ): Promise<void> {
   await page.goto("/");
-  // Prefer the footer CTA — header control can sit under fixed nav.
+  // Prefer the footer CTA — header control is hidden on lg+ (DesktopNav).
   const watchReel = page
     .locator("#hero footer")
-    .getByRole("button", { name: "Watch Reel" });
+    .getByRole("button", { name: WATCH_CTA });
   await expect(watchReel).toBeVisible({ timeout: 15_000 });
   await watchReel.scrollIntoViewIfNeeded();
   await watchReel.click();
@@ -23,24 +26,24 @@ test.describe("Showreel", () => {
   test("opens and closes with Escape from hero", async ({ page }) => {
     await openShowreelFromHero(page);
 
-    const dialog = page.getByRole("dialog", { name: "Showreel" });
+    const dialog = page.getByRole("dialog", { name: DIALOG_NAME });
     await expect(dialog).toBeVisible();
     await expect(
-      dialog.getByRole("button", { name: "Close showreel" }),
+      dialog.getByRole("button", { name: "Close film" }),
     ).toBeFocused();
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
     await expect(
-      page.locator("#hero footer").getByRole("button", { name: "Watch Reel" }),
+      page.locator("#hero footer").getByRole("button", { name: WATCH_CTA }),
     ).toBeFocused();
   });
 
   test("closes with close button", async ({ page }) => {
     await openShowreelFromHero(page);
-    const dialog = page.getByRole("dialog", { name: "Showreel" });
+    const dialog = page.getByRole("dialog", { name: DIALOG_NAME });
     await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await dialog.getByRole("button", { name: "Close showreel" }).click();
+    await dialog.getByRole("button", { name: "Close film" }).click();
     await expect(dialog).toBeHidden();
   });
 
@@ -51,11 +54,11 @@ test.describe("Showreel", () => {
     ).toBeVisible({ timeout: 15_000 });
     const watchReel = page
       .locator("#films-hero footer")
-      .getByRole("button", { name: "Watch Reel" });
+      .getByRole("button", { name: WATCH_CTA });
     await watchReel.scrollIntoViewIfNeeded();
     await watchReel.click();
     await expect(
-      page.getByRole("dialog", { name: "Showreel" }),
+      page.getByRole("dialog", { name: DIALOG_NAME }),
     ).toBeVisible();
   });
 });

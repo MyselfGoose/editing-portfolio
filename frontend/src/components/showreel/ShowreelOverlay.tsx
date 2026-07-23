@@ -151,7 +151,7 @@ function ShowreelDialog({
     >
       <motion.div
         ref={dialogRef}
-        className="relative mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-6 px-[var(--section-px)] pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]"
+        className="relative mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-6 px-[var(--section-px)] pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(5rem,calc(env(safe-area-inset-top)+3.5rem))]"
         variants={panel}
         initial="hidden"
         animate="visible"
@@ -176,7 +176,7 @@ function ShowreelDialog({
             type="button"
             onClick={handleClose}
             className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-divider)] transition-colors hover:bg-[color:var(--color-elevated)]"
-            aria-label="Close showreel"
+            aria-label="Close film"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
@@ -191,7 +191,7 @@ function ShowreelDialog({
               type="button"
               className="group relative flex h-full min-h-[240px] w-full items-center justify-center"
               onClick={() => setUserStarted(true)}
-              aria-label="Press play to watch the reel"
+              aria-label={`Press play to watch ${SHOWREEL.title}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element -- reduced-motion poster gate */}
               <img
@@ -200,7 +200,7 @@ function ShowreelDialog({
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <span className="relative border border-[color:var(--color-foreground)] bg-black/50 px-6 py-3 text-eyebrow backdrop-blur-sm">
-                Press play to watch the reel
+                Press play to watch
               </span>
             </button>
           ) : !failed ? (
@@ -210,6 +210,8 @@ function ShowreelDialog({
               maxResolution={playerPreset.maxResolution}
               capRenditionToPlayerSize={playerPreset.capRenditionToPlayerSize}
               poster={poster}
+              muted
+              playsInline
               accentColor="#f5f5f5"
               primaryColor="#f5f5f5"
               secondaryColor="#0a0a0a"

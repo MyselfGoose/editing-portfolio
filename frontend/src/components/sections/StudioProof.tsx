@@ -65,7 +65,7 @@ export function StudioProof(): React.ReactElement {
           transition={{ duration: 0.9, ease: EASE.expoOut }}
         >
           <p className="text-eyebrow text-[color:var(--color-muted)]">
-            Selected work
+            04 / Proof
           </p>
           <h2
             id="proof-heading"

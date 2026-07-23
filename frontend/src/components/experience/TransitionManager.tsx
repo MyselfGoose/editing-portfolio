@@ -12,6 +12,14 @@ import {
   focusMainLandmark,
 } from "@/lib/route-lifecycle";
 
+/** Reset decorative veil so rapid navigations cannot leave it stuck opaque. */
+export function resetRouteVeil(veil: HTMLElement | null): void {
+  if (!veil) return;
+  veil.style.transition = "none";
+  veil.style.opacity = "0";
+  veil.setAttribute("aria-hidden", "true");
+}
+
 /**
  * GSAP-safe route transition: enter-only veil overlay.
  *
@@ -84,16 +92,18 @@ export function TransitionManager({
       veilTimerRef.current = null;
     }
 
+    // Force reflow so opacity transition restarts cleanly.
+    void veil.offsetHeight;
     veil.style.transition = `opacity ${Math.max(40, Math.floor(durationMs * 0.45))}ms ease-out`;
     veil.style.opacity = "1";
-    veil.setAttribute("aria-hidden", "false");
+    // Keep decorative — never expose to AT mid-flash.
+    veil.setAttribute("aria-hidden", "true");
 
     const holdMs = Math.floor(durationMs * 0.35);
     veilTimerRef.current = setTimeout(() => {
       veil.style.transition = `opacity ${Math.max(40, Math.floor(durationMs * 0.55))}ms ease-out`;
       veil.style.opacity = "0";
       veilTimerRef.current = setTimeout(() => {
-        veil.setAttribute("aria-hidden", "true");
         veilTimerRef.current = null;
       }, Math.floor(durationMs * 0.55) + 20);
     }, holdMs);
@@ -104,6 +114,7 @@ export function TransitionManager({
         clearTimeout(veilTimerRef.current);
         veilTimerRef.current = null;
       }
+      resetRouteVeil(veil);
     };
   }, [pathname, setScrollLocked]);
 

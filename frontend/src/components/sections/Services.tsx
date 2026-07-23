@@ -44,7 +44,7 @@ export function Services(): React.ReactElement {
   return (
     <Section id="services" labelledBy="services-heading" borderTop>
       <Container>
-        <SectionHeader label="04 / Services" aside="What we finish" />
+        <SectionHeader label="05 / Services" aside="What we finish" />
 
         <h2
           id="services-heading"

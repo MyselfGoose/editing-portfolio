@@ -1,9 +1,8 @@
-# Responsive Experience Review
+# Responsive Experience Review (historical)
 
-Senior frontend review of the responsive redesign implementation.
+> **Historical.** Captures an earlier responsive redesign review. For current behavior (multi-route shell modes, film pages, Watch Carezza overlay), use [responsive.md](responsive.md) and [experience.md](experience.md).
 
-**Date:** 2026  
-**Stack:** Next.js 16, React 19, Tailwind CSS v4, GSAP, Motion, Lenis, Mux
+**Date:** 2026 (pre–Parts 3–4 multi-route product)
 
 ## 1. Current responsive architecture
 

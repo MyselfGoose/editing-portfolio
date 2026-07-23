@@ -17,6 +17,10 @@ import { isContactEmailConfigured } from "@/lib/contact/env";
 
 const MAX_BODY_BYTES = 16_384;
 
+function utf8ByteLength(value: string): number {
+  return new TextEncoder().encode(value).length;
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const contentType = request.headers.get("content-type");
   if (!contentType?.includes("application/json")) {
@@ -41,6 +45,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
+  // Enforce size after parse — Content-Length can be omitted or forged.
+  try {
+    const serializedBytes = utf8ByteLength(JSON.stringify(payload));
+    if (serializedBytes > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { error: "Request body is too large." },
+        { status: 413 },
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
   const parsed = contactFormSchema.safeParse(payload);
   if (!parsed.success) {
     return NextResponse.json(
@@ -59,6 +76,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const clientIp = getClientIp(request.headers);
   const rateLimit = await checkContactRateLimit(clientIp);
   if (!rateLimit.success) {
+    if (rateLimit.reason === "unconfigured") {
+      console.error(
+        "[contact] rate limit unconfigured in production — refusing submission",
+      );
+      return NextResponse.json(
+        { error: "Contact form is temporarily unavailable." },
+        { status: 503 },
+      );
+    }
     return NextResponse.json(
       { error: "Too many requests. Please try again later." },
       { status: 429 },

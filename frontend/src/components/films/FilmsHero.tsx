@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
-import { EASE } from "@/lib/constants";
+import { EASE, SHOWREEL } from "@/lib/constants";
 
 const ShowreelOverlay = dynamic(
   () =>
@@ -133,9 +133,9 @@ export function FilmsHero({
               type="button"
               onClick={openReel}
               className="inline-flex min-h-11 items-center border-b border-[color:var(--color-foreground)] pb-2 text-eyebrow transition-colors hover:text-[color:var(--color-muted)]"
-              aria-label="Watch Reel"
+              aria-label={SHOWREEL.ctaLabel}
             >
-              Watch Reel
+              {SHOWREEL.ctaLabel}
             </button>
           </motion.div>
         </div>

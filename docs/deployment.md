@@ -8,7 +8,7 @@ How to deploy the Goose Productions portfolio to production on Vercel.
 
 ## Overview
 
-Next.js App Router app from `frontend/` on Vercel. Database-free. Contact form via Resend; optional Upstash rate limit; optional Vercel Analytics.
+Next.js App Router app from `frontend/` on Vercel. Database-free. Contact form via Resend; **Upstash rate limit required in production** (fail-closed if missing); optional Vercel Analytics.
 
 ## Vercel Setup
 
@@ -27,11 +27,11 @@ Copy [`frontend/.env.example`](../frontend/.env.example) → `.env.local`.
 |----------|----------|---------|
 | `RESEND_API_KEY` | Yes (contact) | Resend API key |
 | `CONTACT_FORM_FROM` | Yes (contact) | Verified sender on `goose-productions.com` |
-| `UPSTASH_REDIS_REST_URL` | Recommended prod | Rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | Recommended prod | Rate limiting |
+| `UPSTASH_REDIS_REST_URL` | **Required in production** | Rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | **Required in production** | Rate limiting |
 | `NEXT_PUBLIC_ANALYTICS_ENABLED` | Optional (`true` default) | Analytics mount |
 
-**Upstash honesty:** If Redis env vars are omitted, rate limiting is **skipped** (fine for local; configure in production).
+**Upstash policy:** Local/preview without Redis env vars allows submissions (documented). **Production** without Upstash returns `503` (fail-closed) so the inbox cannot be abused. `sharp` is a runtime dependency for OG image generation; film OG routes re-encode ImageResponse output to JPEG under ~350KB.
 
 Do not commit secrets. Server vars must not use `NEXT_PUBLIC_`.
 
@@ -59,19 +59,20 @@ npm run test:e2e
 
 ## Post-deploy checklist
 
-Manual QA on production. Items marked **repo-verified** were validated via `npm run check` + e2e in Part 4; live env items need a human after deploy.
+Manual QA on production. Items marked **repo-verified** were validated via `npm run check` + e2e through launch polish; live env items need a human after deploy.
 
 | Check | Pass criteria | Status |
 |-------|---------------|--------|
-| Home sections | Hero → About → Process → Work → StudioProof → Services → InvestmentNote → Contact CTA (not a Contact section) | repo-verified |
-| `/films` archive | Filters, rows, modal, showreel | repo-verified |
-| `/films/[slug]` | Film page + adjacent nav; OG branded image | repo-verified |
+| Home sections | Hero → About → Process → Work → StudioProof → Services → InvestmentNote → Contact CTA | repo-verified |
+| `/films` archive | Filters, rows, modal, Watch Carezza | repo-verified |
+| `/films/[slug]` | Film page + adjacent nav; OG branded JPEG under ~350KB | repo-verified |
 | Light shell | `/contact` + `/privacy`: no Lenis, no grain, no cursor UI (`data-experience-mode=light`) | repo-verified |
 | Cinematic restore | Contact → Home: Process scrub still works | repo-verified |
-| Showreel | Open/close from hero + films; overflow clears after navigate | repo-verified |
+| Watch Carezza | Open/close; soft-nav clears overflow + route veil | repo-verified |
+| Modal share | Modal does not write `?project=`; FilmShareLink → `/films/[slug]` | repo-verified |
 | Contact form (live) | Submit on production → email arrives at `CONTACT.email` | **human** |
 | Resend domain | SPF/DKIM verified; `CONTACT_FORM_FROM` works | **human** |
-| Upstash rate limit | Burst submissions limited in production | **human** |
+| Upstash rate limit | Vars present on Vercel Production; burst returns 429 | **human** |
 | Analytics | Pageviews in Vercel Analytics when flag enabled | **human** |
 | Share preview | Paste `/films/carezza-leanne` into Slack/iMessage — branded OG | **human** |
 | Legacy `?project=` | Redirects to `/films/{id}` (not modal) | repo-verified |
@@ -82,11 +83,12 @@ Manual QA on production. Items marked **repo-verified** were validated via `npm 
 ## Production readiness
 
 1. Confirm Resend domain verification in Resend dashboard
-2. Confirm Upstash vars present in Vercel Production
+2. Confirm Upstash vars present in Vercel Production (required — form fails closed without them)
 3. Confirm `NEXT_PUBLIC_ANALYTICS_ENABLED` intentional
 4. Smoke contact form once on production
-5. Spot-check OG: open `/films/carezza-leanne/opengraph-image` → PNG
+5. Spot-check OG: open `/films/carezza-leanne/opengraph-image` → JPEG, reasonable size
 6. Spot-check shell: DevTools on `/contact` → `html[data-experience-mode=light]`, no `.film-grain`
+7. Paste two film URLs into Slack/iMessage and confirm cards
 
 ## CI/CD
 

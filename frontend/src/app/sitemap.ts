@@ -5,7 +5,7 @@ import { SITE } from "@/lib/constants";
 import { filmUrl } from "@/lib/projects";
 
 /** Stable build-time date — avoids per-request `new Date()` in sitemap. */
-const SITE_LAST_MODIFIED = new Date("2026-07-15T00:00:00.000Z");
+const SITE_LAST_MODIFIED = new Date("2026-07-23T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const filmEntries: MetadataRoute.Sitemap = projects.map((project) => ({

@@ -10,9 +10,9 @@ describe("ShowreelOverlay", () => {
     renderWithProviders(
       <ShowreelOverlay open onClose={vi.fn()} />,
     );
-    expect(screen.getByRole("dialog", { name: "Showreel" })).toBeInTheDocument();
+    expect(screen.getByRole("dialog", { name: "Carezza Leanne" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Close showreel" }),
+      screen.getByRole("button", { name: "Close film" }),
     ).toBeInTheDocument();
   });
 
@@ -28,7 +28,7 @@ describe("ShowreelOverlay", () => {
     renderWithProviders(<ShowreelOverlay open onClose={vi.fn()} />);
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: "Close showreel" }),
+        screen.getByRole("button", { name: "Close film" }),
       ).toHaveFocus();
     });
   });

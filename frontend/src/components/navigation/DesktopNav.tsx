@@ -11,10 +11,10 @@ export function DesktopNav(): React.ReactElement {
 
   return (
     <nav
-      className="fixed inset-x-0 top-0 z-[70] hidden lg:flex justify-end px-[var(--section-px)] py-4"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[100] hidden lg:flex justify-end px-[var(--section-px)] py-4"
       aria-label="Site navigation"
     >
-      <ul className="flex flex-wrap items-center justify-end gap-x-8 gap-y-2">
+      <ul className="pointer-events-auto flex flex-wrap items-center justify-end gap-x-8 gap-y-2">
         {NAV_LINKS.map((link) => {
           const isActive =
             link.href === "/"

@@ -87,7 +87,7 @@ portfolio/
 | `contact.spec.ts` | Mailto, expectations, form submit |
 | `showreel.spec.ts` | Open/close from hero + films |
 | `mobile-cinematic.spec.ts` | Mobile ambient + process pin |
-| `experience-shell.spec.ts` | Light/cinematic modes, OG PNG, scroll-lock cleanup |
+| `experience-shell.spec.ts` | Light/cinematic modes, OG JPEG, scroll-lock cleanup |
 | `visual.spec.ts` | Screenshot baselines (home + modal) |
 
 ## Related Documentation

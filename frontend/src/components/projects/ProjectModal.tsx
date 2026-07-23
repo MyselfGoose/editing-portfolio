@@ -141,7 +141,7 @@ export function ProjectModal({
         >
           <motion.div
             ref={dialogRef}
-            className="relative mx-auto flex h-full max-h-[100svh] w-full max-w-6xl flex-col gap-6 overflow-y-auto overscroll-contain px-[var(--section-px)] py-12 sm:py-16"
+            className="relative mx-auto flex h-full max-h-[100svh] w-full max-w-6xl flex-col gap-6 overflow-y-auto overscroll-contain px-[var(--section-px)] pb-12 pt-[max(5rem,calc(env(safe-area-inset-top)+3.5rem))] sm:pb-16"
             variants={panel}
             initial="hidden"
             animate="visible"

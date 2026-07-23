@@ -31,7 +31,7 @@ describe("Hero", () => {
     );
   });
 
-  it("shows Watch Reel control on mobile", () => {
+  it("shows Watch Carezza control on mobile", () => {
     mockMatchMediaForQuery({
       "(prefers-reduced-motion: reduce)": true,
       "(max-width: 767px)": true,
@@ -47,7 +47,7 @@ describe("Hero", () => {
 
     renderWithProviders(<Hero />);
     expect(
-      screen.getAllByRole("button", { name: "Watch Reel" }).length,
+      screen.getAllByRole("button", { name: "Watch Carezza" }).length,
     ).toBeGreaterThan(0);
   });
 });

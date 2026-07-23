@@ -31,6 +31,21 @@ test.describe("Experience shell modes", () => {
       .toBe("undefined");
   });
 
+  test("privacy uses light shell", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/privacy");
+
+    await expect
+      .poll(async () =>
+        page.evaluate(
+          () => document.documentElement.dataset.experienceMode ?? "",
+        ),
+      )
+      .toBe("light");
+
+    await expect(page.locator(".film-grain")).toHaveCount(0);
+  });
+
   test("home uses cinematic shell after returning from contact", async ({
     page,
   }) => {
@@ -62,18 +77,22 @@ test.describe("Experience shell modes", () => {
     await expect(page.locator("#process")).toBeVisible();
   });
 
-  test("showreel navigation clears body overflow lock", async ({ page }) => {
+  test("showreel soft-nav clears body overflow lock and veil", async ({
+    page,
+  }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto("/");
 
     const watchReel = page
       .locator("#hero footer")
-      .getByRole("button", { name: "Watch Reel" });
+      .getByRole("button", { name: "Watch Carezza" });
     await expect(watchReel).toBeVisible({ timeout: 15_000 });
     await watchReel.scrollIntoViewIfNeeded();
     await watchReel.click();
 
-    await expect(page.getByRole("dialog", { name: "Showreel" })).toBeVisible();
+    await expect(
+      page.getByRole("dialog", { name: "Carezza Leanne" }),
+    ).toBeVisible();
 
     await expect
       .poll(async () =>
@@ -81,28 +100,43 @@ test.describe("Experience shell modes", () => {
       )
       .toBe("hidden");
 
-    // Soft-nav via URL — showreel dialog sits above desktop nav links.
-    await page.goto("/films");
+    // Soft-nav via header Films link (not hard goto).
+    await page.getByRole("navigation", { name: "Site navigation" })
+      .getByRole("link", { name: "Films" })
+      .click();
     await expect(page).toHaveURL(/\/films$/);
-    await expect(page.getByRole("dialog", { name: "Showreel" })).toHaveCount(0);
+    await expect(
+      page.getByRole("dialog", { name: "Carezza Leanne" }),
+    ).toHaveCount(0);
 
     await expect
       .poll(async () =>
         page.evaluate(() => document.body.style.overflow),
       )
       .toBe("");
+
+    await expect
+      .poll(async () =>
+        page.evaluate(() => {
+          const veil = document.querySelector<HTMLElement>("[data-route-veil]");
+          if (!veil) return "0";
+          return window.getComputedStyle(veil).opacity;
+        }),
+      )
+      .toBe("0");
   });
 });
 
 test.describe("Film open graph images", () => {
-  test("per-slug OG endpoint returns a PNG", async ({ request }) => {
-    const response = await request.get(
-      "/films/carezza-leanne/opengraph-image",
-    );
-    expect(response.status()).toBe(200);
-    const contentType = response.headers()["content-type"] ?? "";
-    expect(contentType).toMatch(/image\/png/);
-    const body = await response.body();
-    expect(body.byteLength).toBeGreaterThan(1_000);
+  test("per-slug OG endpoints return compressed JPEGs", async ({ request }) => {
+    for (const slug of ["carezza-leanne", "meghan-and-edward"] as const) {
+      const response = await request.get(`/films/${slug}/opengraph-image`);
+      expect(response.status()).toBe(200);
+      const contentType = response.headers()["content-type"] ?? "";
+      expect(contentType).toMatch(/image\/jpeg/);
+      const body = await response.body();
+      expect(body.byteLength).toBeGreaterThan(1_000);
+      expect(body.byteLength).toBeLessThan(350_000);
+    }
   });
 });

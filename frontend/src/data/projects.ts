@@ -50,7 +50,7 @@ export const projects: ReadonlyArray<Project> = [
     year: 2026,
     location: "Southern California",
     description:
-      "An alpine wedding film cut for quiet scale — gondola light, mountain air, and the stillness held between vows. Directed and edited for Carezza & Leanne.",
+      "A Southern California mountain wedding cut for quiet scale — gondola light, ridgeline air, and the stillness held between vows. Directed and edited for Carezza & Leanne.",
     video: {
       playbackId: "VY8IzL32ULAQNLcjdnuNdZap9XXbtsJ7017vPd1jXl7Q",
       aspectRatio: "16/9",

@@ -75,10 +75,10 @@ export function SiteNav(): React.ReactElement {
 
   return (
     <>
-      <header className="fixed inset-x-0 top-0 z-[70] flex items-center justify-between px-[var(--section-px)] py-4 lg:hidden">
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-[100] flex items-center justify-between px-[var(--section-px)] py-4 lg:hidden">
         <Link
           href="/"
-          className="text-nav text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)]"
+          className="pointer-events-auto text-nav text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)]"
         >
           {BRAND.short}
         </Link>
@@ -86,7 +86,7 @@ export function SiteNav(): React.ReactElement {
           ref={menuBtnRef}
           type="button"
           onClick={open ? close : openMenu}
-          className="flex h-11 w-11 items-center justify-center border border-[color:var(--color-divider)]"
+          className="pointer-events-auto flex h-11 w-11 items-center justify-center border border-[color:var(--color-divider)]"
           aria-expanded={open}
           aria-controls="site-nav-panel"
           aria-label={open ? "Close menu" : "Open menu"}
@@ -104,7 +104,7 @@ export function SiteNav(): React.ReactElement {
           <motion.div
             id="site-nav-panel"
             ref={panelRef}
-            className="fixed inset-0 z-[75] flex flex-col bg-black/95 backdrop-blur-md px-[var(--section-px)] py-24 lg:hidden"
+            className="fixed inset-0 z-[110] flex flex-col bg-black/95 backdrop-blur-md px-[var(--section-px)] py-24 lg:hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

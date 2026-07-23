@@ -23,6 +23,7 @@ test.describe("Project modal", () => {
   test("opens from featured work and closes with Escape", async ({ page }) => {
     const { projectButton, dialog } = await openFirstProject(page);
 
+    await expect(page).not.toHaveURL(/[?&]project=/);
     await expect(
       dialog.getByRole("button", { name: "Close project" }),
     ).toBeFocused();
@@ -42,7 +43,7 @@ test.describe("Project modal", () => {
   test("closes when overlay is clicked", async ({ page }) => {
     const { dialog } = await openFirstProject(page);
 
-    await dialog.click({ position: { x: 8, y: 8 } });
+    await dialog.click({ position: { x: 8, y: 120 } });
     await expect(dialog).toBeHidden();
   });
 

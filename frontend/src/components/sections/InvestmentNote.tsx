@@ -25,7 +25,7 @@ export function InvestmentNote(): React.ReactElement {
         >
           <div className="flex max-w-2xl flex-col gap-4">
             <p className="text-eyebrow text-[color:var(--color-muted)]">
-              Investment
+              06 / Investment
             </p>
             <h2
               id="investment-heading"

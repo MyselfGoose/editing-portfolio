@@ -43,7 +43,7 @@ First-time Playwright: `npx playwright install chromium`
 | `contact.spec.ts` | Mailto, expectations, form success |
 | `showreel.spec.ts` | Open/close from hero + films hero |
 | `mobile-cinematic.spec.ts` | Mobile ambient + process pin |
-| `experience-shell.spec.ts` | Light vs cinematic shell; OG PNG; scroll-lock cleanup |
+| `experience-shell.spec.ts` | Light vs cinematic shell; OG JPEG size; scroll-lock cleanup |
 | `visual.spec.ts` | Home snapshots (mobile/tablet/desktop) + modal |
 
 ## Coverage

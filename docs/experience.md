@@ -80,7 +80,7 @@ On pathname change the veil:
 2. Focuses `#main`
 3. Fades a sibling overlay (durations: reduced-motion ~60ms; light↔cinematic ~120ms; mobile cinematic ~160ms; desktop cinematic↔cinematic ~280ms)
 
-Showreel and ProjectModal are **overlays**, not route transitions.
+Showreel (“Watch Carezza” interim) and ProjectModal are **overlays**, not route transitions. Modals do not write `?project=` history — share via `/films/[slug]`. On pathname change, TransitionManager always resets the enter-veil to `opacity: 0` on cleanup so soft-nav cannot leave a stuck black overlay.
 
 ## Process Section
 

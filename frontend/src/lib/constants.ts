@@ -81,12 +81,14 @@ export const MUX_DEMO_VIDEO = {
 } as const;
 
 /**
- * Canonical showreel source for the Watch Reel experience.
- * Interim: reuses Carezza until a distinct reel asset exists.
+ * Featured-film overlay source (Watch Carezza CTA).
+ * Interim: Carezza Leanne until a distinct showreel Mux asset exists —
+ * swap playbackId/title/duration then; keep CTA label in sync via ctaLabel.
  */
 export const SHOWREEL = {
   playbackId: MUX_DEMO_VIDEO.playbackId,
-  title: "Showreel",
+  title: "Carezza Leanne",
+  ctaLabel: "Watch Carezza",
   posterTime: MUX_DEMO_VIDEO.posterTime,
   duration: "04:12",
 } as const;

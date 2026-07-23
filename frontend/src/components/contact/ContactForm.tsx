@@ -48,6 +48,13 @@ const INITIAL_FORM: ContactFormData = {
 const FIELD_CLASS =
   "min-h-12 w-full border border-[color:var(--color-divider)] bg-[color:var(--color-elevated)] px-4 py-3 text-base text-[color:var(--color-foreground)] transition-colors placeholder:text-[color:var(--color-dim)] focus:border-[color:var(--color-foreground)]";
 
+const FIELD_INVALID_CLASS =
+  "border-[color:var(--color-danger)] focus:border-[color:var(--color-danger)]";
+
+function fieldClassName(hasError: boolean, extra?: string): string {
+  return cn(FIELD_CLASS, hasError && FIELD_INVALID_CLASS, extra);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -194,12 +201,12 @@ export function ContactForm(): React.ReactElement {
             name="name"
             value={formData.name}
             onChange={(event) => onFieldChange("name", event.target.value)}
-            className={FIELD_CLASS}
+            className={fieldClassName(Boolean(errors.name))}
             autoComplete="name"
             aria-invalid={errors.name ? "true" : "false"}
           />
           {errors.name ? (
-            <span className="font-mono text-xs text-[color:var(--color-muted)]">
+            <span className="font-mono text-xs text-[color:var(--color-danger)]">
               {errors.name}
             </span>
           ) : null}
@@ -214,13 +221,13 @@ export function ContactForm(): React.ReactElement {
             name="email"
             value={formData.email}
             onChange={(event) => onFieldChange("email", event.target.value)}
-            className={FIELD_CLASS}
+            className={fieldClassName(Boolean(errors.email))}
             autoComplete="email"
             inputMode="email"
             aria-invalid={errors.email ? "true" : "false"}
           />
           {errors.email ? (
-            <span className="font-mono text-xs text-[color:var(--color-muted)]">
+            <span className="font-mono text-xs text-[color:var(--color-danger)]">
               {errors.email}
             </span>
           ) : null}
@@ -236,7 +243,7 @@ export function ContactForm(): React.ReactElement {
             onChange={(event) =>
               onFieldChange("projectType", event.target.value)
             }
-            className={cn(FIELD_CLASS, "appearance-none")}
+            className={fieldClassName(Boolean(errors.projectType), "appearance-none")}
             aria-invalid={errors.projectType ? "true" : "false"}
             required
           >
@@ -250,7 +257,7 @@ export function ContactForm(): React.ReactElement {
             ))}
           </select>
           {errors.projectType ? (
-            <span className="font-mono text-xs text-[color:var(--color-muted)]">
+            <span className="font-mono text-xs text-[color:var(--color-danger)]">
               {errors.projectType}
             </span>
           ) : null}
@@ -264,14 +271,14 @@ export function ContactForm(): React.ReactElement {
             name="message"
             value={formData.message}
             onChange={(event) => onFieldChange("message", event.target.value)}
-            className={cn(
-              FIELD_CLASS,
+            className={fieldClassName(
+              Boolean(errors.message),
               "min-h-[10rem] resize-y leading-relaxed sm:min-h-44",
             )}
             aria-invalid={errors.message ? "true" : "false"}
           />
           {errors.message ? (
-            <span className="font-mono text-xs text-[color:var(--color-muted)]">
+            <span className="font-mono text-xs text-[color:var(--color-danger)]">
               {errors.message}
             </span>
           ) : null}

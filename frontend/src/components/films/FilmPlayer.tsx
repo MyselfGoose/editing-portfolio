@@ -100,6 +100,8 @@ export function FilmPlayer({
           maxResolution={playerPreset.maxResolution}
           capRenditionToPlayerSize={playerPreset.capRenditionToPlayerSize}
           poster={poster}
+          muted={autoPlay}
+          playsInline
           accentColor="#f5f5f5"
           primaryColor="#f5f5f5"
           secondaryColor="#0a0a0a"

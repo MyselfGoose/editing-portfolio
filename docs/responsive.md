@@ -85,7 +85,8 @@ Configured in [`motion-presets.ts`](../frontend/src/lib/motion-presets.ts) and [
 ## Film page + showreel
 
 - `/films/[slug]` must avoid horizontal overflow at 390 / 768 / 1024 (covered by `responsive.spec.ts`).
-- Showreel dialog respects safe-area insets; custom cursor is never required.
+- Archive/home modals do not own `?project=` share URLs — use FilmShareLink → `/films/[slug]`.
+- Watch Carezza overlay (interim Carezza asset) respects safe-area insets; custom cursor is never required.
 - Light shell contact/privacy keep SiteNav/DesktopNav with identical IA.
 
 ## Mobile navigation

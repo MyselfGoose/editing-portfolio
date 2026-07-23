@@ -101,13 +101,43 @@ describe("POST /api/contact", () => {
   });
 
   it("returns 429 when rate limited", async () => {
-    checkContactRateLimitMock.mockResolvedValueOnce({ success: false });
+    checkContactRateLimitMock.mockResolvedValueOnce({
+      success: false,
+      reason: "limited",
+    });
 
     const response = await POST(createRequest(validBody) as never);
     const payload = await response.json();
 
     expect(response.status).toBe(429);
     expect(payload.error).toContain("Too many requests");
+    expect(sendContactEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 503 when rate limit is unconfigured in production", async () => {
+    checkContactRateLimitMock.mockResolvedValueOnce({
+      success: false,
+      reason: "unconfigured",
+    });
+
+    const response = await POST(createRequest(validBody) as never);
+    const payload = await response.json();
+
+    expect(response.status).toBe(503);
+    expect(payload.error).toContain("temporarily unavailable");
+    expect(sendContactEmailMock).not.toHaveBeenCalled();
+  });
+
+  it("returns 413 when parsed body exceeds size limit without Content-Length", async () => {
+    const oversized = {
+      ...validBody,
+      message: "x".repeat(20_000),
+    };
+    const response = await POST(createRequest(oversized) as never);
+    const payload = await response.json();
+
+    expect(response.status).toBe(413);
+    expect(payload.error).toContain("too large");
     expect(sendContactEmailMock).not.toHaveBeenCalled();
   });
 });

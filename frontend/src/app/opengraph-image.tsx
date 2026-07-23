@@ -1,19 +1,25 @@
 import { ImageResponse } from "next/og";
 
 import { BRAND, MUX_DEMO_VIDEO } from "@/lib/constants";
-import { loadPosterDataUrl, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og-poster";
+import {
+  finalizeOgImage,
+  loadPosterDataUrl,
+  OG_CONTENT_TYPE,
+  OG_SIZE,
+} from "@/lib/og-poster";
 
 export const alt = `${BRAND.name} — Wedding Cinema`;
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
-export default async function OpenGraphImage(): Promise<ImageResponse> {
+export default async function OpenGraphImage(): Promise<Response> {
   const posterDataUrl = await loadPosterDataUrl(MUX_DEMO_VIDEO.playbackId, {
     time: 8,
     width: 1200,
   });
 
-  return new ImageResponse(
+  return finalizeOgImage(
+    new ImageResponse(
     (
       <div
         style={{
@@ -100,5 +106,6 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
       </div>
     ),
     { ...size },
+    ),
   );
 }

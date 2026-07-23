@@ -114,9 +114,9 @@ Bracketed playback IDs (e.g. `[PLAYBACK_ID_01]`) are still supported via `isReal
 
 Canonical share URL: `/films/carezza-leanne` (also in sitemap).
 
-Legacy compat: `/?project=carezza-leanne` and `/films?project=carezza-leanne` **redirect** to `/films/carezza-leanne` — they do not open a modal.
+Showreel playback: `SHOWREEL` in `constants.ts` currently points at Carezza Leanne and is labeled honestly (`title` + `ctaLabel: "Watch Carezza"`). Replace `playbackId` / labels when a dedicated reel exists — do not market it as a composite reel until then.
 
-Showreel playback ID / poster time: `SHOWREEL` in `constants.ts` (interim Carezza asset until a dedicated reel is uploaded).
+Canonical film URLs are `/films/[slug]`. Archive/home modals do not mutate `?project=` history; share via FilmShareLink. Legacy `/?project=` and `/films?project=` still **redirect** to the slug page.
 
 ### Testimonials
 

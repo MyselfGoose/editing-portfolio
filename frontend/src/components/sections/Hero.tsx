@@ -7,7 +7,7 @@ import { useCallback, useState } from "react";
 
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
-import { EASE, HEADLINE_LINES } from "@/lib/constants";
+import { EASE, HEADLINE_LINES, SHOWREEL } from "@/lib/constants";
 
 import { HeroAudioToggle } from "./HeroAudioToggle";
 import { HeroBackdrop } from "./HeroBackdrop";
@@ -89,13 +89,14 @@ function HeroContent(): React.ReactElement {
         <span className="text-meta uppercase text-[color:var(--color-muted)]">
           Wedding Cinema / Est. 2019
         </span>
+        {/* Header CTA only below lg — DesktopNav occupies top-right on large screens */}
         <button
           type="button"
           onClick={openReel}
-          className="min-h-11 text-meta uppercase text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)]"
-          aria-label="Watch Reel"
+          className="min-h-11 text-meta uppercase text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)] lg:hidden"
+          aria-label={SHOWREEL.ctaLabel}
         >
-          Watch Reel
+          {SHOWREEL.ctaLabel}
         </button>
       </motion.header>
 
@@ -150,8 +151,9 @@ function HeroContent(): React.ReactElement {
               type="button"
               onClick={openReel}
               className="inline-flex min-h-11 items-center border-b border-[color:var(--color-foreground)] pb-2 text-eyebrow transition-colors hover:text-[color:var(--color-muted)]"
+              aria-label={SHOWREEL.ctaLabel}
             >
-              Watch Reel
+              {SHOWREEL.ctaLabel}
             </button>
           </motion.div>
         </div>

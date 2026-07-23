@@ -53,6 +53,7 @@ test.describe("Films page", () => {
 
     const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
     await expect(dialog).toBeVisible();
+    await expect(page).not.toHaveURL(/[?&]project=/);
   });
 
   test("legacy deep link redirects to film page", async ({ page }) => {

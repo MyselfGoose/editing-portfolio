@@ -22,7 +22,7 @@ export function HomeContactCta(): React.ReactElement {
         >
           <div className="flex max-w-2xl flex-col gap-4">
             <p className="text-eyebrow text-[color:var(--color-muted)]">
-              05 / Contact
+              07 / Contact
             </p>
             <h2 className="font-display text-headline text-balance">
               Ready to begin your wedding film?
