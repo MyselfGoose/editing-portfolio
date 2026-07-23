@@ -26,21 +26,22 @@ export default function AppleIcon(): ImageResponse {
       >
         <div
           style={{
-            width: 72,
-            height: 72,
-            border: "6px solid #f5f5f5",
-            borderRadius: 8,
+            width: 68,
+            height: 68,
+            border: "5px solid #f5f5f5",
+            borderRadius: 6,
             transform: "rotate(45deg)",
-            opacity: 0.9,
+            opacity: 0.95,
           }}
         />
         <div
           style={{
             position: "absolute",
-            fontSize: 52,
+            fontSize: 54,
             fontFamily: "Georgia, serif",
             fontWeight: 600,
             letterSpacing: "-0.06em",
+            lineHeight: 1,
           }}
         >
           {BRAND.short.charAt(0)}

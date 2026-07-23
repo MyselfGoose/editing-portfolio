@@ -7,10 +7,11 @@ export const testProject: Project = {
   id: "test-project",
   index: 1,
   title: "Test Project",
-  category: "Documentary",
+  category: "Wedding Film",
   year: 2026,
   location: "Test City",
-  description: "A test project description.",
+  description:
+    "A wedding film fixture for unit tests — paced for editorial review with enough length to satisfy data contracts.",
   video: {
     playbackId: REAL_PLAYBACK_ID,
     aspectRatio: "16/9",

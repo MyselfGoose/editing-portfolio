@@ -19,8 +19,13 @@ describe("ProjectModal", () => {
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("Test Project")).toBeInTheDocument();
-    expect(screen.getByText(/Documentary/)).toBeInTheDocument();
-    expect(screen.getByText("A test project description.")).toBeInTheDocument();
+    expect(screen.getByText(/Wedding Film/)).toBeInTheDocument();
+    expect(screen.getByText(testProject.description)).toBeInTheDocument();
+    expect(screen.getByText("Role")).toBeInTheDocument();
+    expect(screen.getByText("Client")).toBeInTheDocument();
+    expect(screen.getByText("Location")).toBeInTheDocument();
+    expect(screen.getByText("Duration")).toBeInTheDocument();
+    expect(screen.getByText("03:42")).toBeInTheDocument();
   });
 
   it("renders Mux player for real playback ID", () => {

@@ -104,6 +104,15 @@ export function FilmsMoment({
           >
             {project.title}
           </motion.h2>
+          <motion.p
+            className="line-clamp-2 max-w-xl text-body text-[color:var(--color-foreground)]/70"
+            initial={{ opacity: 0, y: 8 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, ease: EASE.expoOut, delay: 0.4 }}
+          >
+            {project.description}
+          </motion.p>
           <motion.span
             className="mt-1 font-mono text-xs text-[color:var(--color-foreground)]/60"
             initial={{ opacity: 0 }}

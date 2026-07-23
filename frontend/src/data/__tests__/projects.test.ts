@@ -1,14 +1,35 @@
+import { readFileSync, existsSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import {
   projects,
   featuredProjects,
   FEATURED_PROJECT_IDS,
+  type ProjectCategory,
   type ProjectVideo,
 } from "@/data/projects";
 import { isRealPlaybackId, type VideoAspectRatio } from "@/lib/mux";
 
-const VALID_ASPECT_RATIOS: ReadonlyArray<VideoAspectRatio> = ["16/9", "9/16", "4/3"];
+const VALID_ASPECT_RATIOS: ReadonlyArray<VideoAspectRatio> = [
+  "16/9",
+  "9/16",
+  "4/3",
+];
+
+const VALID_CATEGORIES: ReadonlyArray<ProjectCategory> = [
+  "Wedding Film",
+  "Birthday Film",
+];
+
+const DESCRIPTION_MIN = 60;
+const DESCRIPTION_MAX = 320;
+
+const CAPTION_STUB_PATTERN =
+  /example caption|placeholder|replace with|^\s*\[.+\]\s*$/im;
+
+const PUBLIC_DIR = join(process.cwd(), "public");
 
 describe("projects data contract", () => {
   it("has ten total projects", () => {
@@ -43,8 +64,41 @@ describe("projects data contract", () => {
       expect(project.index).toBeGreaterThan(0);
       expect(project.credits.role).toBeTruthy();
       expect(project.credits.client).toBeTruthy();
+      expect(VALID_CATEGORIES).toContain(project.category);
     },
   );
+
+  it.each(projects.map((p) => [p.id, p.description] as const))(
+    "project %s has a professional-length unique description",
+    (_id, description) => {
+      const trimmed = description.trim();
+      expect(trimmed.length).toBeGreaterThanOrEqual(DESCRIPTION_MIN);
+      expect(trimmed.length).toBeLessThanOrEqual(DESCRIPTION_MAX);
+    },
+  );
+
+  it("has unique descriptions across all projects", () => {
+    const descriptions = projects.map((p) => p.description.trim());
+    expect(new Set(descriptions).size).toBe(descriptions.length);
+  });
+
+  it("ships no caption tracks until real transcripts exist", () => {
+    for (const project of projects) {
+      expect(project.video.captions?.length ?? 0).toBe(0);
+    }
+  });
+
+  it("caption files referenced by any project are real and non-stub", () => {
+    for (const project of projects) {
+      for (const track of project.video.captions ?? []) {
+        expect(track.src.startsWith("/")).toBe(true);
+        const absolute = join(PUBLIC_DIR, track.src.replace(/^\//, ""));
+        expect(existsSync(absolute)).toBe(true);
+        const content = readFileSync(absolute, "utf8");
+        expect(content).not.toMatch(CAPTION_STUB_PATTERN);
+      }
+    }
+  });
 
   it.each(projects.map((p) => [p.id, p.video] as const))(
     "project %s video has valid playback ID and aspect ratio",
@@ -67,9 +121,7 @@ describe("projects data contract", () => {
     projects
       .filter((p) => p.video.captions !== undefined)
       .flatMap((p) =>
-        (p.video.captions ?? []).map(
-          (track) => [p.id, track] as const,
-        ),
+        (p.video.captions ?? []).map((track) => [p.id, track] as const),
       ),
   )("project %s caption track has required fields", (_id, track) => {
     expect(track.src).toBeTruthy();

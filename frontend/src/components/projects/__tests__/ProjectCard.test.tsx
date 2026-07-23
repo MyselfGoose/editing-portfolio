@@ -14,7 +14,8 @@ describe("ProjectCard", () => {
     );
 
     expect(screen.getByText("Test Project")).toBeInTheDocument();
-    expect(screen.getByText(/Documentary/)).toBeInTheDocument();
+    expect(screen.getByText(/Wedding Film/)).toBeInTheDocument();
+    expect(screen.getByText(testProject.description)).toBeInTheDocument();
     expect(screen.getAllByText("03:42").length).toBeGreaterThanOrEqual(1);
   });
 

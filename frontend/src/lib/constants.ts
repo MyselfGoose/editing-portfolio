@@ -83,5 +83,5 @@ export const MUX_DEMO_VIDEO = {
 /** About section portrait. */
 export const ABOUT_IMAGE = {
   src: "/images/me.jpeg",
-  alt: "Goose Productions",
+  alt: "Studio portrait of the Goose Productions editor",
 } as const;

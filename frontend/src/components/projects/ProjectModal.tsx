@@ -338,6 +338,12 @@ export function ProjectModal({
                     {project.location}
                   </dd>
                 </div>
+                <div className="flex justify-between border-t border-[color:var(--color-divider)] pt-2">
+                  <dt>Duration</dt>
+                  <dd className="text-[color:var(--color-foreground)]">
+                    {project.video.duration}
+                  </dd>
+                </div>
               </dl>
             </div>
           </motion.div>

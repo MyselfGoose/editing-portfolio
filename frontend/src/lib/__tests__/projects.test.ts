@@ -28,9 +28,10 @@ describe("getProjectById", () => {
     expect(isValidProjectId("fake")).toBe(false);
   });
 
-  it("keeps caption path convention for configured tracks", () => {
-    const allTracks = projects.flatMap((project) => project.video.captions ?? []);
-    expect(allTracks.length).toBeGreaterThan(0);
+  it("keeps caption path convention when tracks are configured", () => {
+    const allTracks = projects.flatMap(
+      (project) => project.video.captions ?? [],
+    );
     for (const track of allTracks) {
       expect(track.src.startsWith("/captions/")).toBe(true);
       expect(track.src.endsWith(".vtt")).toBe(true);
@@ -74,9 +75,12 @@ describe("getFilmsByCategory", () => {
     }
   });
 
-  it("returns empty array for category with no films", () => {
-    const musicVideos = getFilmsByCategory("Music Video");
-    expect(musicVideos.length).toBe(0);
+  it("filters by Birthday Film", () => {
+    const birthday = getFilmsByCategory("Birthday Film");
+    expect(birthday.length).toBeGreaterThan(0);
+    for (const film of birthday) {
+      expect(film.category).toBe("Birthday Film");
+    }
   });
 });
 

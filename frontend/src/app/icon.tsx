@@ -26,22 +26,22 @@ export default function Icon(): ImageResponse {
       >
         <div
           style={{
-            width: 18,
-            height: 18,
-            border: "2px solid #f5f5f5",
+            width: 16,
+            height: 16,
+            border: "1.75px solid #f5f5f5",
             borderRadius: 2,
             transform: "rotate(45deg)",
-            opacity: 0.9,
+            opacity: 0.95,
           }}
         />
         <div
           style={{
             position: "absolute",
-            fontSize: 11,
+            fontSize: 12,
             fontFamily: "Georgia, serif",
             fontWeight: 600,
             letterSpacing: "-0.06em",
-            marginTop: 1,
+            lineHeight: 1,
           }}
         >
           {BRAND.short.charAt(0)}

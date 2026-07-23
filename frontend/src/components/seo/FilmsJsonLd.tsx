@@ -24,7 +24,7 @@ export function FilmsJsonLd(): React.ReactElement {
       item: {
         "@type": "VideoObject" as const,
         name: project.title,
-        description: `${project.category} by ${BRAND.name} — ${project.location}, ${project.year}`,
+        description: project.description,
         thumbnailUrl: posterUrl(project.video.playbackId, {
           time: project.video.posterTime,
           width: 1280,
