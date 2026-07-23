@@ -70,7 +70,9 @@ flowchart TB
 
 ## 5. Future recommendations
 
-1. **Contrast pass** — Tune `--color-dim` to `#6b6b6b` for WCAG AA on small eyebrow text if accessibility certification is needed
+1. **Contrast** — Tokens meet AA with margin: `--color-dim: #959595`, `--color-muted: #9a9a9a` on `#0a0a0a`. Do **not** darken dim toward `#6b6b6b` (worse contrast on near-black). See [accessibility.md](accessibility.md).
+
+> **Historical note (Part 4):** This review predates the multi-route films/showreel/light-shell product. Prefer [responsive.md](responsive.md) for current responsive behavior.
 2. **`next/image` for static posters** — Adopt selectively for non-animated Mux thumbnails with responsive `sizes`
 3. **Container queries** — Consider `@container` for component-level typography on ultra-wide displays
 4. **Visibility resume handler** — Add `pageshow` / `visibilitychange` handler for hero video on iOS tab return

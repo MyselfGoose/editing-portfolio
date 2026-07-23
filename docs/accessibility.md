@@ -105,9 +105,11 @@ Contact section uses `mailto:` links with visible text labels. No JavaScript req
 The design uses a dark theme with CSS custom properties:
 
 - Foreground: `#f5f5f5` on background `#0a0a0a`
-- Muted text: `#8a8a8a`
-- Dim text: `#7a7a7a`
+- Muted text: `#9a9a9a` (`--color-muted`)
+- Dim text: `#959595` (`--color-dim`) — AA headroom for small mono meta on near-black
 - High contrast ratio for body text and interactive elements
+
+Contact lives on `/contact` (form + mailto fallback), not a home `Contact.tsx` section.
 
 ## Screen Reader Considerations
 

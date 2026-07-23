@@ -61,14 +61,14 @@ Fluid utility classes in `globals.css`:
 
 Configured in [`motion-presets.ts`](../frontend/src/lib/motion-presets.ts) and [`ExperienceShell`](../frontend/src/components/experience/ExperienceShell.tsx):
 
-| System | Mobile | Desktop |
-|--------|--------|---------|
-| Lenis smooth scroll | Off | On (fine pointer only) |
-| Custom cursor | Off | On |
-| Process ScrollTrigger | On (all tiers; reduced-motion fallback) | On (Lenis-synced when available) |
-| Motion reveals | Shorter, smaller offset | Full cinematic |
-| Hero word mask | Fade only | Masked stagger |
-| Film grain animation | Static overlay | Animated |
+| System | Mobile | Desktop | Light routes (`/contact`, `/privacy`) |
+|--------|--------|---------|----------------------------------------|
+| Lenis smooth scroll | Off | On (fine pointer only) | Never |
+| Custom cursor UI | Off | On (cinematic) | Never |
+| Process ScrollTrigger | On (home cinematic) | On | N/A |
+| Film grain | Static overlay | Animated | Never |
+| Cinematic loader | Session (cinematic entry) | Session | Never |
+| Route veil | Short | Longer cinematic↔cinematic | Short light↔cinematic |
 
 `MotionConfig reducedMotion="user"` respects OS reduced-motion preference globally.
 
@@ -76,15 +76,21 @@ Configured in [`motion-presets.ts`](../frontend/src/lib/motion-presets.ts) and [
 
 | Surface | Mobile / Tablet | Desktop |
 |---------|-----------------|---------|
-| Hero | MuxVideo HLS (muted autoplay, 720p cap on mobile) | MuxVideo HLS (muted autoplay, 1080p cap) |
+| Hero ambient | Mux HLS (muted autoplay, 720p cap) | Mux HLS (1080p cap) |
+| Showreel overlay | Cinematic mobile preset | Cinematic preset |
+| Film page player | Film page Mux player | Same |
 | Project previews | Poster only | Poster + animated WebP on hover |
-| Modal player | 1080p max preset | 2160p cinematic preset |
+| Modal player | 1080p max | 2160p cinematic |
 
-Mux image widths scale by tier via `posterWidthForTier()` and `previewWidthForTier()`.
+## Film page + showreel
+
+- `/films/[slug]` must avoid horizontal overflow at 390 / 768 / 1024 (covered by `responsive.spec.ts`).
+- Showreel dialog respects safe-area insets; custom cursor is never required.
+- Light shell contact/privacy keep SiteNav/DesktopNav with identical IA.
 
 ## Mobile navigation
 
-[`SiteNav`](../frontend/src/components/navigation/SiteNav.tsx) provides a fullscreen menu below 1024px with links to all sections. Includes focus trap, Escape to close, and smooth scroll to anchors.
+[`SiteNav`](../frontend/src/components/navigation/SiteNav.tsx) provides a fullscreen menu below 1024px with links to Home, Films, Contact. Focus trap, Escape to close, closes on pathname change.
 
 ## Testing responsive behavior
 

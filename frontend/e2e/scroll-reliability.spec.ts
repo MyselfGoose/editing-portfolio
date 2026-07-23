@@ -143,4 +143,50 @@ test.describe("Scroll reliability", () => {
       page.getByRole("heading", { name: /Ready to begin your wedding film/i }),
     ).toBeVisible();
   });
+
+  test("process scrub still works after contact then home return", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto("/contact");
+    await expect(
+      page.getByRole("heading", { name: /Ready to begin your wedding film/i }),
+    ).toBeVisible();
+
+    await page
+      .getByRole("navigation", { name: "Site navigation" })
+      .getByRole("link", { name: "Home" })
+      .click();
+
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.locator("#process")).toBeVisible();
+
+    const { pinStartScroll, viewportHeight } = await page.evaluate(() => {
+      const process = document.getElementById("process");
+      const pinStartScroll =
+        process !== null
+          ? process.getBoundingClientRect().top + window.scrollY
+          : window.scrollY;
+      return { pinStartScroll, viewportHeight: window.innerHeight };
+    });
+
+    await scrubProcessToStageOffset(
+      page,
+      pinStartScroll,
+      viewportHeight,
+      PROCESS_STAGE_OFFSETS[1],
+    );
+
+    await expect
+      .poll(
+        async () => {
+          const active = page.locator('#process [data-active-stage="1"]');
+          return active
+            .getByRole("heading", { name: PROCESS_HEADLINES[1] })
+            .isVisible();
+        },
+        { timeout: 15_000 },
+      )
+      .toBe(true);
+  });
 });

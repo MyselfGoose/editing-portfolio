@@ -82,7 +82,9 @@ interface ProjectVideo {
 
 ### Captions (VTT)
 
-Add WebVTT files under `frontend/public/captions/` **only when you have accurate transcripts**. Reference them in `projects.ts`:
+**Policy:** Do not ship stub or placeholder dialogue. Add WebVTT only when accurate transcripts exist.
+
+Optional schema (none shipped today — no `public/captions/` assets and no `captions:` entries in `projects.ts`):
 
 ```typescript
 captions: [
@@ -95,57 +97,71 @@ captions: [
 ],
 ```
 
-Alternatively, upload text tracks in the Mux dashboard and use the Mux-hosted URL.
-
-Do not ship stub or placeholder dialogue cues. Data-contract tests fail if a referenced caption file is missing or matches stub patterns.
+Alternatively, upload text tracks in the Mux dashboard. Data-contract tests fail if a referenced caption file is missing or matches stub patterns.
 
 ### Adding a New Project
 
 1. Upload the video via the [ingest CLI](../scripts/ingest/README.md) (or manually to Mux — see [Video Ingest](video-ingest.md))
 2. Add a new entry to the `projects` array with a unique description (or use `ingest.sh apply` for video fields on existing entries)
-3. Run `npm run check` and deploy
+3. Film URL is `/films/{id}` automatically via `filmPath` / `getFilmStaticParams`
+4. Run `npm run check` and deploy
 
 ### Placeholder Convention
 
 Bracketed playback IDs (e.g. `[PLAYBACK_ID_01]`) are still supported via `isRealPlaybackId()` — the UI shows "Coming Soon" without Mux requests. All current projects use real IDs.
 
-### Shareable project links
+### Shareable film links
 
-Open a project modal via query param: `/?project=carezza-leanne`
+Canonical share URL: `/films/carezza-leanne` (also in sitemap).
+
+Legacy compat: `/?project=carezza-leanne` and `/films?project=carezza-leanne` **redirect** to `/films/carezza-leanne` — they do not open a modal.
+
+Showreel playback ID / poster time: `SHOWREEL` in `constants.ts` (interim Carezza asset until a dedicated reel is uploaded).
+
+### Testimonials
+
+[`frontend/src/data/testimonials.ts`](../frontend/src/data/testimonials.ts) is intentionally **empty**. `StudioProof` renders expectations / process proof without fake quotes. Add real client quotes only when approved.
 
 ## Section Content
 
 | Section | File | Editable Content |
 |---------|------|------------------|
-| Hero | `components/sections/Hero.tsx` | Subtext; headline from `HEADLINE_LINES` in constants |
-| About | `components/sections/About.tsx` | Copy; portrait from `ABOUT_IMAGE` in constants |
+| Hero | `components/sections/Hero.tsx` | Subtext; headline from `HEADLINE_LINES`; showreel CTA |
+| About | `components/sections/About.tsx` | Copy; portrait from `ABOUT_IMAGE` |
 | Process | `components/sections/Process.tsx` | Editorial stage frames |
+| FeaturedWork | `components/sections/FeaturedWork.tsx` | Featured IDs from constants |
+| StudioProof | `components/sections/StudioProof.tsx` | Proof copy; testimonials policy |
 | Services | `components/sections/Services.tsx` | Offerings list |
-| Contact | `components/contact/ContactPageContent.tsx` | Page copy; form; uses `SOCIAL` |
+| InvestmentNote | `components/sections/InvestmentNote.tsx` | Soft investment framing (no hard rates) |
+| HomeContactCta | `components/sections/HomeContactCta.tsx` | Home CTA to `/contact` |
+| Contact page | `components/contact/ContactPageContent.tsx` | Form + expectations |
 
 ## Loader Lines
 
-Defined in `constants.ts` (`LOADER_LINES`). Edit for brand voice.
+Defined in `constants.ts` (`LOADER_LINES`): LOADING SELECTS / CALIBRATING GRADE / LOCKING PICTURE / SETTING MOOD.
 
 ## Brand assets
 
 | Asset | Path | Notes |
 |-------|------|-------|
-| Logo | `public/brand/logo.svg` | Diamond + G mark; also shown in SiteFooter |
+| Logo | `public/brand/logo.svg` | Diamond + G mark |
 | Favicon / Apple icon | `app/icon.tsx`, `app/apple-icon.tsx` | Same mark family |
-| About photo | `public/images/me.jpeg` via `ABOUT_IMAGE` | Descriptive `alt` in constants |
-| OG image | Generated at `/opengraph-image` | Mux poster composited with brand text |
+| About photo | `public/images/me.jpeg` via `ABOUT_IMAGE` | Descriptive `alt` |
+| Home OG | `/opengraph-image` | Mux poster + brand |
+| Films OG | `/films/opengraph-image` | Typography |
+| Per-film OG | `/films/{slug}/opengraph-image` | Branded poster compositor |
 
 ## Contact form configuration
 
-The contact form posts to `/api/contact` and delivers submissions by email via Resend. See [Deployment](deployment.md) for Resend and Upstash env setup. If email delivery is not configured, the API returns a temporary-unavailable error and users can still reach out via the mailto link.
+The contact form posts to `/api/contact` and delivers submissions by email via Resend. See [Deployment](deployment.md). If email delivery is not configured, the API returns a temporary-unavailable error and users can still use mailto.
 
 ## Project categories
 
-The schema supports only genres present in the archive: `Wedding Film` and `Birthday Film`. Do not add empty genre unions or fake projects to fill categories.
+Schema supports `Wedding Film` and `Birthday Film` only. Do not add empty genre unions or fake projects.
 
 ## Related Documentation
 
-- [Video Ingest](video-ingest.md) — Mux upload workflow
-- [Architecture](architecture.md) — Data flow
-- [Deployment](deployment.md) — Deploy content changes
+- [Video Ingest](video-ingest.md)
+- [Architecture](architecture.md)
+- [Roadmap Decisions](roadmap-decisions.md)
+- [Deployment](deployment.md)

@@ -86,12 +86,20 @@ function ShowreelDialog({
     };
 
     document.addEventListener("keydown", handleKey);
+    const dialog = dialogRef.current;
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
       setScrollLocked(false);
       onOpenChangeAmbient?.(false);
-      previousFocusRef.current?.focus?.();
+      const player = dialog?.querySelector("mux-player");
+      if (player) {
+        pauseMuxPlayer(player as HTMLElement);
+      }
+      const previous = previousFocusRef.current;
+      if (previous?.isConnected) {
+        previous.focus?.();
+      }
     };
   }, [handleClose, setScrollLocked, onOpenChangeAmbient]);
 

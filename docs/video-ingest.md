@@ -82,22 +82,9 @@ playbackId: "[PLAYBACK_ID_01]",
 
 The UI shows **Coming Soon**, disables open, and skips Mux requests. See [Content Management](content-management.md#placeholder-convention) for details.
 
-## Captions (Optional)
+## Captions (Optional / future)
 
-Add VTT tracks when available:
-
-```typescript
-captions: [
-  {
-    src: "/captions/carezza-leanne.en.vtt",
-    srcLang: "en",
-    label: "English",
-    default: true,
-  },
-],
-```
-
-Mux Player renders them in the fullscreen modal. Caption upload via the ingest CLI is planned as a future enhancement.
+**Do not add stub VTT.** When real transcripts exist, reference them in `projects.ts` (or Mux-hosted text tracks). No caption files ship in `public/captions/` today. Players on film pages, modal, and showreel will pick up tracks when present. Caption upload via the ingest CLI remains a future enhancement.
 
 ## Analytics
 

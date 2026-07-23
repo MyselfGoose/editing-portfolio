@@ -13,6 +13,7 @@ import type { Project } from "@/data/projects";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { modalMotion } from "@/lib/motion-presets";
 import type { AdjacentFilms } from "@/lib/projects";
+import { pauseMuxPlayer } from "@/lib/video-lifecycle";
 
 interface ProjectModalProps {
   project: Project | null;
@@ -98,11 +99,19 @@ export function ProjectModal({
     };
 
     document.addEventListener("keydown", handleKey);
+    const dialog = dialogRef.current;
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
       setScrollLocked(false);
-      previousFocusRef.current?.focus?.();
+      const player = dialog?.querySelector("mux-player");
+      if (player) {
+        pauseMuxPlayer(player as HTMLElement);
+      }
+      const previous = previousFocusRef.current;
+      if (previous?.isConnected) {
+        previous.focus?.();
+      }
     };
   }, [
     project,

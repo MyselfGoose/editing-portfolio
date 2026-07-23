@@ -1,143 +1,93 @@
 # Experience Systems
 
-The cinematic experience layer — loader, custom cursor, smooth scroll, film grain, and page transitions.
+The cinematic experience layer — loader, custom cursor, smooth scroll, film grain, and route transitions.
 
-**Last verified against:** Next.js 16.2.9
+**Last verified against:** Next.js 16.2.9 (Part 4)
 
 ## Overview
 
-All experience systems are mounted through a single client boundary in `ExperienceShell`. They wrap the page content and provide the polished, cinematic feel of the portfolio.
+`ExperienceShell` is the single client boundary. It classifies routes with `getExperienceMode(pathname)` and mounts chrome accordingly. Nav and `CursorProvider` stay mounted across mode switches.
 
 ```
 ExperienceShell
-  ├── SmoothScroll        (Lenis + GSAP ticker)
-  ├── CursorProvider      (state store)
-  ├── CustomCursor        (ring + dot + label)
-  ├── CinematicLoader     (session one-shot overlay)
-  ├── film-grain          (CSS overlay)
-  └── TransitionManager   (route change animations)
-        └── page content
+  ├── SmoothScroll | PathScrollReset   (mode-gated, effect-only)
+  ├── CursorProvider
+  │     ├── SiteNav / DesktopNav
+  │     ├── CustomCursor               (cinematic only)
+  │     ├── CinematicLoader            (cinematic only)
+  │     ├── film-grain                 (cinematic only)
+  │     └── TransitionManager          (enter-veil)
+  │           └── page content
 ```
+
+| Mode | Pathnames | Behavior |
+|------|-----------|----------|
+| cinematic | `/`, `/films`, `/films/*` | Lenis (desktop + fine pointer + motion), cursor UI, session loader, grain |
+| light | `/contact`, `/privacy`, other | Native scroll via `PathScrollReset`; no Lenis / cursor UI / loader / grain |
+
+HTML attribute: `data-experience-mode="cinematic|light"`.
 
 ## Cinematic Loader
 
 **File:** `src/components/experience/CinematicLoader.tsx`
 
-A full-screen intro overlay that plays once per browser tab session.
+Plays once per tab session on **cinematic** routes (not mounted on light).
 
-### Behavior
-
-1. On first visit, the loader displays status lines with animated counters, then reveals the brand name
-2. After the GSAP timeline completes, the loader sets `sessionStorage` key `gp:loader-played` to `"1"` and unmounts
-3. On subsequent visits in the same tab, the loader is skipped entirely
-4. With `prefers-reduced-motion: reduce`, the loader shows briefly (400ms) then dismisses
-
-### Session Key
-
-```typescript
-// frontend/src/lib/constants.ts
-export const SESSION_KEYS = {
-  loaderPlayed: "gp:loader-played",
-} as const;
-```
-
-To replay the loader during development, clear session storage in DevTools:
-
-```javascript
-sessionStorage.removeItem("gp:loader-played");
-```
-
-Then refresh the page.
+Session key: `SESSION_KEYS.loaderPlayed` → `"gp:loader-played"`.
 
 ### Loader Lines
 
-Status lines are defined in `constants.ts`:
+From `constants.ts`:
 
 ```typescript
 export const LOADER_LINES = [
-  { label: "INITIALIZING VISUAL SYSTEM", status: "READY" },
-  { label: "COLOR GRADING", status: "DONE" },
-  { label: "FRAME ANALYSIS", status: "DONE" },
-  { label: "STORY ENGINE", status: "READY" },
+  { label: "LOADING SELECTS", status: "READY" },
+  { label: "CALIBRATING GRADE", status: "DONE" },
+  { label: "LOCKING PICTURE", status: "DONE" },
+  { label: "SETTING MOOD", status: "READY" },
 ] as const;
 ```
 
-### Timing
-
 | Setting | Desktop | Mobile |
 |---------|---------|--------|
-| Total duration | 2600ms | 1500ms (scaled) |
-| Outro wipe | 600ms | 600ms (scaled) |
+| Total duration | 2600ms | 1500ms |
+| Outro wipe | 600ms | 600ms |
 
 ## Custom Cursor
 
-**Files:** `CursorContext.tsx`, `CustomCursor.tsx`
+Mounted only in cinematic mode. `useCursor()` soft-falls back when the provider is absent (provider remains mounted on light for Contact mailto hover labels — state is unused without `CustomCursor`).
 
-A custom cursor ring with dot and label that replaces the default pointer on fine-pointer devices.
+## Smooth Scroll / Path Scroll
 
-### Cursor States
+- **Cinematic:** `SmoothScroll` dynamically imports Lenis; GSAP ticker + `ScrollTrigger.scrollerProxy`; capability gate: desktop + fine pointer + `!reducedMotion`.
+- **Light:** `PathScrollReset` — native scroll + `resetScrollPosition` on pathname change; no Lenis module init.
 
-| State | Trigger | Appearance |
-|-------|---------|------------|
-| `default` | Normal hover | Small ring + dot |
-| `play` | Hover over video preview | Ring expands, "PLAY" label |
-| `open` | Hover over links/CTAs | Ring expands, "OPEN" label |
-
-### Behavior
-
-- Hidden on touch devices (`pointer: coarse`) and when `prefers-reduced-motion: reduce`
-- Position tracked via RAF-throttled `useMousePosition` hook (no React re-renders)
-- State set by child components via `useCursor()` context hook
-
-## Smooth Scroll
-
-**Files:** `src/components/experience/SmoothScroll.tsx`, `src/lib/scroll-layout.ts`
-
-Lenis smooth scroll integrated with GSAP's ticker for synchronized animation. Enabled on desktop with a fine pointer when reduced motion is off.
-
-### How It Works
-
-1. Lenis creates a smooth scroll instance and registers with `scroll-layout.ts`
-2. GSAP's ticker calls `lenis.raf(time)` each frame
-3. `ScrollTrigger.scrollerProxy` bridges Lenis scroll position to GSAP pin/scrub math
-4. A `ResizeObserver` on `document.body` calls `refreshScrollLayout()` when layout height changes (dynamic sections, pin spacers)
-5. On route change (`usePathname`), `resetScrollPosition()` scrolls to top and recalculates limits
-6. `history.scrollRestoration` is set to `manual` to avoid browser restoring stale positions across routes
-
-### Scroll layout API
-
-| Function | Purpose |
-|----------|---------|
-| `registerLenis(lenis)` | Called by SmoothScroll when Lenis mounts/unmounts |
-| `refreshScrollLayout()` | `ScrollTrigger.refresh()` + `lenis.resize()` |
-| `resetScrollPosition()` | Scroll to top on route changes |
-
-Process and other ScrollTrigger consumers should call `refreshScrollLayout()` after init/cleanup rather than calling `ScrollTrigger.refresh()` directly.
-
-On mobile/tablet (no Lenis), a body `ResizeObserver` still refreshes ScrollTrigger when content height changes.
+`scroll-layout.ts` API: `registerLenis`, `refreshScrollLayout`, `resetScrollPosition`.
 
 ## Film Grain
 
-A CSS overlay (`div.film-grain`) with an animated noise texture. Defined in `globals.css` with `aria-hidden="true"`. Purely decorative — no JavaScript.
+CSS `.film-grain` overlay — cinematic routes only.
 
-## Transition Manager
+## Transition Manager (GSAP-safe)
 
 **File:** `src/components/experience/TransitionManager.tsx`
 
-Wraps page content in a stable wrapper for route changes. Intentionally avoids `AnimatePresence` exit animations — they conflict with GSAP pin spacers on the home page. Scroll reset on navigation is handled by `SmoothScroll` via `resetScrollPosition()`.
+**Decision:** Enter-only fixed veil overlay. Page trees swap synchronously (Next soft nav). **Never** wrap pages in `AnimatePresence` exit animations — those fight GSAP ScrollTrigger pin spacers on Home Process and cause React `removeChild` errors.
 
-## Process Section (GSAP ScrollTrigger)
+On pathname change the veil:
 
-**File:** `src/components/sections/Process.tsx`
+1. Clears scroll-lock artifacts (`body.overflow`, `dataset.scrollLocked`)
+2. Focuses `#main`
+3. Fades a sibling overlay (durations: reduced-motion ~60ms; light↔cinematic ~120ms; mobile cinematic ~160ms; desktop cinematic↔cinematic ~280ms)
 
-On all screen sizes (except `prefers-reduced-motion: reduce`), the process section uses GSAP ScrollTrigger to scrub through three edit stages. The section pins in place while visuals and copy cross-fade. Stage indicators (`activeIndex`) are derived from GSAP timeline progress via `activeIndexFromTimelineProgress()` in `src/lib/process-timeline.ts` — not a separate scroll formula. Inactive frames use `visibility: hidden` when opacity drops below 5% to prevent ghost text during crossfades.
+Showreel and ProjectModal are **overlays**, not route transitions.
 
-When reduced motion is enabled, a simplified sticky/intersection layout (`ProcessReducedMotion`) is shown instead.
+## Process Section
 
-Scroll-pin uses `ignoreMobileResize` for iOS address-bar stability and `--nav-offset` padding to clear fixed navigation.
+`Process.tsx` — GSAP pin + scrub on home only. Couples to Lenis only through document `scrollerProxy`. Returning Home from a light route remounts Process after cinematic `SmoothScroll` reinits — covered by `scroll-reliability` e2e.
 
 ## Related Documentation
 
-- [Architecture](architecture.md) — Rendering model and client boundary
-- [Accessibility](accessibility.md) — Reduced motion handling
-- [Troubleshooting](troubleshooting.md) — Loader and scroll issues
+- [Architecture](architecture.md)
+- [Accessibility](accessibility.md)
+- [Roadmap Decisions](roadmap-decisions.md)

@@ -4,126 +4,97 @@ How to deploy the Goose Productions portfolio to production on Vercel.
 
 **Live site:** [https://goose-productions.com](https://goose-productions.com)
 
-**Last verified against:** Next.js 16.2.9
+**Last verified against:** Next.js 16.2.9 (Part 4)
 
 ## Overview
 
-The portfolio is a Next.js App Router application deployed from the `frontend/` directory on Vercel. It remains database-free, but includes optional analytics and a server-side contact form that delivers submissions by email via Resend.
+Next.js App Router app from `frontend/` on Vercel. Database-free. Contact form via Resend; optional Upstash rate limit; optional Vercel Analytics.
 
 ## Vercel Setup
 
-### 1. Connect Repository
-
-1. Sign in to [vercel.com](https://vercel.com)
-2. Click **Add New → Project**
-3. Import the `editing-portfolio` repository from GitHub
-4. Configure the project settings below
-
-### 2. Project Settings
-
 | Setting | Value |
 |---------|-------|
-| **Framework Preset** | Next.js |
-| **Root Directory** | `frontend` |
-| **Build Command** | `npm run build` |
-| **Output Directory** | (Next.js default — leave empty) |
-| **Install Command** | `npm install` |
-| **Node.js Version** | 20.x |
+| Framework Preset | Next.js |
+| Root Directory | `frontend` |
+| Build Command | `npm run build` |
+| Node.js | 20.x |
 
-### 3. Environment Variables
+### Environment variables
 
-Copy `frontend/.env.example` to `.env.local` for local development.
+Copy [`frontend/.env.example`](../frontend/.env.example) → `.env.local`.
 
-| Variable | Required | Scope | Purpose |
-|----------|----------|-------|---------|
-| `RESEND_API_KEY` | Yes (for contact form) | Server | Resend API key for sending contact notifications |
-| `CONTACT_FORM_FROM` | Yes (for contact form) | Server | Verified sender, e.g. `Goose Productions <contact@goose-productions.com>` |
-| `UPSTASH_REDIS_REST_URL` | Recommended | Server | Upstash Redis REST URL for contact form rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | Recommended | Server | Upstash Redis REST token for contact form rate limiting |
-| `NEXT_PUBLIC_ANALYTICS_ENABLED` | Optional (`true` default) | Public | Enables/disables Vercel Analytics mount |
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `RESEND_API_KEY` | Yes (contact) | Resend API key |
+| `CONTACT_FORM_FROM` | Yes (contact) | Verified sender on `goose-productions.com` |
+| `UPSTASH_REDIS_REST_URL` | Recommended prod | Rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Recommended prod | Rate limiting |
+| `NEXT_PUBLIC_ANALYTICS_ENABLED` | Optional (`true` default) | Analytics mount |
 
-Notes:
-- Do not commit real keys/secrets.
-- Server-only variables must **not** use the `NEXT_PUBLIC_` prefix.
-- Contact form submissions are delivered to `CONTACT.email` in [`frontend/src/lib/constants.ts`](../frontend/src/lib/constants.ts).
+**Upstash honesty:** If Redis env vars are omitted, rate limiting is **skipped** (fine for local; configure in production).
 
-### Contact email setup (Resend)
+Do not commit secrets. Server vars must not use `NEXT_PUBLIC_`.
 
-1. Create an account at [resend.com](https://resend.com)
-2. Add and verify the domain `goose-productions.com` (SPF + DKIM DNS records)
-3. Create an API key and set `RESEND_API_KEY` in Vercel
-4. Set `CONTACT_FORM_FROM` to your verified sender address
+### Resend
 
-### Rate limiting setup (Upstash)
+1. Verify domain `goose-productions.com` (SPF + DKIM)
+2. Set `RESEND_API_KEY` + `CONTACT_FORM_FROM` in Vercel
 
-1. Create a free Redis database at [upstash.com](https://upstash.com)
-2. Copy the REST URL and token into `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-3. If omitted, rate limiting is skipped (acceptable for local dev; configure in production)
+### Upstash
 
-### 4. Deploy
+1. Create Redis REST credentials
+2. Set both Upstash vars in Vercel production
 
-Push to the `main` branch (or your production branch). Vercel builds and deploys automatically.
-
-Preview deployments are created for every pull request.
-
-## Build Verification
-
-Before deploying, verify the build locally:
+## Build verification
 
 ```bash
 cd frontend
 npm run check
+npm run test:e2e
 ```
 
-This runs lint, typecheck, unit tests, and production build in sequence.
+## Custom domain
 
-## Custom Domain
+`goose-productions.com` + `www` → apex redirect via `next.config.ts`. TLS via Vercel.
 
-Production domain: **goose-productions.com**
+## Post-deploy checklist
 
-1. In Vercel project settings, go to **Domains**
-2. Add your custom domain (e.g. `goose-productions.com`)
-3. Add `www.goose-productions.com` and point it to the same project (redirects to apex via `next.config.ts`)
-4. Configure DNS as instructed by Vercel (CNAME or A record)
-5. Vercel provisions TLS automatically
-
-## Post-Deploy Checklist
-
-Manual QA on [goose-productions.com](https://goose-productions.com). Mark pass/fail per item.
+Manual QA on production. Items marked **repo-verified** were validated via `npm run check` + e2e in Part 4; live env items need a human after deploy.
 
 | Check | Pass criteria | Status |
 |-------|---------------|--------|
-| Home page sections | Hero, About, Process, Work, Services, Contact visible after loader | [x] |
-| Custom domain + HTTPS | `https://goose-productions.com` resolves with valid TLS | [x] |
-| Cinematic loader | First visit in new tab: loader plays and dismisses; revisit skips | [ ] |
-| Project poster previews | Work section cards show Mux poster frames | [ ] |
-| Project modal playback | Click project → fullscreen modal → Mux Player plays | [ ] |
-| Contact mailto | `START A PROJECT` and email link open mail client to `gooseproductionsstudio@gmail.com` | [ ] |
-| Contact form submit | Valid submission shows success status; email arrives at `gooseproductionsstudio@gmail.com` | [ ] |
-| Page metadata | Title, description, OG image on share previews | [x] |
-| Favicon | Tab shows branded icon | [x] |
-| Sitemap + robots | `/sitemap.xml` and `/robots.txt` return 200 | [x] |
-| Desktop navigation | At 1024px+: top nav links jump to all sections | [ ] |
-| Deep link | `/?project=carezza-leanne` opens correct modal | [ ] |
-| 404 page | `/nonexistent` shows branded not-found | [ ] |
-| Privacy route | `/privacy` renders and is linked in contact footer | [ ] |
-| Analytics | Pageviews visible in Vercel Analytics dashboard after deploy | [ ] |
+| Home sections | Hero → About → Process → Work → StudioProof → Services → InvestmentNote → Contact CTA (not a Contact section) | repo-verified |
+| `/films` archive | Filters, rows, modal, showreel | repo-verified |
+| `/films/[slug]` | Film page + adjacent nav; OG branded image | repo-verified |
+| Light shell | `/contact` + `/privacy`: no Lenis, no grain, no cursor UI (`data-experience-mode=light`) | repo-verified |
+| Cinematic restore | Contact → Home: Process scrub still works | repo-verified |
+| Showreel | Open/close from hero + films; overflow clears after navigate | repo-verified |
+| Contact form (live) | Submit on production → email arrives at `CONTACT.email` | **human** |
+| Resend domain | SPF/DKIM verified; `CONTACT_FORM_FROM` works | **human** |
+| Upstash rate limit | Burst submissions limited in production | **human** |
+| Analytics | Pageviews in Vercel Analytics when flag enabled | **human** |
+| Share preview | Paste `/films/carezza-leanne` into Slack/iMessage — branded OG | **human** |
+| Legacy `?project=` | Redirects to `/films/{id}` (not modal) | repo-verified |
+| HTTPS + domain | Valid TLS on goose-productions.com | **human** (assumed if live) |
+| Sitemap / robots | `/sitemap.xml`, `/robots.txt` 200 | repo-verified |
+| 404 | Branded not-found | repo-verified |
+
+## Production readiness
+
+1. Confirm Resend domain verification in Resend dashboard
+2. Confirm Upstash vars present in Vercel Production
+3. Confirm `NEXT_PUBLIC_ANALYTICS_ENABLED` intentional
+4. Smoke contact form once on production
+5. Spot-check OG: open `/films/carezza-leanne/opengraph-image` → PNG
+6. Spot-check shell: DevTools on `/contact` → `html[data-experience-mode=light]`, no `.film-grain`
 
 ## CI/CD
 
-GitHub Actions runs on every push and pull request:
-
-1. ESLint
-2. TypeScript type checking
-3. Vitest unit and component tests (with coverage thresholds)
-4. Production build
-5. Playwright e2e tests
-
-See [Testing](testing.md) for CI details.
+GitHub Actions: Lint, Typecheck, Unit & Component Tests, Build, E2E Tests, Ingest CLI Smoke.
 
 ## Related Documentation
 
-- [Getting Started](getting-started.md) — Local development setup
-- [Content Management](content-management.md) — How to update content before deploying
-- [Video Ingest](video-ingest.md) — Adding new videos before deploy
-- [Troubleshooting](troubleshooting.md) — Deploy issues
+- [Roadmap Decisions](roadmap-decisions.md) — decide-don’t-build register
+- [Testing](testing.md)
+- [Content Management](content-management.md)
+- [Experience](experience.md)

@@ -1,6 +1,6 @@
 # Goose Productions — Cinematic Portfolio
 
-A single-page cinematic video studio portfolio built with Next.js, featuring Mux-powered video playback, GSAP animations, and a polished scroll-driven experience.
+A multi-route cinematic video studio portfolio built with Next.js — home story, `/films` archive, dedicated film pages, light contact/privacy routes, Mux playback, GSAP scroll cinema, and a tiered ExperienceShell.
 
 **Live site:** [goose-productions.com](https://goose-productions.com)
 
@@ -33,7 +33,9 @@ Full documentation lives in the [`docs/`](docs/) folder:
 | [Experience](docs/experience.md) | Loader, cursor, smooth scroll, transitions |
 | [Accessibility](docs/accessibility.md) | Reduced motion, focus, keyboard patterns |
 | [Testing](docs/testing.md) | Unit, component, and e2e test guide |
-| [Deployment](docs/deployment.md) | Vercel setup and environment variables |
+| [Deployment](docs/deployment.md) | Vercel setup, env vars, production checklist |
+| [Roadmap Decisions](docs/roadmap-decisions.md) | Decide-don’t-build register |
+| [Responsive](docs/responsive.md) | Breakpoints, film page, light shell |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues and fixes |
 
 ## Tech Stack

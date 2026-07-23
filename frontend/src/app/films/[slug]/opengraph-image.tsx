@@ -1,17 +1,40 @@
 import { ImageResponse } from "next/og";
 
-import { BRAND, MUX_DEMO_VIDEO } from "@/lib/constants";
+import { BRAND } from "@/lib/constants";
+import { isRealPlaybackId } from "@/lib/mux";
 import { loadPosterDataUrl, OG_CONTENT_TYPE, OG_SIZE } from "@/lib/og-poster";
+import { getFilmStaticParams, getProjectById } from "@/lib/projects";
 
-export const alt = `${BRAND.name} — Wedding Cinema`;
+export const alt = `Film — ${BRAND.name}`;
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
-export default async function OpenGraphImage(): Promise<ImageResponse> {
-  const posterDataUrl = await loadPosterDataUrl(MUX_DEMO_VIDEO.playbackId, {
-    time: 8,
-    width: 1200,
-  });
+export function generateStaticParams(): Array<{ slug: string }> {
+  return getFilmStaticParams().map((entry) => ({ slug: entry.slug }));
+}
+
+interface FilmOpenGraphProps {
+  params: Promise<{ slug: string }>;
+}
+
+export default async function FilmOpenGraphImage({
+  params,
+}: FilmOpenGraphProps): Promise<ImageResponse> {
+  const { slug } = await params;
+  const project = getProjectById(slug);
+
+  const title = project?.title ?? "Film";
+  const eyebrow = project
+    ? `${project.category} / ${project.year}`
+    : "Studio Archive";
+
+  let posterDataUrl: string | null = null;
+  if (project && isRealPlaybackId(project.video.playbackId)) {
+    posterDataUrl = await loadPosterDataUrl(project.video.playbackId, {
+      time: project.video.posterTime ?? 8,
+      width: 1200,
+    });
+  }
 
   return new ImageResponse(
     (
@@ -44,7 +67,24 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
               opacity: 0.45,
             }}
           />
-        ) : null}
+        ) : (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -55%)",
+              fontSize: 160,
+              lineHeight: 1,
+              letterSpacing: "-0.04em",
+              fontFamily: "Georgia, serif",
+              opacity: 0.06,
+              display: "flex",
+            }}
+          >
+            FILM
+          </div>
+        )}
         <div
           style={{
             position: "absolute",
@@ -63,7 +103,7 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
         >
           <div
             style={{
-              fontSize: 28,
+              fontSize: 24,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
               color: "rgba(245,245,245,0.55)",
@@ -71,23 +111,23 @@ export default async function OpenGraphImage(): Promise<ImageResponse> {
               marginBottom: 24,
             }}
           >
-            Wedding Cinema
+            {eyebrow}
           </div>
           <div
             style={{
-              fontSize: 72,
+              fontSize: title.length > 28 ? 56 : 68,
               lineHeight: 1.05,
               letterSpacing: "-0.03em",
               fontFamily: "Georgia, serif",
-              maxWidth: 900,
+              maxWidth: 960,
             }}
           >
-            {BRAND.tagline}
+            {title}
           </div>
           <div
             style={{
               marginTop: 40,
-              fontSize: 24,
+              fontSize: 22,
               letterSpacing: "0.2em",
               textTransform: "uppercase",
               color: "rgba(245,245,245,0.7)",

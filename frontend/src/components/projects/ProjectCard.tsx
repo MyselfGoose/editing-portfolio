@@ -15,7 +15,9 @@ interface ProjectCardProps {
 }
 
 function prefetchProjectModal(): void {
-  void import("@/components/projects/ProjectModal");
+  void import("@/components/projects/ProjectModal").catch(() => {
+    /* Prefetch may resolve after Vitest tears down a fast test. */
+  });
 }
 
 export function ProjectCard({

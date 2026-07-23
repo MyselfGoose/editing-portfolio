@@ -33,10 +33,17 @@ test.describe("Site navigation", () => {
     });
 
     await page.getByRole("button", { name: "Open menu" }).click();
-    await expect(page.getByRole("dialog", { name: "Site navigation" })).toBeVisible();
+    const dialog = page.getByRole("dialog", { name: "Site navigation" });
+    await expect(dialog).toBeVisible();
 
-    await page.getByRole("link", { name: "Contact" }).click();
-    await expect(page.getByRole("dialog", { name: "Site navigation" })).toBeHidden();
-    await expect(page).toHaveURL(/\/contact$/);
+    // Soft-nav may unmount the menu panel mid-click; race URL with the click.
+    await Promise.all([
+      page.waitForURL(/\/contact$/),
+      dialog.getByRole("link", { name: "Contact" }).click(),
+    ]);
+
+    await expect(
+      page.getByRole("dialog", { name: "Site navigation" }),
+    ).toBeHidden();
   });
 });

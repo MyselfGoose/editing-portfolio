@@ -77,8 +77,13 @@ export function FilmPlayer({
 
     syncPlayback();
 
+    const container = containerRef.current;
     return () => {
       cancelled = true;
+      const player = container?.querySelector("mux-player");
+      if (player) {
+        pauseMuxPlayer(player as HTMLElement);
+      }
     };
   }, [isPageVisible, project.id, hasPlayback, failed, autoPlay]);
 
