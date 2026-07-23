@@ -80,6 +80,17 @@ export const MUX_DEMO_VIDEO = {
   posterTime: 4,
 } as const;
 
+/**
+ * Canonical showreel source for the Watch Reel experience.
+ * Interim: reuses Carezza until a distinct reel asset exists.
+ */
+export const SHOWREEL = {
+  playbackId: MUX_DEMO_VIDEO.playbackId,
+  title: "Showreel",
+  posterTime: MUX_DEMO_VIDEO.posterTime,
+  duration: "04:12",
+} as const;
+
 /** About section portrait. */
 export const ABOUT_IMAGE = {
   src: "/images/me.jpeg",

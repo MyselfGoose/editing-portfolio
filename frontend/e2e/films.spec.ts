@@ -55,17 +55,21 @@ test.describe("Films page", () => {
     await expect(dialog).toBeVisible();
   });
 
-  test("deep link opens film on /films", async ({ page }) => {
+  test("legacy deep link redirects to film page", async ({ page }) => {
     await page.goto("/films?project=meghan-and-edward");
-    const dialog = page.getByRole("dialog", {
-      name: "Meghan and Edward",
-    });
-    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveURL(/\/films\/meghan-and-edward$/);
+    await expect(
+      page.getByRole("heading", { name: "Meghan and Edward", level: 1 }),
+    ).toBeVisible({ timeout: 15_000 });
   });
 
   test("navigation links include Films", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "Films" })).toBeVisible({
+    await expect(
+      page
+        .getByRole("navigation", { name: "Site navigation" })
+        .getByRole("link", { name: "Films" }),
+    ).toBeVisible({
       timeout: 15_000,
     });
   });

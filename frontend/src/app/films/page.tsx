@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { FilmsStage } from "@/components/films/FilmsStage";
 import { FilmsJsonLd } from "@/components/seo/FilmsJsonLd";
 import { BRAND, SITE } from "@/lib/constants";
+import { resolveProjectQueryRedirect } from "@/lib/projects";
 
 const DESCRIPTION =
   "Browse cinematic wedding and celebration films by Goose Productions.";
@@ -24,7 +26,19 @@ export const metadata: Metadata = {
   },
 };
 
-export default function FilmsPage(): React.ReactElement {
+interface FilmsPageProps {
+  searchParams: Promise<{ project?: string | string[] }>;
+}
+
+export default async function FilmsPage({
+  searchParams,
+}: FilmsPageProps): Promise<React.ReactElement> {
+  const params = await searchParams;
+  const redirectPath = resolveProjectQueryRedirect(params.project);
+  if (redirectPath) {
+    redirect(redirectPath);
+  }
+
   return (
     <>
       <FilmsJsonLd />

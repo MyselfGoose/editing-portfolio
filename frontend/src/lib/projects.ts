@@ -3,6 +3,7 @@ import {
   type Project,
   type ProjectCategory,
 } from "@/data/projects";
+import { SITE } from "@/lib/constants";
 
 export function getProjectById(id: string): Project | null {
   if (!id || typeof id !== "string") return null;
@@ -12,6 +13,34 @@ export function getProjectById(id: string): Project | null {
 
 export function isValidProjectId(id: string): boolean {
   return getProjectById(id) !== null;
+}
+
+/** Canonical path for a film page (`/films/[slug]`). */
+export function filmPath(id: string): string {
+  return `/films/${id}`;
+}
+
+/** Absolute canonical URL for a film page. */
+export function filmUrl(id: string): string {
+  return `${SITE.url}${filmPath(id)}`;
+}
+
+/** Static params for `app/films/[slug]` (`slug` === project.id). */
+export function getFilmStaticParams(): ReadonlyArray<{ slug: string }> {
+  return projects.map((project) => ({ slug: project.id }));
+}
+
+/**
+ * Resolve a `?project=` query value to a canonical film path for S1 redirects.
+ * Returns null for missing/invalid ids (caller should ignore, not 404).
+ */
+export function resolveProjectQueryRedirect(
+  projectParam: string | string[] | undefined,
+): string | null {
+  const id = Array.isArray(projectParam) ? projectParam[0] : projectParam;
+  if (!id || typeof id !== "string" || id.length === 0) return null;
+  if (!isValidProjectId(id)) return null;
+  return filmPath(id);
 }
 
 export function getAllFilms(): ReadonlyArray<Project> {

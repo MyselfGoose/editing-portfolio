@@ -3,7 +3,7 @@
 import { ArrowUpRight } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { Container } from "@/components/layout/Container";
 import { Section } from "@/components/layout/Section";
@@ -11,6 +11,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { useProjectDeepLink } from "@/hooks/useProjectDeepLink";
 import { featuredProjects, type Project } from "@/data/projects";
+import { getAdjacentFilms } from "@/lib/projects";
 
 const ProjectModal = dynamic(
   () => import("@/components/projects/ProjectModal").then((m) => m.ProjectModal),
@@ -33,6 +34,23 @@ export function FeaturedWork(): React.ReactElement {
     onOpen: handleOpen,
     onClose: handleClose,
   });
+
+  const adjacentFilms = useMemo(() => {
+    if (!activeProject) return undefined;
+    return getAdjacentFilms(activeProject.id, featuredProjects);
+  }, [activeProject]);
+
+  const handleNavigate = useCallback(
+    (direction: "prev" | "next"): void => {
+      if (!activeProject || !adjacentFilms) return;
+      const target =
+        direction === "prev" ? adjacentFilms.prev : adjacentFilms.next;
+      if (target) {
+        openProject(target);
+      }
+    },
+    [activeProject, adjacentFilms, openProject],
+  );
 
   return (
     <Section id="work" labelledBy="work-heading" borderTop>
@@ -73,7 +91,12 @@ export function FeaturedWork(): React.ReactElement {
           </Link>
         </div>
 
-        <ProjectModal project={activeProject} onClose={closeProject} />
+        <ProjectModal
+          project={activeProject}
+          onClose={closeProject}
+          onNavigate={handleNavigate}
+          adjacentFilms={adjacentFilms}
+        />
       </Container>
     </Section>
   );

@@ -78,8 +78,12 @@ describe("ProjectModal", () => {
       expect(closeButton).toHaveFocus();
     });
 
+    const openFilmPage = screen.getByRole("link", { name: "Open film page" });
     await user.tab();
-    // Focus should wrap back to close button (only focusable in mock)
+    expect(openFilmPage).toHaveFocus();
+
+    // Shift+Tab from first focusable wraps to last; Tab from last wraps to first.
+    await user.tab({ shift: true });
     expect(closeButton).toHaveFocus();
   });
 });

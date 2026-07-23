@@ -38,7 +38,7 @@ const validBody = {
   name: "Goose Client",
   email: "client@example.com",
   message: "Need a cinematic wedding film for September.",
-  projectType: "Wedding film",
+  projectType: "wedding_film_edit",
   company: "",
   client: {
     pageUrl: "/contact",
@@ -65,6 +65,11 @@ describe("POST /api/contact", () => {
     expect(response.status).toBe(200);
     expect(payload).toEqual({ ok: true });
     expect(sendContactEmailMock).toHaveBeenCalledOnce();
+    expect(sendContactEmailMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        projectType: "Wedding film edit",
+      }),
+    );
   });
 
   it("returns 400 for invalid payloads", async () => {

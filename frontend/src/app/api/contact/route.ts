@@ -7,6 +7,7 @@ import {
   contactFormSchema,
   formatValidationErrors,
   isHoneypotTriggered,
+  projectTypeLabel,
 } from "@/lib/contact/schema";
 import {
   ContactEmailError,
@@ -83,7 +84,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       name: parsed.data.name,
       email: parsed.data.email,
       message: parsed.data.message,
-      projectType: parsed.data.projectType,
+      projectType: projectTypeLabel(parsed.data.projectType),
       metadata,
     });
   } catch (error) {

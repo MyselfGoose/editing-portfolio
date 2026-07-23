@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 import { useCallback, useRef } from "react";
 
 import { useCursor } from "@/components/experience/CursorContext";
 import { useRevealMotion } from "@/hooks/useRevealMotion";
 import type { Project } from "@/data/projects";
-import { posterWidthForTier } from "@/lib/breakpoints";
+import { MUX_IMAGE_SIZES, posterWidthForTier } from "@/lib/breakpoints";
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { isRealPlaybackId, posterUrl } from "@/lib/mux";
 import { EASE } from "@/lib/constants";
@@ -67,14 +68,13 @@ export function FilmsMoment({
       >
         {posterSrc ? (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={posterSrc}
               alt=""
               aria-hidden="true"
-              loading="lazy"
-              decoding="async"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-[var(--ease-cinematic)] group-hover:scale-[1.03]"
+              fill
+              sizes={MUX_IMAGE_SIZES}
+              className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-cinematic)] group-hover:scale-[1.03]"
             />
             <div
               className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"

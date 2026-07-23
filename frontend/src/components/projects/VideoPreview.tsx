@@ -144,6 +144,7 @@ export function VideoPreview({
     >
       {hasPlayback && posterSrc && !mediaError ? (
         <>
+          {/* Hover preview uses native <img>: next/image fights animated WebP lifecycle. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={posterSrc}
@@ -160,6 +161,7 @@ export function VideoPreview({
           />
           {animatedSrc ? (
             <>
+              {/* Animated Mux WebP preview — keep native <img> for hover lifecycle. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={animatedSrc}

@@ -21,7 +21,7 @@ export function HeroBackdrop(): React.ReactElement {
   const isPageVisible = usePageVisibility();
   const [posterError, setPosterError] = useState(false);
 
-  const { isMuted, registerVideo, videoRef } = useHeroMedia();
+  const { isMuted, registerVideo, videoRef, isAmbientPaused } = useHeroMedia();
   const { playbackId, title, posterTime } = MUX_DEMO_VIDEO;
   const posterWidth = posterWidthForTier(tier);
   const poster = posterUrl(playbackId, {
@@ -47,18 +47,18 @@ export function HeroBackdrop(): React.ReactElement {
   useEffect(() => {
     if (!canPlayAmbientVideo) return;
     const video = videoRef.current;
-    if (!isPageVisible) {
+    if (!isPageVisible || isAmbientPaused) {
       pauseVideo(video);
       return;
     }
     playVideo(video);
-  }, [canPlayAmbientVideo, isPageVisible, videoRef]);
+  }, [canPlayAmbientVideo, isPageVisible, isAmbientPaused, videoRef]);
 
   useEffect(() => {
     if (!canPlayAmbientVideo) return;
 
     const resumePlayback = (): void => {
-      if (!document.hidden) {
+      if (!document.hidden && !isAmbientPaused) {
         playVideo(videoRef.current);
       }
     };
@@ -69,11 +69,12 @@ export function HeroBackdrop(): React.ReactElement {
       window.removeEventListener("pageshow", resumePlayback);
       document.removeEventListener("visibilitychange", resumePlayback);
     };
-  }, [canPlayAmbientVideo, videoRef]);
+  }, [canPlayAmbientVideo, isAmbientPaused, videoRef]);
 
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
       {!posterError ? (
+        // Ambient LCP poster stays native <img> to avoid optimizer/hydration fights with MuxVideo.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={poster}

@@ -1,7 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { useCinematicCapabilities } from "@/lib/cinematic-capabilities";
@@ -11,13 +13,22 @@ import { HeroAudioToggle } from "./HeroAudioToggle";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { HeroMediaProvider, useHeroMedia } from "./HeroMediaContext";
 
+const ShowreelOverlay = dynamic(
+  () =>
+    import("@/components/showreel/ShowreelOverlay").then(
+      (m) => m.ShowreelOverlay,
+    ),
+  { ssr: false },
+);
+
 /** Secondary chrome/subcopy opacity when ambient video is unmuted. */
 const SECONDARY_FADE_OPACITY = 0.65;
 
 function HeroContent(): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
   const { canPlayAmbientVideo } = useCinematicCapabilities();
-  const { isMuted } = useHeroMedia();
+  const { isMuted, pauseAmbient, resumeAmbient } = useHeroMedia();
+  const [reelOpen, setReelOpen] = useState(false);
 
   const secondaryOpacity =
     isMuted || !canPlayAmbientVideo ? 1 : SECONDARY_FADE_OPACITY;
@@ -35,6 +46,25 @@ function HeroContent(): React.ReactElement {
           y: { duration: 1, ease: EASE.expoOut, delay: 0.25 },
         },
       };
+
+  const openReel = useCallback((): void => {
+    setReelOpen(true);
+  }, []);
+
+  const closeReel = useCallback((): void => {
+    setReelOpen(false);
+  }, []);
+
+  const handleAmbientPause = useCallback(
+    (paused: boolean): void => {
+      if (paused) {
+        pauseAmbient();
+      } else {
+        resumeAmbient();
+      }
+    },
+    [pauseAmbient, resumeAmbient],
+  );
 
   return (
     <section
@@ -59,9 +89,14 @@ function HeroContent(): React.ReactElement {
         <span className="text-meta uppercase text-[color:var(--color-muted)]">
           Wedding Cinema / Est. 2019
         </span>
-        <span className="text-meta uppercase text-[color:var(--color-muted)]">
-          Showreel
-        </span>
+        <button
+          type="button"
+          onClick={openReel}
+          className="min-h-11 text-meta uppercase text-[color:var(--color-muted)] transition-colors hover:text-[color:var(--color-foreground)]"
+          aria-label="Watch Reel"
+        >
+          Watch Reel
+        </button>
       </motion.header>
 
       <div className="relative z-10 flex flex-1 items-center py-6 sm:py-10">
@@ -85,22 +120,41 @@ function HeroContent(): React.ReactElement {
       </div>
 
       <footer className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-        <motion.p
-          className="max-w-sm text-body-lg text-[color:var(--color-muted)]"
-          initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: secondaryOpacity, y: 0 }}
-          transition={
-            reducedMotion
-              ? textTransition
-              : {
-                  opacity: textTransition,
-                  y: { duration: 0.9, ease: EASE.expoOut, delay: 1.4 },
-                }
-          }
-        >
-          Cinematic wedding films for couples who want the day felt, not just
-          filmed. Selected work from the archive below.
-        </motion.p>
+        <div className="flex max-w-sm flex-col gap-5">
+          <motion.p
+            className="text-body-lg text-[color:var(--color-muted)]"
+            initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: secondaryOpacity, y: 0 }}
+            transition={
+              reducedMotion
+                ? textTransition
+                : {
+                    opacity: textTransition,
+                    y: { duration: 0.9, ease: EASE.expoOut, delay: 1.4 },
+                  }
+            }
+          >
+            Cinematic wedding films for couples who want the day felt, not just
+            filmed. Selected work from the archive below.
+          </motion.p>
+          <motion.div
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: secondaryOpacity }}
+            transition={
+              reducedMotion
+                ? textTransition
+                : { ...textTransition, delay: 1.5 }
+            }
+          >
+            <button
+              type="button"
+              onClick={openReel}
+              className="inline-flex min-h-11 items-center border-b border-[color:var(--color-foreground)] pb-2 text-eyebrow transition-colors hover:text-[color:var(--color-muted)]"
+            >
+              Watch Reel
+            </button>
+          </motion.div>
+        </div>
 
         <motion.div
           className="flex flex-col items-start gap-2 text-eyebrow text-[color:var(--color-muted)] sm:items-end"
@@ -123,6 +177,12 @@ function HeroContent(): React.ReactElement {
           <HeroAudioToggle />
         </div>
       ) : null}
+
+      <ShowreelOverlay
+        open={reelOpen}
+        onClose={closeReel}
+        onOpenChangeAmbient={handleAmbientPause}
+      />
     </section>
   );
 }

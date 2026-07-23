@@ -74,4 +74,51 @@ test.describe("Responsive layout", () => {
     });
     expect(overflow).toBe(false);
   });
+
+  test("film page and showreel fit at 390px", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/films/carezza-leanne");
+    await expect(
+      page.getByRole("heading", { name: "Carezza Leanne", level: 1 }),
+    ).toBeVisible({ timeout: 15_000 });
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+      ),
+    ).toBe(false);
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "Watch Reel" }).first().click();
+    const dialog = page.getByRole("dialog", { name: "Showreel" });
+    await expect(dialog).toBeVisible();
+    const close = dialog.getByRole("button", { name: "Close showreel" });
+    const box = await close.boundingBox();
+    expect(box).not.toBeNull();
+    if (box) {
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+    }
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth > window.innerWidth,
+      ),
+    ).toBe(false);
+  });
+
+  test("film page has no horizontal overflow at 768 and 1024", async ({
+    page,
+  }) => {
+    for (const width of [768, 1024] as const) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/films/carezza-leanne");
+      await expect(
+        page.getByRole("heading", { name: "Carezza Leanne", level: 1 }),
+      ).toBeVisible({ timeout: 15_000 });
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > window.innerWidth,
+        ),
+      ).toBe(false);
+    }
+  });
 });

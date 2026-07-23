@@ -31,7 +31,7 @@ describe("Hero", () => {
     );
   });
 
-  it("shows showreel chrome on mobile", () => {
+  it("shows Watch Reel control on mobile", () => {
     mockMatchMediaForQuery({
       "(prefers-reduced-motion: reduce)": true,
       "(max-width: 767px)": true,
@@ -46,6 +46,8 @@ describe("Hero", () => {
     });
 
     renderWithProviders(<Hero />);
-    expect(screen.getByText("Showreel")).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("button", { name: "Watch Reel" }).length,
+    ).toBeGreaterThan(0);
   });
 });

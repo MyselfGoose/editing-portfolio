@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -152,14 +153,14 @@ function FloatingPreview({
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.35, ease: EASE.smooth }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={src}
             alt=""
             aria-hidden="true"
-            className="h-full w-full object-cover"
-            loading="eager"
-            decoding="async"
+            fill
+            sizes="380px"
+            className="object-cover"
+            priority
           />
           <div
             className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"

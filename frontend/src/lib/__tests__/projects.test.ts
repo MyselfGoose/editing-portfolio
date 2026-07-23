@@ -2,14 +2,19 @@ import { describe, expect, it } from "vitest";
 
 import { projects, FEATURED_PROJECT_IDS } from "@/data/projects";
 import {
+  filmPath,
+  filmUrl,
   getAdjacentFilms,
   getAllFilms,
   getFilmCategories,
   getFilmsByCategory,
+  getFilmStaticParams,
   getFilmYearRange,
   getProjectById,
   isValidProjectId,
+  resolveProjectQueryRedirect,
 } from "@/lib/projects";
+import { SITE } from "@/lib/constants";
 
 describe("getProjectById", () => {
   it("returns project for valid id", () => {
@@ -133,5 +138,36 @@ describe("FEATURED_PROJECT_IDS", () => {
     for (const id of FEATURED_PROJECT_IDS) {
       expect(isValidProjectId(id)).toBe(true);
     }
+  });
+});
+
+describe("filmPath / filmUrl", () => {
+  it("builds canonical film paths and absolute URLs", () => {
+    expect(filmPath("carezza-leanne")).toBe("/films/carezza-leanne");
+    expect(filmUrl("carezza-leanne")).toBe(
+      `${SITE.url}/films/carezza-leanne`,
+    );
+  });
+});
+
+describe("getFilmStaticParams", () => {
+  it("returns a slug param for every project", () => {
+    const params = getFilmStaticParams();
+    expect(params).toHaveLength(projects.length);
+    expect(params[0]).toEqual({ slug: projects[0].id });
+  });
+});
+
+describe("resolveProjectQueryRedirect", () => {
+  it("returns film path for valid project query", () => {
+    expect(resolveProjectQueryRedirect("carezza-leanne")).toBe(
+      "/films/carezza-leanne",
+    );
+  });
+
+  it("returns null for invalid or empty query values", () => {
+    expect(resolveProjectQueryRedirect(undefined)).toBeNull();
+    expect(resolveProjectQueryRedirect("")).toBeNull();
+    expect(resolveProjectQueryRedirect("not-real")).toBeNull();
   });
 });

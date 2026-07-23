@@ -1,6 +1,7 @@
 import { projects } from "@/data/projects";
 import { BRAND, SITE } from "@/lib/constants";
 import { isRealPlaybackId, posterUrl, streamUrl } from "@/lib/mux";
+import { filmUrl } from "@/lib/projects";
 
 function durationToISO8601(duration: string): string {
   const parts = duration.split(":");
@@ -30,6 +31,7 @@ export function FilmsJsonLd(): React.ReactElement {
           width: 1280,
         }),
         contentUrl: streamUrl(project.video.playbackId),
+        url: filmUrl(project.id),
         duration: durationToISO8601(project.video.duration),
         uploadDate: `${project.year}-01-01`,
         creator: {

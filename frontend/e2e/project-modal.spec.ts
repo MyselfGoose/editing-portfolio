@@ -23,7 +23,9 @@ test.describe("Project modal", () => {
   test("opens from featured work and closes with Escape", async ({ page }) => {
     const { projectButton, dialog } = await openFirstProject(page);
 
-    await expect(dialog.getByRole("button", { name: "Close project" })).toBeFocused();
+    await expect(
+      dialog.getByRole("button", { name: "Close project" }),
+    ).toBeFocused();
 
     await page.keyboard.press("Escape");
     await expect(dialog).toBeHidden();
@@ -59,19 +61,23 @@ test.describe("Project modal", () => {
     ).toBeVisible();
   });
 
-  test("deep link opens modal", async ({ page }) => {
+  test("legacy deep link redirects to film page", async ({ page }) => {
     await page.goto("/?project=carezza-leanne");
-    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
-    await expect(dialog).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveURL(/\/films\/carezza-leanne$/);
     await expect(
-      dialog.getByRole("heading", { name: "Carezza Leanne" }),
-    ).toBeVisible();
+      page.getByRole("heading", { name: "Carezza Leanne", level: 1 }),
+    ).toBeVisible({ timeout: 15_000 });
   });
 
-  test("captioned project still opens successfully", async ({ page }) => {
-    await page.goto("/?project=carezza-leanne");
-    const dialog = page.getByRole("dialog", { name: "Carezza Leanne" });
-    await expect(dialog).toBeVisible({ timeout: 15_000 });
-    await expect(dialog.getByRole("heading", { name: "Carezza Leanne" })).toBeVisible();
+  test("modal offers open film page and adjacent navigation", async ({
+    page,
+  }) => {
+    const { dialog } = await openFirstProject(page);
+    await expect(
+      dialog.getByRole("link", { name: "Open film page" }),
+    ).toBeVisible();
+    await expect(
+      dialog.getByRole("button", { name: "Next film" }),
+    ).toBeVisible();
   });
 });

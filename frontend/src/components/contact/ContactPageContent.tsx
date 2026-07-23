@@ -3,6 +3,7 @@
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
 
+import { ContactExpectations } from "@/components/contact/ContactExpectations";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { useCursor } from "@/components/experience/CursorContext";
 import { SiteFooter } from "@/components/layout/SiteFooter";
@@ -90,6 +91,8 @@ export function ContactPageContent(): React.ReactElement {
           />
         </a>
       </motion.div>
+
+      <ContactExpectations />
 
       <ContactForm />
 

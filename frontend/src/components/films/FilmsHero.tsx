@@ -1,11 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "motion/react";
 import { ArrowDown } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
 import { usePrefersReducedMotion } from "@/hooks/usePrefersReducedMotion";
 import { EASE } from "@/lib/constants";
+
+const ShowreelOverlay = dynamic(
+  () =>
+    import("@/components/showreel/ShowreelOverlay").then(
+      (m) => m.ShowreelOverlay,
+    ),
+  { ssr: false },
+);
 
 interface FilmsHeroProps {
   filmCount: number;
@@ -18,12 +28,21 @@ export function FilmsHero({
 }: FilmsHeroProps): React.ReactElement {
   const reducedMotion = usePrefersReducedMotion();
   const { isMobile } = useHydrationSafeBreakpoint();
+  const [reelOpen, setReelOpen] = useState(false);
 
   const titleWords = ["Films"];
   const yearLabel =
     yearRange.earliest === yearRange.latest
       ? String(yearRange.latest)
       : `${yearRange.earliest}–${yearRange.latest}`;
+
+  const openReel = useCallback((): void => {
+    setReelOpen(true);
+  }, []);
+
+  const closeReel = useCallback((): void => {
+    setReelOpen(false);
+  }, []);
 
   return (
     <section
@@ -87,19 +106,39 @@ export function FilmsHero({
       </div>
 
       <footer className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-        <motion.p
-          className="max-w-md text-body-lg text-[color:var(--color-muted)]"
-          initial={reducedMotion ? false : { opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={
-            reducedMotion
-              ? { duration: 0 }
-              : { duration: 0.9, ease: EASE.expoOut, delay: 0.8 }
-          }
-        >
-          A curated archive of wedding and celebration films — edited for
-          feeling, paced for the day, graded for the screen.
-        </motion.p>
+        <div className="flex max-w-md flex-col gap-5">
+          <motion.p
+            className="text-body-lg text-[color:var(--color-muted)]"
+            initial={reducedMotion ? false : { opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={
+              reducedMotion
+                ? { duration: 0 }
+                : { duration: 0.9, ease: EASE.expoOut, delay: 0.8 }
+            }
+          >
+            A curated archive of wedding and celebration films — edited for
+            feeling, paced for the day, graded for the screen.
+          </motion.p>
+          <motion.div
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={
+              reducedMotion
+                ? { duration: 0 }
+                : { duration: 0.8, ease: EASE.cinematic, delay: 0.95 }
+            }
+          >
+            <button
+              type="button"
+              onClick={openReel}
+              className="inline-flex min-h-11 items-center border-b border-[color:var(--color-foreground)] pb-2 text-eyebrow transition-colors hover:text-[color:var(--color-muted)]"
+              aria-label="Watch Reel"
+            >
+              Watch Reel
+            </button>
+          </motion.div>
+        </div>
 
         <motion.div
           className="flex flex-col items-start gap-2 text-eyebrow text-[color:var(--color-muted)] sm:items-end"
@@ -116,6 +155,8 @@ export function FilmsHero({
           <ArrowDown size={16} strokeWidth={1.25} />
         </motion.div>
       </footer>
+
+      <ShowreelOverlay open={reelOpen} onClose={closeReel} />
     </section>
   );
 }

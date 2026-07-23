@@ -35,7 +35,13 @@ test.describe("Visual regression", () => {
 
   test("project modal snapshot (desktop)", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto("/?project=carezza-leanne");
+    await page.goto("/#work");
+    const projectButton = page.getByRole("button", {
+      name: "Open Carezza Leanne",
+    });
+    await expect(projectButton).toBeVisible({ timeout: 15_000 });
+    await projectButton.scrollIntoViewIfNeeded();
+    await projectButton.click();
     await expect(
       page.getByRole("dialog", { name: "Carezza Leanne" }),
     ).toBeVisible({ timeout: 15_000 });

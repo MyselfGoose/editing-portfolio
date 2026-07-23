@@ -2,14 +2,22 @@
 
 import { useId, useMemo, useState } from "react";
 
+import { ContactSuccess } from "@/components/contact/ContactSuccess";
 import { CONTACT, FORM } from "@/lib/constants";
+import {
+  contactClientFieldsSchema,
+  formatValidationErrors,
+  PROJECT_TYPES,
+  PROJECT_TYPE_LABELS,
+  type ProjectType,
+} from "@/lib/contact/schema";
 import { cn } from "@/lib/utils";
 
 interface ContactFormData {
   name: string;
   email: string;
   message: string;
-  projectType: string;
+  projectType: ProjectType | "";
   company: string;
 }
 
@@ -24,7 +32,7 @@ interface ClientMetadataPayload {
 type SubmitState =
   | { status: "idle" }
   | { status: "submitting" }
-  | { status: "success"; message: string }
+  | { status: "success" }
   | { status: "error"; message: string };
 
 type ValidationErrors = Partial<Record<keyof ContactFormData, string>>;
@@ -37,26 +45,8 @@ const INITIAL_FORM: ContactFormData = {
   company: "",
 };
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
-
 const FIELD_CLASS =
   "min-h-12 w-full border border-[color:var(--color-divider)] bg-[color:var(--color-elevated)] px-4 py-3 text-base text-[color:var(--color-foreground)] transition-colors placeholder:text-[color:var(--color-dim)] focus:border-[color:var(--color-foreground)]";
-
-function validateForm(values: ContactFormData): ValidationErrors {
-  const errors: ValidationErrors = {};
-
-  if (values.name.trim().length < 2) {
-    errors.name = "Please enter your name.";
-  }
-  if (!EMAIL_REGEX.test(values.email.trim())) {
-    errors.email = "Please enter a valid email.";
-  }
-  if (values.message.trim().length < 10) {
-    errors.message = "Please share at least a few sentences.";
-  }
-
-  return errors;
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -84,7 +74,6 @@ export function ContactForm(): React.ReactElement {
 
   const submitLabel = useMemo(() => {
     if (submitState.status === "submitting") return "Sending...";
-    if (submitState.status === "success") return "Sent";
     return "Send Message";
   }, [submitState.status]);
 
@@ -96,17 +85,31 @@ export function ContactForm(): React.ReactElement {
     if (errors[key]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
     }
-    if (submitState.status !== "idle") {
+    if (submitState.status === "error") {
       setSubmitState({ status: "idle" });
     }
   };
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>): Promise<void> => {
+  const resetForm = (): void => {
+    setFormData(INITIAL_FORM);
+    setErrors({});
+    setSubmitState({ status: "idle" });
+  };
+
+  const onSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> => {
     event.preventDefault();
 
-    const validationErrors = validateForm(formData);
-    setErrors(validationErrors);
-    if (Object.keys(validationErrors).length > 0) {
+    const parsed = contactClientFieldsSchema.safeParse({
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+      projectType: formData.projectType,
+    });
+
+    if (!parsed.success) {
+      setErrors(formatValidationErrors(parsed.error));
       setSubmitState({
         status: "error",
         message: "Please fix the highlighted fields and try again.",
@@ -114,6 +117,7 @@ export function ContactForm(): React.ReactElement {
       return;
     }
 
+    setErrors({});
     setSubmitState({ status: "submitting" });
 
     try {
@@ -124,10 +128,10 @@ export function ContactForm(): React.ReactElement {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          message: formData.message.trim(),
-          projectType: formData.projectType.trim() || undefined,
+          name: parsed.data.name,
+          email: parsed.data.email,
+          message: parsed.data.message,
+          projectType: parsed.data.projectType,
           [FORM.honeypotFieldName]: formData.company.trim(),
           client: collectClientMetadata(),
         }),
@@ -147,10 +151,7 @@ export function ContactForm(): React.ReactElement {
         return;
       }
 
-      setSubmitState({
-        status: "success",
-        message: "Message sent. We will get back to you shortly.",
-      });
+      setSubmitState({ status: "success" });
       setFormData(INITIAL_FORM);
       setErrors({});
     } catch {
@@ -160,6 +161,17 @@ export function ContactForm(): React.ReactElement {
       });
     }
   };
+
+  if (submitState.status === "success") {
+    return (
+      <section aria-labelledby="contact-form-heading">
+        <h2 id="contact-form-heading" className="sr-only">
+          Contact form
+        </h2>
+        <ContactSuccess onReset={resetForm} />
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="contact-form-heading">
@@ -174,7 +186,9 @@ export function ContactForm(): React.ReactElement {
         aria-describedby={statusId}
       >
         <label className="flex flex-col gap-3">
-          <span className="text-eyebrow text-[color:var(--color-muted)]">Name</span>
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            Name
+          </span>
           <input
             type="text"
             name="name"
@@ -192,7 +206,9 @@ export function ContactForm(): React.ReactElement {
         </label>
 
         <label className="flex flex-col gap-3">
-          <span className="text-eyebrow text-[color:var(--color-muted)]">Email</span>
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            Email
+          </span>
           <input
             type="email"
             name="email"
@@ -212,21 +228,38 @@ export function ContactForm(): React.ReactElement {
 
         <label className="flex flex-col gap-3">
           <span className="text-eyebrow text-[color:var(--color-muted)]">
-            Project type <span className="normal-case tracking-normal">(optional)</span>
+            Project type
           </span>
-          <input
-            type="text"
+          <select
             name="projectType"
             value={formData.projectType}
-            onChange={(event) => onFieldChange("projectType", event.target.value)}
-            className={FIELD_CLASS}
-            autoComplete="off"
-            placeholder="Wedding film, celebration film, color grade..."
-          />
+            onChange={(event) =>
+              onFieldChange("projectType", event.target.value)
+            }
+            className={cn(FIELD_CLASS, "appearance-none")}
+            aria-invalid={errors.projectType ? "true" : "false"}
+            required
+          >
+            <option value="" disabled>
+              Select a project type
+            </option>
+            {PROJECT_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {PROJECT_TYPE_LABELS[type]}
+              </option>
+            ))}
+          </select>
+          {errors.projectType ? (
+            <span className="font-mono text-xs text-[color:var(--color-muted)]">
+              {errors.projectType}
+            </span>
+          ) : null}
         </label>
 
         <label className="flex flex-col gap-3">
-          <span className="text-eyebrow text-[color:var(--color-muted)]">Message</span>
+          <span className="text-eyebrow text-[color:var(--color-muted)]">
+            Message
+          </span>
           <textarea
             name="message"
             value={formData.message}
@@ -256,7 +289,7 @@ export function ContactForm(): React.ReactElement {
           />
         </label>
 
-        <div className="flex flex-col gap-4 pt-2 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="sticky bottom-0 z-10 -mx-1 flex flex-col gap-4 bg-[color:var(--color-background)]/95 px-1 py-3 backdrop-blur-sm sm:static sm:mx-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none sm:flex-row sm:flex-wrap sm:items-center">
           <button
             type="submit"
             disabled={submitState.status === "submitting"}
@@ -285,9 +318,7 @@ export function ContactForm(): React.ReactElement {
           aria-live="polite"
           className="min-h-[1.25rem] font-mono text-xs text-[color:var(--color-muted)]"
         >
-          {submitState.status === "success" || submitState.status === "error"
-            ? submitState.message
-            : ""}
+          {submitState.status === "error" ? submitState.message : ""}
         </p>
       </form>
     </section>

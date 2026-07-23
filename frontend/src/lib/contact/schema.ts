@@ -1,5 +1,29 @@
 import { z } from "zod";
 
+export const PROJECT_TYPES = [
+  "wedding_film_edit",
+  "celebration_film",
+  "color_grade",
+  "not_sure",
+] as const;
+
+export type ProjectType = (typeof PROJECT_TYPES)[number];
+
+export const PROJECT_TYPE_LABELS: Record<ProjectType, string> = {
+  wedding_film_edit: "Wedding film edit",
+  celebration_film: "Celebration film",
+  color_grade: "Color grade only",
+  not_sure: "Not sure / other",
+};
+
+export function isProjectType(value: string): value is ProjectType {
+  return (PROJECT_TYPES as ReadonlyArray<string>).includes(value);
+}
+
+export function projectTypeLabel(value: ProjectType): string {
+  return PROJECT_TYPE_LABELS[value];
+}
+
 export const clientMetadataSchema = z
   .object({
     pageUrl: z.string().max(2048).optional(),
@@ -22,12 +46,23 @@ export const contactFormSchema = z.object({
     .trim()
     .min(10, "Please share at least a few sentences.")
     .max(5000),
-  projectType: z.string().trim().max(100).optional(),
+  projectType: z.enum(PROJECT_TYPES, {
+    error: "Please select a project type.",
+  }),
   company: z.string().optional(),
   client: clientMetadataSchema,
 });
 
+/** Client-side form fields (no honeypot/metadata) — same rules as the API. */
+export const contactClientFieldsSchema = contactFormSchema.pick({
+  name: true,
+  email: true,
+  message: true,
+  projectType: true,
+});
+
 export type ContactFormPayload = z.infer<typeof contactFormSchema>;
+export type ContactClientFields = z.infer<typeof contactClientFieldsSchema>;
 export type ClientMetadata = z.infer<typeof clientMetadataSchema>;
 
 export function isHoneypotTriggered(company: string | undefined): boolean {

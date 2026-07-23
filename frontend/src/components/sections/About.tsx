@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "motion/react";
 
 import { Container } from "@/components/layout/Container";
@@ -37,14 +38,15 @@ export function About(): React.ReactElement {
             whileInView="visible"
             viewport={{ once: true, margin: "-15% 0px" }}
           >
-            <MediaFrame aspectRatio="3/4" className="w-full border border-[color:var(--color-divider)] md:max-w-sm">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <MediaFrame
+              aspectRatio="3/4"
+              className="w-full border border-[color:var(--color-divider)] md:max-w-sm"
+            >
+              <Image
                 src={ABOUT_IMAGE.src}
                 alt={ABOUT_IMAGE.alt}
-                className="h-full w-full object-cover object-center"
-                loading="lazy"
-                decoding="async"
+                fill
+                className="object-cover object-center"
                 sizes="(max-width: 768px) 100vw, 384px"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />

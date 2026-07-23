@@ -10,6 +10,8 @@ if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+import Image from "next/image";
+
 import { Container } from "@/components/layout/Container";
 import { MediaFrame } from "@/components/layout/MediaFrame";
 import { useHydrationSafeBreakpoint } from "@/hooks/useHydrationSafeBreakpoint";
@@ -594,20 +596,21 @@ function FrameImage({
           time: frame.media.posterTime,
           width: posterWidth,
         });
-  const sizes = frame.media.type === "image" ? "100vw" : MUX_IMAGE_SIZES;
+  const sizes =
+    frame.media.type === "image"
+      ? "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
+      : MUX_IMAGE_SIZES;
 
   return (
     <>
       {!imageError ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={imageSrc}
           alt=""
-          className="h-full w-full object-cover object-center"
-          loading={priority ? "eager" : "lazy"}
-          fetchPriority={priority ? "high" : "auto"}
-          decoding="async"
+          fill
+          className="object-cover object-center"
           sizes={sizes}
+          priority={priority}
           style={{ filter: frame.filter }}
           onError={() => setImageError(true)}
         />
