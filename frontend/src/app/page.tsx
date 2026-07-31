@@ -26,6 +26,11 @@ const StudioProof = dynamic(
   { loading: () => <SectionSkeleton /> },
 );
 
+const Partners = dynamic(
+  () => import("@/components/sections/Partners").then((m) => m.Partners),
+  { loading: () => <SectionSkeleton /> },
+);
+
 const Services = dynamic(
   () => import("@/components/sections/Services").then((m) => m.Services),
   { loading: () => <SectionSkeleton /> },
@@ -59,6 +64,7 @@ export default async function Home({
       <Process />
       <FeaturedWork />
       <StudioProof />
+      <Partners />
       <Services />
       <InvestmentNote />
       <HomeContactCta />
